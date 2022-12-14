@@ -12,7 +12,6 @@
 #include<glm/gtx/vector_angle.hpp>
 
 #include"Mesh.h"
-#include"debugCamera.h"
 
 // Base object for all physics objects
 class OBB {
@@ -22,15 +21,17 @@ public:
 	// Physics
 	double mass;
 	glm::vec3 half_size;
-	glm::quat rotation, rotVelocity;
-	glm::vec3 position, velocity;
+	glm::quat rotation, rotVelocity, rotAcceleration;
+	glm::vec3 position, velocity, acceleration; // Position should actually be center of gravity
 	glm::mat3 momentOfInertia = glm::mat3(1.0f);
 	OBB();
-	void Draw(Shader& shader, debugCamera camera, double time);
-	bool checkCollision();
-	void handleCollision();
+	void Draw(Shader& shader, glm::mat4 projMatrix, glm::mat4 viewMatrix);
+	void move(double time);
+	void addForce(glm::vec3 force, glm::vec3 position);
 	std::vector<glm::vec3> getVertices();
 };
 
 bool checkOBBCollision(OBB box1, OBB box2);
-glm::vec3 getLeastSeparatingAxis(OBB box1, OBB box2);
+int getLeastSeparatingAxis(OBB box1, OBB box2);
+
+// Also need to intersect object with cone and cone frustrum for selection

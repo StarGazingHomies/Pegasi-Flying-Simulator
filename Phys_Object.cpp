@@ -48,13 +48,21 @@ OBB::OBB() {
 
 	mesh = Mesh(vertices, indices, textures);
 	rotation = glm::quat(glm::vec3(0.0f, 0.0f, 0.0f));
+	// TODO: change moment of inertia based on half_size
 	momentOfInertia = glm::mat3(1.0f);
 	rotVelocity = glm::quat(glm::vec3(1.0f, 1.0f, 1.0f));
 	velocity = glm::vec3(0.0f);
 	half_size = glm::vec3(0.5f, 0.5f, 0.5f);
 }
 
-void OBB::Draw(Shader& shader, debugCamera cam, double time) {
+void OBB::Draw(Shader& shader, glm::mat4 projMatrix, glm::mat4 viewMatrix) {
+
+	glm::mat4 projection = projMatrix;
+	glm::mat4 view = viewMatrix;
+	mesh.Draw(shader, projection, view, glm::vec3(0.0f), glm::mat4(1.0f), position, rotation);
+}
+
+void OBB::move(double time) {
 	// Not gonna use slerp cause that seems wrong
 	/*
 	while (time > 1) {
@@ -64,13 +72,23 @@ void OBB::Draw(Shader& shader, debugCamera cam, double time) {
 	rotation = glm::slerp(rotation, rotation * rotVelocity, (float)time);
 	*/
 
-	rotation *= glm::quat(glm::eulerAngles(rotVelocity) * (float)time);
-	position += velocity;
-	glm::mat4 projection = cam.projectionMatrix;
-	glm::mat4 view = cam.viewMatrix;
-	mesh.Draw(shader, projection, view, cam.Position, glm::mat4(1.0f), position, rotation);
+	rotation *= glm::quat(glm::eulerAngles(rotVelocity) * (float)time + 0.5f * glm::eulerAngles(rotAcceleration) * (float)time * (float)time);
+	rotVelocity *= glm::quat(glm::eulerAngles(rotAcceleration) * (float)time);
+	rotAcceleration = glm::quat();
+
+	position += velocity * (float)time + 0.5f * acceleration * (float)time * (float)time;
+	velocity += acceleration;
+	acceleration = glm::vec3(0.0f);
 }
 
+void OBB::addForce(glm::vec3 force, glm::vec3 position) {
+	acceleration += force / (float)mass;
+	rotAcceleration *= glm::quat(glm::cross(force, position) * momentOfInertia);
+}
+
+
+
+// Collision stuffs
 std::pair<double, double> getInterval(glm::vec3 axis, OBB box) {
 	std::vector<glm::vec3> verts = box.getVertices();
 
@@ -121,7 +139,7 @@ double checkSeparatingAmount(glm::vec3 axis, OBB box1, OBB box2) {
 	return std::min(i2.second - i1.first, i2.first - i1.second);
 }
 
-glm::vec3 getLeastSeparatingAxis(OBB box1, OBB box2) {
+int getLeastSeparatingAxis(OBB box1, OBB box2) {
 	glm::mat4 b1_rotMat = glm::mat4_cast(box1.rotation);
 	glm::vec3 b1_x = b1_rotMat[0], b1_y = b1_rotMat[1], b1_z = b1_rotMat[2];
 	glm::mat4 b2_rotMat = glm::mat4_cast(box2.rotation);
@@ -143,7 +161,7 @@ glm::vec3 getLeastSeparatingAxis(OBB box1, OBB box2) {
 			leastAxis = i;
 		}
 	}
-	return axes[leastAxis];
+	return leastAxis;
 }
 
 std::vector<glm::vec3> OBB::getVertices() {

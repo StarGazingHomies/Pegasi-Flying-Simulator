@@ -1,11 +1,13 @@
 #include <iostream>
+#include <queue>
 
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 
 #include"Phys_Object.h"
 #include"shaderClass.h"
-#include"debugCamera.h"
+#include"Phys.h"
+#include"Player.h"
 
 void GLAPIENTRY MessageCallback(GLenum source,
 	GLenum type,
@@ -20,16 +22,18 @@ void GLAPIENTRY MessageCallback(GLenum source,
 		type, severity, message);
 }
 
-debugCamera cam(800, 600, glm::vec3(0.0f, 0.0f, -3.0f));
-
+std::queue<int> keyEvents;
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	cam.keyCallback(window, key, scancode, action, mods);
+	keyEvents.push(key);
+	keyEvents.push(scancode);
+	keyEvents.push(action);
+	keyEvents.push(mods);
 }
 
 void windowResizeCallback(GLFWwindow* window, int scrWidth, int scrHeight)
 {
-	cam.windowResizeCallback(scrWidth, scrHeight);
+	//cam.windowResizeCallback(scrWidth, scrHeight);
 }
 
 int main(int argc, char* argv[]) {
@@ -60,8 +64,11 @@ int main(int argc, char* argv[]) {
 	glfwSwapInterval(1);
 
 	OBB e, f;
-	f.position = glm::vec3(0.0f, 0.0f, 0.0f);
 	e.position = glm::vec3(0.0f, 5.0f, 0.0f);
+	f.position = glm::vec3(0.0f, 0.0f, 0.0f);
+	Physics physEngine;
+	physEngine.objects.push_back(e);
+	physEngine.objects.push_back(f);
 	//f.rotVelocity = glm::quat();
 	//e.rotVelocity = glm::quat();
 
@@ -105,6 +112,8 @@ int main(int argc, char* argv[]) {
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	Player p;
+
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.18f, 0.02f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -112,35 +121,42 @@ int main(int argc, char* argv[]) {
 		frameTime = glfwGetTime() - curTime;
 		curTime = glfwGetTime();
 
-		// Only basic graphics until most of the physics/game engine is done
-		// TODO: Camera doesn't like (remote access) inputs
-		cam.Inputs(window, frameTime);
-		cam.updateMatrix(90.0f, 0.1f, 10000.0f);
+		p.Tick(window, frameTime);
+		glm::mat4 proj = p.getProjMatrix();
+		glm::mat4 view = p.getViewMatrix();
 
 		default_shader.Activate();
 		if (checkOBBCollision(e, f)) {
 			glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)1);
-			glm::vec3 lsa = getLeastSeparatingAxis(e, f);
+			//glm::vec3 lsa = getLeastSeparatingAxis(e, f);
 		}
 		else {
 			glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)0);
 		}
 
-		e.Draw(default_shader, cam, frameTime);
-		f.Draw(default_shader, cam, frameTime);
+		physEngine.Draw(default_shader, proj, view);
+		physEngine.Tick(frameTime);
 
 		// Render the grid
 		glPatchParameteri(GL_PATCH_VERTICES, 4);
 		debugGridShader.Activate();
-		glUniformMatrix4fv(glGetUniformLocation(debugGridShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(cam.projectionMatrix));
-		glUniformMatrix4fv(glGetUniformLocation(debugGridShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(cam.viewMatrix));
-		glUniform3f(glGetUniformLocation(debugGridShader.ID, "camPos"), cam.Position.x, cam.Position.y, cam.Position.z);
+		glUniformMatrix4fv(glGetUniformLocation(debugGridShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(proj));
+		glUniformMatrix4fv(glGetUniformLocation(debugGridShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniform3f(glGetUniformLocation(debugGridShader.ID, "camPos"), p.camPos.x, p.camPos.y, p.camPos.z);
 
 		glBindVertexArray(terrainVAO);
 		glDrawArrays(GL_PATCHES, 0, 4);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		if (!keyEvents.empty()) {
+			int key = keyEvents.front(); keyEvents.pop();
+			int scancode = keyEvents.front(); keyEvents.pop();
+			int action = keyEvents.front(); keyEvents.pop();
+			int mods = keyEvents.front(); keyEvents.pop();
+			p.keyCallback(window, key, scancode, action, mods);
+		}
 	}
 
 	glfwDestroyWindow(window);

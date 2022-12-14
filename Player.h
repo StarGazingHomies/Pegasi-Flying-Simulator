@@ -10,12 +10,30 @@
 
 #include"Phys_Object.h"
 
-enum class wingMotion {
+enum class WingMotion {
 	IDLE,
 	DOWN,
 	UP,
 
 };
+
+enum class ControlState {
+	// Basic ground states
+	GROUND_WALKING,
+	GROUND_RUNNING,
+	// Some alternatives if I have time for them
+	GROUND_TIPTOE,   // Tiptoeing around
+	GROUND_OBJAVOID, // Avoiding an object (going over a fence, through a small hole in the wall, etc.)
+	WATER_SURFACE,
+	WATER_DIVING,
+	FLIGHT,
+	FREEFALL,  // Jumping
+	LEVITATION // Debug
+};
+
+/*
+* Mayyyybe I should finish the ground and water stuff before moving onto flight
+*/
 
 class Player {
 public:
@@ -35,8 +53,14 @@ public:
 	* Times are for a full stroke (up and down).
 	*/
 
+	double wingStrokeMagnitude = 15.0f;
 	double minWingStrokeLength = 0.20f;
 	double maxWingStrokeLength = 0.30f;
+	double wingStrokeUpDelay = 0.05f;
+	double wingStrokeAccTime = 0.02f;
+	// Temporary
+	double primaryF = 700.0f;
+	double secondaryF = 200.0f;
 
 	/*
 	* Next is the size of the wings.
@@ -60,16 +84,17 @@ public:
 	* Note: Cruising velocity goes by wing area ^0.25
 	* https://www.science.org/doi/10.1126/sciadv.aat4269
 	*/
-
+	
 	// Very crude estimates, for now
 	double wingSpan = 5.5;      // Very beeg wings lol
 	double primaryFeatherLength = 2.55;
-	double humurusLength = 1.0; // The humurus doesn't really move when flapping to provide lift, which is where this is used.
+	double humurusLength = 1.0; // The humurus doesn't really move when flapping to provide lift.
 
 
 
 	// Not really Consts (changes very little over the game, but it does and should change!)
 	double mass = 40;
+	glm::mat3 momentOfInertia = glm::mat3(1.0f);
 
 	// Variables
 
@@ -77,22 +102,50 @@ public:
 	// Acceleration is calculated per frame
 	glm::vec3 position, velocity;
 	glm::quat rot, rotVelocity;
+	glm::vec3 camPos, camOrientation, camUp;
 
 	// Stores each wing's status
-	wingMotion rightWingMotion, leftWingMotion;
+	WingMotion rightWingMotion, leftWingMotion;
 	double rightWingVelocity, leftWingVelocity;
 	double rightWingPosition, leftWingPosition;
 
+	// Status of player
+	ControlState controlState = ControlState::GROUND_WALKING;
+	double firstClick = false;
+
+	// Window stuff
+	int width, height;
+	double sensitivity = 100.0;
+	glm::mat4 projMatrix, viewMatrix;
+	double FOVdeg = 90.0f, nearPlane = 0.1f, farPlane = 10000.0f;
+
+	// Initializer
+	Player();
+
 	// Inputs
+	// Bool represents whether it was pressed, double is the last time the key was updated
+	std::pair<bool, double> keymap[1024];
 	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
-	// Birdie helper functions
+	// Camera helper functions
+	void updateMatrix();
+	glm::mat4 getProjMatrix();
+	glm::mat4 getViewMatrix();
+	std::vector<glm::vec3> getAxes();
+
+	// Earth Pony mode helper functions
+
+
+	// Birdie mode helper functions
 
 	// Get the (EARTH) temperature and pressure at a given altitude
 	// Based on nasa website: https://www.grc.nasa.gov/www/k-12/rocket/atmosmet.html
 	double tempFromAltitude(double altitude);
 	double pressureFromAltitude(double altitude);
 
+	double RHSignedAngle(glm::vec3 a, glm::vec3 b, glm::vec3 n);
+	double LHSignedAngle(glm::vec3 a, glm::vec3 b, glm::vec3 n);
+	double wingEfficiency();
 	glm::vec3 wingLiftForce();
 	glm::vec3 wingStrokeForce();
 	glm::vec3 wingAcceleration(double time);
@@ -100,5 +153,5 @@ public:
 
 	// Main functions
 	void Draw();
-	void Tick();
+	void Tick(GLFWwindow* window, float time);
 };

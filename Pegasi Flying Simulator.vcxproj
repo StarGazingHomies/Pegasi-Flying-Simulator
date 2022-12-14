@@ -159,6 +159,7 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Phys.cpp" />
     <ClCompile Include="Phys_Object.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="shaderClass.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="EBO.h" />
     <ClInclude Include="FBO.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Phys.h" />
     <ClInclude Include="Phys_Object.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="shaderClass.h" />

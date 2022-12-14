@@ -113,6 +113,7 @@ int main(int argc, char* argv[]) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	Player p;
+	p.windowResizeCallback(800, 600);
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.18f, 0.02f, 0.17f, 1.0f);

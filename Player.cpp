@@ -1,6 +1,11 @@
 #include"Player.h"
 
+void debugVec3(std::string name, glm::vec3 vec) {
+	printf("%s: <%.2f, %.2f, %.2f>", name.c_str(), vec.x, vec.y, vec.z);
+}
+
 Player::Player() {
+	// Initialize location
 	position = glm::vec3(0.0f, 2.0f, 0.0f);
 	velocity = glm::vec3(0.0f, 0.0f, 0.0f);
 	rot = glm::quat();
@@ -8,6 +13,31 @@ Player::Player() {
 	camPos = glm::vec3(0.0f, 2.0f, -3.0f);
 	camOrientation = glm::vec3(0.0f, 0.0f, 1.0f);
 	camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	// Window width/height
+	width = 800;
+	height = 600;
+
+	// View and proj matricies
+	updateMatrix();
+
+	// Some other stuff, not currently used
+	leftWingMotion = WingMotion::IDLE;
+	rightWingMotion = WingMotion::IDLE;
+	leftWingPosition = 0.0f;
+	rightWingPosition = 0.0f;
+	leftWingVelocity = 0.0f;
+	rightWingVelocity = 0.0f;
+
+
+
+	// Initialize debug graphics
+
+}
+
+void Player::windowResizeCallback(int width, int height) {
+	this->width = width;
+	this->height = height;
 }
 
 double Player::tempFromAltitude(double altitude) {
@@ -94,7 +124,8 @@ glm::vec3 Player::wingAcceleration(double time) {
 
 
 void Player::Draw() {
-	// No graphics yet
+	// Debug graphics! (A bunch of lines)
+
 	return;
 }
 
@@ -106,15 +137,42 @@ void Player::Tick(GLFWwindow* window, float time) {
 	const double EQUUSRADIUS = 6.371e6;
 	double gravityMagnitude;
 
+	// F1 to switch to levitation
+	if (keymap[GLFW_KEY_F1].first && !hasDebugSwitched) {
+		if (controlState != ControlState::FREECAM) {
+			prevControlState = controlState;
+			controlState = ControlState::FREECAM;
+		}
+		else {
+			controlState = prevControlState;
+		}
+		hasDebugSwitched = true;
+	}
+	if (!keymap[GLFW_KEY_F1].first) {
+		hasDebugSwitched = false;
+	}
+
+	// Determine if control regime needs to switch
+
+	int groundY = 0;
+	if (position.y < groundY && controlState != ControlState::GROUND_WALKING) {
+		velocity.y = 0;
+		controlState = ControlState::GROUND_WALKING;
+	}
+	else if (position.y > groundY && controlState == ControlState::GROUND_WALKING) {
+		controlState = ControlState::FREEFALL;
+	}
+
+
 	switch (controlState) {
-	case (ControlState::FLIGHT):
+	case (ControlState::FLIGHT): {
+		break;
+		// Temporarily skip this part
 		glm::vec3 totalForce = glm::vec3(0.0f);
 		glm::vec3 totalRotForce = glm::vec3(0.0f);
 
-
 		gravityMagnitude = G * EQUUSMASS * mass / pow(EQUUSRADIUS + position.y, 2);
 		totalForce += glm::vec3(0.0f, gravityMagnitude, 0.0f);
-
 
 		glm::vec3 finalAcceleration = totalForce / (float)mass;
 		glm::vec3 finalRotAcceleration = totalRotForce * momentOfInertia;
@@ -128,10 +186,12 @@ void Player::Tick(GLFWwindow* window, float time) {
 		//rot *= glm::quat(glm::eulerAngles(rotVelocity) * time + finalRotAcceleration * time * time);
 		//velocity += finalAcceleration * time;
 		//rotVelocity *= finalRotAcceleration * time;
+		}
 		break;
 
-	case (ControlState::GROUND_WALKING):
-		// Ground requires little use of velocity/acceleration... maybe later
+	case (ControlState::GROUND_WALKING): {
+		// Ground requires little use of velocity/acceleration.
+		// (This will be different from running, which uses velo/acc)
 
 		// Basically, what to do is
 		// Based on current normal of ground, compute the x-z velocity
@@ -141,12 +201,75 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 		// For now, use a constant 0 ground y
 
-	case (ControlState::LEVITATION):
-		// Basically Minecraft flying
-		int groundY = 0;
+		float speed = 0.5f;
+		glm::vec3 newVelocity = glm::vec3(0.0f);
+		// Movement keys - just wasd. No jumping
+		if (keymap[GLFW_KEY_W].first)
+		{
+			newVelocity += speed * camOrientation;
+		}
+		if (keymap[GLFW_KEY_A].first)
+		{
+			newVelocity += speed * -glm::normalize(glm::cross(camOrientation, camUp));
+		}
+		if (keymap[GLFW_KEY_S].first)
+		{
+			newVelocity += speed * -camOrientation;
+		}
+		if (keymap[GLFW_KEY_D].first)
+		{
+			newVelocity += speed * glm::normalize(glm::cross(camOrientation, camUp));
+		}
+
+		// Changing velocity takes a teeny bit of time
+		position += newVelocity * time + (newVelocity - velocity) * time * time * 0.5f;
+		position.y = groundY;
+
+		camPos = position + camRelPos;
+
+		}
+		break;
+
+	case (ControlState::FREEFALL): 
+		{
+		// TEMP: You can only really flail around so much (wasd has very limited movement potential)
+		// in the future this will be replaced by orientation control and drag will make u move
+
+
+		// Gravity!
+		glm::vec3 totalForce = glm::vec3(0.0f);
+		glm::vec3 totalRotForce = glm::vec3(0.0f);
+
+		gravityMagnitude = G * EQUUSMASS * mass / pow(EQUUSRADIUS + position.y, 2);
+		totalForce += glm::vec3(0.0f, -gravityMagnitude, 0.0f);
+
+		glm::vec3 finalAcceleration = totalForce / (float)mass;
+		glm::vec3 finalRotAcceleration = totalRotForce * momentOfInertia;
+
+		// TODO: Add drag! (UNREALISTIC, I don't wanna simulate friend-shaped ICBMs)
+
+
+		//printf("Acc: <%lf, %lf, %lf>\nRotAcc: <%lf, %lf, %lf>\n---------\n",
+		//	finalAcceleration.x, finalAcceleration.y, finalAcceleration.z,
+		//	finalRotAcceleration.x, finalRotAcceleration.y, finalRotAcceleration.z
+		//);
+
+		position += velocity * time + finalAcceleration * time * time * 0.5f;
+		//rot *= glm::quat(glm::eulerAngles(rotVelocity) * time + finalRotAcceleration * time * time);
+		velocity += finalAcceleration * time;
+		//rotVelocity *= finalRotAcceleration * time;
+
+		camPos = position + camRelPos;
+		}
+		break;
+
+	case (ControlState::FREECAM): 
+		{
+		// Basically Minecraft freecam hax
+		// Does not sync position - after this ends, position returns to physics pos
 
 		float speed = 0.5f;
-		// If control is pressed, speed goes higher
+		// If control is pressed, speed goes higher (Yeah, minecraft inf-drag creative flying)
 		if (keymap[GLFW_KEY_LEFT_CONTROL].first)
 		{
 			speed = 2.0f;
@@ -178,74 +301,77 @@ void Player::Tick(GLFWwindow* window, float time) {
 			camPos += speed * (float)time * -camUp;
 		}
 
-		// Roll keys (Q, E controls roll)
-		float rollSpeed = 25.0f;
-		if (keymap[GLFW_KEY_Q].first)
-		{
-			camUp = glm::rotate(camUp, (float)glm::radians(-rollSpeed * time), glm::normalize(camOrientation));
 		}
-		if (keymap[GLFW_KEY_E].first)
+		break;
+	}
+
+	// Roll keys (Q, E controls roll)
+	float rollSpeed = 25.0f;
+	if (keymap[GLFW_KEY_Q].first)
+	{
+		camUp = glm::rotate(camUp, (float)glm::radians(-rollSpeed * time), glm::normalize(camOrientation));
+	}
+	if (keymap[GLFW_KEY_E].first)
+	{
+		camUp = glm::rotate(camUp, (float)glm::radians(rollSpeed * time), glm::normalize(camOrientation));
+	}
+
+	// Handles mouse buttons
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	{
+		// Hide mouse cursor
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+		// Prevents camera from jumping on the first click
+		if (firstClick)
 		{
-			camUp = glm::rotate(camUp, (float)glm::radians(rollSpeed * time), glm::normalize(camOrientation));
-		}
-
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-		{
-			// Hide mouse cursor
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-			glfwGetWindowSize(window, &width, &height);
-
-			// Prevents camera from jumping on the first click
-			if (firstClick)
-			{
-				glfwSetCursorPos(window, (width / 2), (height / 2));
-				firstClick = false;
-			}
-
-			// Get cursor position
-			double mouseX;
-			double mouseY;
-			glfwGetCursorPos(window, &mouseX, &mouseY);
-
-			// Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
-			// and then "transforms" them into degrees 
-			float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
-			float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
-
-			// Calculates upcoming vertical change in the Orientation
-			// Doing this (along with rotating orientation) allows for the roll to change as we rotate.
-			//Up = glm::rotate(Up, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
-			//Orientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
-
-			// Does not allow flipping: abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f)
-
-			// Calculate new orientation
-			glm::vec3 newOrientation = glm::rotate(camOrientation, glm::radians(-rotX), glm::normalize(glm::cross(camOrientation, camUp)));
-			// By taking the dot product of the cross product of the original and new orientations and the up vector
-			// If the result is negative, the cross products are in different directions and therefore the orientations are on
-			// different sides of the up vector.
-			glm::vec3 originalCross = glm::cross(camOrientation, camUp);
-			glm::vec3 newCross = glm::cross(newOrientation, camUp);
-			// Flip the 'Up' vec3 if going through the up vec3
-			if (glm::dot(originalCross, newCross) < 0)
-			{
-				camUp = -camUp;
-			}
-			camOrientation = newOrientation;
-
-			// Rotates the Orientation left and right
-			camOrientation = glm::rotate(camOrientation, glm::radians(-rotY), camUp);
-
-			// Sets mouse cursor to the middle of the screen so that it doesn't end up roaming around
 			glfwSetCursorPos(window, (width / 2), (height / 2));
+			firstClick = false;
 		}
-		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+
+		// Get cursor position
+		double mouseX;
+		double mouseY;
+		glfwGetCursorPos(window, &mouseX, &mouseY);
+
+		// Normalizes and shifts the coordinates of the cursor such that they begin in the middle of the screen
+		// and then "transforms" them into degrees 
+		float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
+		float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
+
+		// Calculates upcoming vertical change in the Orientation
+		// Doing this (along with rotating orientation) allows for the roll to change as we rotate.
+		//Up = glm::rotate(Up, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
+		//Orientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
+
+		// Does not allow flipping: abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f)
+
+		// Calculate new orientation
+		glm::vec3 newOrientation = glm::rotate(camOrientation, glm::radians(-rotX), glm::normalize(glm::cross(camOrientation, camUp)));
+		// By taking the dot product of the cross product of the original and new orientations and the up vector
+		// If the result is negative, the cross products are in different directions and therefore the orientations are on
+		// different sides of the up vector.
+		glm::vec3 originalCross = glm::cross(camOrientation, camUp);
+		glm::vec3 newCross = glm::cross(newOrientation, camUp);
+		// Flip the 'Up' vec3 if going through the up vec3
+		if (glm::dot(originalCross, newCross) < 0)
 		{
-			// Unhides cursor since camera is not looking around anymore
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			// Makes sure the next time the camera looks around it doesn't jump
-			firstClick = true;
+			camUp = -camUp;
 		}
+		camOrientation = newOrientation;
+
+		// Rotates the Orientation left and right
+		camOrientation = glm::rotate(camOrientation, glm::radians(-rotY), camUp);
+
+		// Sets mouse cursor to the middle of the screen so that it doesn't end up roaming around
+		glfwSetCursorPos(window, (width / 2), (height / 2));
+	}
+	else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+	{
+		// Unhides cursor since camera is not looking around anymore
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		// Makes sure the next time the camera looks around it doesn't jump
+		firstClick = true;
 	}
 
 	// Now that the player has moved, update the matricies!

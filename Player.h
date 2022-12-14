@@ -28,7 +28,8 @@ enum class ControlState {
 	WATER_DIVING,
 	FLIGHT,
 	FREEFALL,  // Jumping
-	LEVITATION // Debug
+	LEVITATION,
+	FREECAM // Debug
 };
 
 /*
@@ -103,6 +104,7 @@ public:
 	glm::vec3 position, velocity;
 	glm::quat rot, rotVelocity;
 	glm::vec3 camPos, camOrientation, camUp;
+	glm::vec3 camRelPos = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	// Stores each wing's status
 	WingMotion rightWingMotion, leftWingMotion;
@@ -111,6 +113,8 @@ public:
 
 	// Status of player
 	ControlState controlState = ControlState::GROUND_WALKING;
+	ControlState prevControlState = ControlState::GROUND_WALKING;
+	bool hasDebugSwitched = false;
 	double firstClick = false;
 
 	// Window stuff
@@ -119,6 +123,11 @@ public:
 	glm::mat4 projMatrix, viewMatrix;
 	double FOVdeg = 90.0f, nearPlane = 0.1f, farPlane = 10000.0f;
 
+	// Debug display
+	VAO debugVAO;
+	VBO debugVBO;
+	EBO debugEBO;
+
 	// Initializer
 	Player();
 
@@ -126,6 +135,7 @@ public:
 	// Bool represents whether it was pressed, double is the last time the key was updated
 	std::pair<bool, double> keymap[1024];
 	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	void windowResizeCallback(int width, int height);
 
 	// Camera helper functions
 	void updateMatrix();

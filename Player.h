@@ -24,22 +24,29 @@ enum class ControlState {
 	// Some alternatives if I have time for them
 	GROUND_TIPTOE,   // Tiptoeing around
 	GROUND_OBJAVOID, // Avoiding an object (going over a fence, through a small hole in the wall, etc.)
+	// Swimming
 	WATER_SURFACE,
 	WATER_DIVING,
+	// Core of pegasi FLIGHT simulator :3
 	FLIGHT,
-	FREEFALL,  // Jumping
+	FREEFALL,  // Jumping or falling off cliffs. Mostly for non-pegasi
 	LEVITATION,
 	FREECAM // Debug
 };
 
-/*
-* Mayyyybe I should finish the ground and water stuff before moving onto flight
-*/
+struct keyStatus {
+	bool pressed;
+	double lastPress;
+	unsigned int consecutiveClicks;
+};
 
 class Player {
 public:
 	// Things that settings change
+	// Time it takes for wings to return to resting pos
 	double autoReturnTime = 1.0;
+	// Time it takes to double click
+	double doubleClickTime = 0.15f;
 
 	// Birdie "consts for now"
 
@@ -96,6 +103,7 @@ public:
 	// Not really Consts (changes very little over the game, but it does and should change!)
 	double mass = 40;
 	glm::mat3 momentOfInertia = glm::mat3(1.0f);
+	float jumpVelocity = 3.0, walkingSpeed = 1.3;
 
 	// Variables
 
@@ -124,6 +132,7 @@ public:
 	double FOVdeg = 90.0f, nearPlane = 0.1f, farPlane = 10000.0f;
 
 	// Debug display
+	bool debugGraphics;
 	VAO debugVAO;
 	VBO debugVBO;
 	EBO debugEBO;
@@ -131,9 +140,11 @@ public:
 	// Initializer
 	Player();
 
+	// Debug display functions
+	std::string getControlStateString();
+
 	// Inputs
-	// Bool represents whether it was pressed, double is the last time the key was updated
-	std::pair<bool, double> keymap[1024];
+	std::vector<keyStatus> keymap;
 	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	void windowResizeCallback(int width, int height);
 

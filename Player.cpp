@@ -18,6 +18,11 @@ Player::Player() {
 	width = 800;
 	height = 600;
 
+	// Initialize keymap
+	for (int i = 0; i < 1024; i++) {
+		keymap.push_back(keyStatus{ false, 0.0, 0 });
+	}
+
 	// View and proj matricies
 	updateMatrix();
 
@@ -33,6 +38,33 @@ Player::Player() {
 
 	// Initialize debug graphics
 
+}
+
+std::string Player::getControlStateString() {
+	switch (controlState)
+	{
+	case ControlState::GROUND_WALKING:
+		return "Ground/Walking";
+	case ControlState::GROUND_RUNNING:
+		return "Ground/Running";
+	case ControlState::GROUND_TIPTOE:
+		return "Ground/Tiptoe";
+	case ControlState::GROUND_OBJAVOID:
+		return "Ground/ObjectAvoid";
+	case ControlState::WATER_SURFACE:
+		return "Water/Swimming";
+	case ControlState::WATER_DIVING:
+		return "Water/Diving";
+	case ControlState::FLIGHT:
+		return "Flight";
+	case ControlState::FREEFALL:
+		return "CarpetPonking";
+	case ControlState::LEVITATION:
+		return "Starlight";
+	case ControlState::FREECAM:
+		return "FreeCam";
+	}
+	return "Unknown";
 }
 
 void Player::windowResizeCallback(int width, int height) {
@@ -138,7 +170,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 	double gravityMagnitude;
 
 	// F1 to switch to levitation
-	if (keymap[GLFW_KEY_F1].first && !hasDebugSwitched) {
+	if (keymap[GLFW_KEY_F1].pressed && !hasDebugSwitched) {
 		if (controlState != ControlState::FREECAM) {
 			prevControlState = controlState;
 			controlState = ControlState::FREECAM;
@@ -148,7 +180,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 		}
 		hasDebugSwitched = true;
 	}
-	if (!keymap[GLFW_KEY_F1].first) {
+	if (!keymap[GLFW_KEY_F1].pressed) {
 		hasDebugSwitched = false;
 	}
 
@@ -166,8 +198,9 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 	switch (controlState) {
 	case (ControlState::FLIGHT): {
+		printf("Flight is not implemented yet!\n");
 		break;
-		// Temporarily skip this part
+		// Temporarily skip this part. It's kinda complicated after all
 		glm::vec3 totalForce = glm::vec3(0.0f);
 		glm::vec3 totalRotForce = glm::vec3(0.0f);
 
@@ -201,29 +234,35 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 		// For now, use a constant 0 ground y
 
-		float speed = 0.5f;
 		glm::vec3 newVelocity = glm::vec3(0.0f);
 		// Movement keys - just wasd. No jumping
-		if (keymap[GLFW_KEY_W].first)
-		{
-			newVelocity += speed * camOrientation;
+		if (keymap[GLFW_KEY_W].pressed) {
+			newVelocity += walkingSpeed * camOrientation;
 		}
-		if (keymap[GLFW_KEY_A].first)
-		{
-			newVelocity += speed * -glm::normalize(glm::cross(camOrientation, camUp));
+		if (keymap[GLFW_KEY_A].pressed) {
+			newVelocity += walkingSpeed * -glm::normalize(glm::cross(camOrientation, camUp));
 		}
-		if (keymap[GLFW_KEY_S].first)
-		{
-			newVelocity += speed * -camOrientation;
+		if (keymap[GLFW_KEY_S].pressed) {
+			newVelocity += walkingSpeed * -camOrientation;
 		}
-		if (keymap[GLFW_KEY_D].first)
-		{
-			newVelocity += speed * glm::normalize(glm::cross(camOrientation, camUp));
+		if (keymap[GLFW_KEY_D].pressed) {
+			newVelocity += walkingSpeed * glm::normalize(glm::cross(camOrientation, camUp));
 		}
 
-		// Changing velocity takes a teeny bit of time
-		position += newVelocity * time + (newVelocity - velocity) * time * time * 0.5f;
+		// Jumping
+		if (keymap[GLFW_KEY_SPACE].pressed) {
+			newVelocity += camUp * jumpVelocity;
+			velocity = newVelocity;
+			controlState = ControlState::FREEFALL;
+			// Don't want to instantly switch to flying, so space needs to be pressed again
+			keymap[GLFW_KEY_SPACE].pressed = false;
+			break;
+		}
+
+		// Linearly interpolate between velocities
+		position += newVelocity * time * 0.5f + velocity * time * 0.5f;
 		position.y = groundY;
+		velocity = newVelocity;
 
 		camPos = position + camRelPos;
 
@@ -232,9 +271,8 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 	case (ControlState::FREEFALL): 
 		{
-		// TEMP: You can only really flail around so much (wasd has very limited movement potential)
+		// TODO: You can only really flail around so much (wasd has very limited movement potential)
 		// in the future this will be replaced by orientation control and drag will make u move
-
 
 		// Gravity!
 		glm::vec3 totalForce = glm::vec3(0.0f);
@@ -261,6 +299,12 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 		camPos = position + camRelPos;
 		}
+
+		// Spread your wings and fly!
+		if (keymap[GLFW_KEY_SPACE].pressed) {
+			controlState = ControlState::FLIGHT;
+			break;
+		}
 		break;
 
 	case (ControlState::FREECAM): 
@@ -270,33 +314,33 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 		float speed = 0.5f;
 		// If control is pressed, speed goes higher (Yeah, minecraft inf-drag creative flying)
-		if (keymap[GLFW_KEY_LEFT_CONTROL].first)
+		if (keymap[GLFW_KEY_LEFT_CONTROL].pressed)
 		{
 			speed = 2.0f;
 		}
 
 		// Movement keys
-		if (keymap[GLFW_KEY_W].first)
+		if (keymap[GLFW_KEY_W].pressed)
 		{
 			camPos += speed * (float)time * camOrientation;
 		}
-		if (keymap[GLFW_KEY_A].first)
+		if (keymap[GLFW_KEY_A].pressed)
 		{
 			camPos += speed * (float)time * -glm::normalize(glm::cross(camOrientation, camUp));
 		}
-		if (keymap[GLFW_KEY_S].first)
+		if (keymap[GLFW_KEY_S].pressed)
 		{
 			camPos += speed * (float)time * -camOrientation;
 		}
-		if (keymap[GLFW_KEY_D].first)
+		if (keymap[GLFW_KEY_D].pressed)
 		{
 			camPos += speed * (float)time * glm::normalize(glm::cross(camOrientation, camUp));
 		}
-		if (keymap[GLFW_KEY_SPACE].first)
+		if (keymap[GLFW_KEY_SPACE].pressed)
 		{
 			camPos += speed * (float)time * camUp;
 		}
-		if (keymap[GLFW_KEY_LEFT_SHIFT].first)
+		if (keymap[GLFW_KEY_LEFT_SHIFT].pressed)
 		{
 			camPos += speed * (float)time * -camUp;
 		}
@@ -307,11 +351,11 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 	// Roll keys (Q, E controls roll)
 	float rollSpeed = 25.0f;
-	if (keymap[GLFW_KEY_Q].first)
+	if (keymap[GLFW_KEY_Q].pressed)
 	{
 		camUp = glm::rotate(camUp, (float)glm::radians(-rollSpeed * time), glm::normalize(camOrientation));
 	}
-	if (keymap[GLFW_KEY_E].first)
+	if (keymap[GLFW_KEY_E].pressed)
 	{
 		camUp = glm::rotate(camUp, (float)glm::radians(rollSpeed * time), glm::normalize(camOrientation));
 	}
@@ -379,16 +423,26 @@ void Player::Tick(GLFWwindow* window, float time) {
 }
 
 void Player::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	double time = glfwGetTime();
 	if (action == GLFW_PRESS)
 	{
-		keymap[key] = std::pair(true, glfwGetTime());
+		keymap[key].pressed = true;
+		if (time - keymap[key].lastPress < doubleClickTime) {
+			keymap[key].consecutiveClicks++;
+		}
+		else {
+			keymap[key].consecutiveClicks = 1;
+		}
+		//Debug
+		//printf("%d is pressed! The key's last press is at %lf, so it has %d consecutive clicks.\n", 
+		//	key, keymap[key].lastPress, keymap[key].consecutiveClicks);
+
+		keymap[key].lastPress = time;
 	}
 	else if (action == GLFW_RELEASE)
 	{
-		keymap[key] = std::pair(false, glfwGetTime());
+		keymap[key].pressed = false;
 	}
-	// Debug
-	// std::cout << key << "\n";
 }
 
 void Player::updateMatrix() {

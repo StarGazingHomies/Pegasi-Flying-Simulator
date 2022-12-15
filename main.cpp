@@ -63,12 +63,13 @@ int main(int argc, char* argv[]) {
 
 	glfwSwapInterval(1);
 
-	OBB e, f;
-	e.position = glm::vec3(0.0f, 5.0f, 0.0f);
-	f.position = glm::vec3(0.0f, 0.0f, 0.0f);
-	Physics physEngine;
-	physEngine.objects.push_back(e);
-	physEngine.objects.push_back(f);
+	std::unique_ptr<OBB> e = std::make_unique<OBB>();
+	std::unique_ptr<OBB> f = std::make_unique<OBB>();
+	e->position = glm::vec3(0.0f, 5.0f, 0.0f);
+	f->position = glm::vec3(0.0f, 0.0f, 0.0f);
+	std::unique_ptr<Physics> physEngine = std::make_unique<Physics>();
+	physEngine->objects.push_back(*e);
+	physEngine->objects.push_back(*f);
 	//f.rotVelocity = glm::quat();
 	//e.rotVelocity = glm::quat();
 
@@ -77,10 +78,10 @@ int main(int argc, char* argv[]) {
 
 	Shader debugGridShader;
 	debugGridShader.Compile(
-		"shaders/debug_grid.vert", 
-		"shaders/debug_grid.frag", 
-		"shaders/debug_grid.geom", 
-		"shaders/debug_grid.tesc", 
+		"shaders/debug_grid.vert",
+		"shaders/debug_grid.frag",
+		"shaders/debug_grid.geom",
+		"shaders/debug_grid.tesc",
 		"shaders/debug_grid.tese");
 
 	glEnable(GL_DEPTH_TEST);
@@ -112,8 +113,8 @@ int main(int argc, char* argv[]) {
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	Player p;
-	p.windowResizeCallback(800, 600);
+	std::unique_ptr <Player> p = std::make_unique<Player>();
+	p->windowResizeCallback(800, 600);
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.18f, 0.02f, 0.17f, 1.0f);
@@ -122,12 +123,13 @@ int main(int argc, char* argv[]) {
 		frameTime = glfwGetTime() - curTime;
 		curTime = glfwGetTime();
 
-		p.Tick(window, frameTime);
-		glm::mat4 proj = p.getProjMatrix();
-		glm::mat4 view = p.getViewMatrix();
+		p->Tick(window, frameTime);
+		glm::mat4 proj = p->getProjMatrix();
+		glm::mat4 view = p->getViewMatrix();
+		p->Draw();
 
 		default_shader.Activate();
-		if (checkOBBCollision(e, f)) {
+		if (checkOBBCollision(*e, *f)) {
 			glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)1);
 			//glm::vec3 lsa = getLeastSeparatingAxis(e, f);
 		}
@@ -135,15 +137,15 @@ int main(int argc, char* argv[]) {
 			glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)0);
 		}
 
-		physEngine.Draw(default_shader, proj, view);
-		physEngine.Tick(frameTime);
+		physEngine->Draw(default_shader, proj, view);
+		physEngine->Tick(frameTime);
 
 		// Render the grid
 		glPatchParameteri(GL_PATCH_VERTICES, 4);
 		debugGridShader.Activate();
 		glUniformMatrix4fv(glGetUniformLocation(debugGridShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(proj));
 		glUniformMatrix4fv(glGetUniformLocation(debugGridShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniform3f(glGetUniformLocation(debugGridShader.ID, "camPos"), p.camPos.x, p.camPos.y, p.camPos.z);
+		glUniform3f(glGetUniformLocation(debugGridShader.ID, "camPos"), p->camPos.x, p->camPos.y, p->camPos.z);
 
 		glBindVertexArray(terrainVAO);
 		glDrawArrays(GL_PATCHES, 0, 4);
@@ -156,7 +158,7 @@ int main(int argc, char* argv[]) {
 			int scancode = keyEvents.front(); keyEvents.pop();
 			int action = keyEvents.front(); keyEvents.pop();
 			int mods = keyEvents.front(); keyEvents.pop();
-			p.keyCallback(window, key, scancode, action, mods);
+			p->keyCallback(window, key, scancode, action, mods);
 		}
 	}
 

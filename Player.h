@@ -109,12 +109,20 @@ public:
 	glm::vec3 ponyLoafHalfSize = glm::vec3(0.5f, 0.5f, 0.25f);
 	float foreFootLengths[3] = {0.0f, 0.0f, 0.0f};
 	
+	// Stamina
+	double staminaRegen = 0.1;
 	double maxStamina = 100;
 	double maxBurstStamina = 10;
-	float walkingMaxAcceleration = 5.0;
-	float walkingRetention = 0.04;
-	float walkingTargetSpeed = 4.0;
 
+	// Walking
+	float walkingMaxAcceleration = 5.0;		// Range: (0,+inf), technically maxWalkingSpeed = walkingMaxAcceleration / (1-walkingRetention)
+	float walkingStopAcceleration = 12.0;   // Rnage: [0, +inf), maximum stopping accr
+	float walkingRetention = 0.25;			// Range: [0,1) (Change maxAcc accordingly)
+	float walkingTargetSpeed = 4.0;			// Range: [0,maxWalkingSpeed]
+	float walkingLookImportance = 0.2f;		// Range: [0,0.5] (0 --> Look dir no impact, 0.5 --> Going back velocity 0)
+	float walkingLookStaminaImpact = 1.5f;  // Range: [0,+inf) (0 --> Look dir no additional impact)
+	float walkingInstantStop = 0.05f;		// Range: [0,+inf) (0 --> never completely stop; inf --> instantly completely stop)
+	float walkingMaxAccStaminaCost = 0.19f; // Range: [0,+inf) stamina cost of maximum acceleration
 
 	// Variables
 
@@ -138,7 +146,7 @@ public:
 	double firstClick = false;
 
 	// Ground movement
-	double stamina = 0, burstStamina = 0;
+	double stamina = 100, burstStamina = 10;
 
 	// Window stuff
 	int width, height;

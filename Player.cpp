@@ -7,7 +7,15 @@ void debugVec3(std::string name, glm::vec3 vec) {
 }
 
 std::string debugVec3Str(std::string name, glm::vec3 vec) {
-	return std::format("{}: <{:.2f}, {:.2f}, {:.2f}>", name.c_str(), vec.x, vec.y, vec.z);
+	return std::format("{}: <{:.2f}, {:.2f}, {:.2f}> / {:.2f}", name.c_str(), vec.x, vec.y, vec.z, glm::length(vec));
+}
+
+std::string debugFloatStr(std::string name, float num) {
+	return std::format("{}: {:.2f}", name.c_str(), num);
+}
+
+std::string debugIntStr(std::string name, int num) {
+	return std::format("{}: {}", name.c_str(), num);
 }
 
 void debugMat4(std::string name, glm::mat4 mat4) {
@@ -300,7 +308,8 @@ void Player::debugText(Font& font, Shader& fontShader) {
 	font.renderLine(debugVec3Str("Position: ", position), 0, 560, 20, glm::vec3(1.0f, 1.0f, 0.0f));
 	font.renderLine(debugVec3Str("Velocity: ", velocity), 0, 540, 20, glm::vec3(1.0f, 1.0f, 0.0f));
 	font.renderLine(debugVec3Str("Temp Debug Field 1: ", debugTempVec1), 0, 520, 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Temp Debug Field 1: ", debugTempVec2), 0, 500, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Temp Debug Field 2: ", debugTempVec2), 0, 500, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(std::format("Stamina: {:.2f} / {:.2f}", stamina, maxStamina), 0, 480, 20, glm::vec3(1.0f, 1.0f, 0.0f));
 	font.renderAll(fontShader);
 }
 
@@ -404,6 +413,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 		// Ground requires little use of velocity/acceleration.
 		// (This will be different from running, which uses velo/acc)
 
+		
 		// Target direction
 		glm::vec3 target = glm::vec3(0.0f);
 		if (keymap[GLFW_KEY_W].status == 1) {
@@ -418,21 +428,50 @@ void Player::Tick(GLFWwindow* window, float time) {
 		if (keymap[GLFW_KEY_D].status == 1) {
 			target += glm::normalize(glm::cross(camOrientation, camUp));
 		}
-		target.y = 0;													// You can't walk on air lol
-		if (target != glm::vec3(0.0f)) target = glm::normalize(target);	// Normalize the target direction, if the target isn't stopping
-		target *= walkingTargetSpeed;									// Find target velocity
+		// You can't walk on air lol
+		target.y = 0;
+		float directionFactor = 1;
+		// You go a tiny bit faster if you look in the right direction
+		// Normalize the target direction, if the target isn't stopping
+		if (target != glm::vec3(0.0f)) { 
+			target = glm::normalize(target); 
+			directionFactor = (1 - walkingLookImportance) + walkingLookImportance * glm::dot(glm::normalize(target), camOrientation);
+		}
+		// Find target velocity
+		target *= walkingTargetSpeed * directionFactor;
 
 		// Natural velocity loss, and walking acceleration to keep up / change direction
-		glm::vec3 retainedVelocity = velocity * std::pow(walkingRetention,time);
+		glm::vec3 retainedVelocity = velocity * (1-(1-walkingRetention)*time);
 		glm::vec3 diffVelocity = target - retainedVelocity;
-		float resultAccMagnitude = glm::min(glm::length(diffVelocity), walkingMaxAcceleration);
+		float diffLength = glm::length(diffVelocity);
+		float resultAccMagnitude = 0;
+		double percentAcc = 0;
 		glm::vec3 acceleration = glm::vec3(0.0f);
-		if (resultAccMagnitude != 0)
-			acceleration = glm::normalize(diffVelocity) * resultAccMagnitude;
-			
+		if (target == glm::vec3(0.0f)) {
+			// If you are stopping
+			// (Stamina cost of stopping is 0, for simplification)
+			if (diffLength > walkingInstantStop) {
+				// If the diff is beeg
+				acceleration = glm::normalize(diffVelocity) * walkingStopAcceleration;
+			}
+			else {
+				// If the diff is smol
+				acceleration = diffVelocity / time;
+			}
+		}
+		else {
+			// If the difference is too large to be ignored:
+			resultAccMagnitude = glm::min(diffLength / time, walkingMaxAcceleration * directionFactor);
+			if (resultAccMagnitude != 0)
+				acceleration = glm::normalize(diffVelocity) * resultAccMagnitude;
 
-		// Consume stamina using resultAccMagnitude
-		
+			// Consume stamina using resultAccMagnitude and directionFactor
+			// (Going backwards takes a lot!)
+			percentAcc = resultAccMagnitude / walkingMaxAcceleration;
+			double staminaFactor = percentAcc * std::pow(directionFactor, -walkingLookStaminaImpact);
+			stamina -= staminaFactor * walkingMaxAccStaminaCost * time;
+		}
+
 
 		// Ground handling - ignored for now
 		float groundSlope = 0;
@@ -450,16 +489,20 @@ void Player::Tick(GLFWwindow* window, float time) {
 		//}
 
 		// Linearly interpolate between velocities
-		position += velocity * time + acceleration * time * time * 0.5f;
+		position += (velocity + retainedVelocity) * time * 0.5f + acceleration * time * time * 0.5f;
 		position.y = groundY; // Crude ground handling for now
-		velocity += acceleration * time;
+		velocity = retainedVelocity + acceleration * time;
 
-		// Turn body & camera accordingly
+		// Regen stamina
+		stamina = std::min(stamina + staminaRegen * time, maxStamina);
+
+		// Turn body / update camera accordingly
 
 		camPos = position + camRelPos;
 
+
 		// Debug stuff
-		debugTempVec1 = target;
+		debugTempVec1 = diffVelocity;
 		debugTempVec2 = acceleration;
 		}
 		break;
@@ -479,7 +522,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 		glm::vec3 finalAcceleration = totalForce / (float)mass;
 		glm::vec3 finalRotAcceleration = totalRotForce * momentOfInertia;
 
-		// TODO: Add drag! (UNREALISTIC, I don't wanna simulate friend-shaped ICBMs)
+		// TODO: Add drag! (No lift, I don't wanna simulate friend-shaped ICBMs)
 
 
 		//printf("Acc: <%lf, %lf, %lf>\nRotAcc: <%lf, %lf, %lf>\n---------\n",
@@ -642,7 +685,8 @@ void Player::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 
 void Player::updateMatrix() {
 	projMatrix = glm::perspective(glm::radians(FOVdeg), (double)width / height, nearPlane, farPlane);
-	viewMatrix = glm::lookAt(camPos, camPos + camOrientation, camUp);
+	// Multiply by the character's rotation since ur mouse basically controls head movement
+	viewMatrix = glm::lookAt(camPos, camPos + camOrientation*glm::mat3(glm::mat4_cast(rot)), camUp);
 }
 
 glm::mat4 Player::getProjMatrix() {

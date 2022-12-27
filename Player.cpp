@@ -1,7 +1,66 @@
 #include"Player.h"
 
+const double PI = 3.14159265358979323846;
+
 void debugVec3(std::string name, glm::vec3 vec) {
-	printf("%s: <%.2f, %.2f, %.2f>", name.c_str(), vec.x, vec.y, vec.z);
+	printf("%s: <%.2f, %.2f, %.2f>\n", name.c_str(), vec.x, vec.y, vec.z);
+}
+
+std::string debugVec3Str(std::string name, glm::vec3 vec) {
+	return std::format("{}: <{:.2f}, {:.2f}, {:.2f}>", name.c_str(), vec.x, vec.y, vec.z);
+}
+
+void debugMat4(std::string name, glm::mat4 mat4) {
+	printf("%s:\n<%.2f, %.2f, %.2f, %.2f>\n<%.2f, %.2f, %.2f, %.2f>\n<%.2f, %.2f, %.2f, %.2f>\n<%.2f, %.2f, %.2f, %.2f>\n",
+		name.c_str(),
+		mat4[0][0],
+		mat4[0][1],
+		mat4[0][2],
+		mat4[0][3],
+		mat4[1][0],
+		mat4[1][1],
+		mat4[1][2],
+		mat4[1][3],
+		mat4[2][0],
+		mat4[2][1],
+		mat4[2][2],
+		mat4[2][3],
+		mat4[3][0],
+		mat4[3][1],
+		mat4[3][2],
+		mat4[3][3]);
+}
+
+glm::quat RotationBetweenVectors(glm::vec3 start, glm::vec3 dest) {
+	start = glm::normalize(start);
+	dest = glm::normalize(dest);
+
+	float cosTheta = glm::dot(start, dest);
+	glm::vec3 rotationAxis;
+
+	if (cosTheta < -0.999f) {
+		// Opposite directions --> Axis doesn't really matter
+		rotationAxis = glm::cross(glm::vec3(1.0f, 0.0f, 0.0f), start);
+		if (glm::length(rotationAxis) < 0.01)
+			rotationAxis = glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), start);
+
+		rotationAxis = normalize(rotationAxis);
+		return glm::angleAxis(glm::radians(180.0f), rotationAxis);
+	}
+
+	rotationAxis = glm::cross(start, dest);
+
+	// trig stuff
+	float s = sqrt((1 + cosTheta) * 2);
+	float invs = 1 / s;
+
+	return glm::quat(
+		s * 0.5f,
+		rotationAxis.x * invs,
+		rotationAxis.y * invs,
+		rotationAxis.z * invs
+	);
+
 }
 
 Player::Player() {
@@ -20,7 +79,7 @@ Player::Player() {
 
 	// Initialize keymap
 	for (int i = 0; i < 1024; i++) {
-		keymap.push_back(keyStatus{ false, 0.0, 0 });
+		keymap.push_back(keyStatus{ -1, 0.0, 0 });
 	}
 
 	// View and proj matricies
@@ -37,7 +96,30 @@ Player::Player() {
 
 
 	// Initialize debug graphics
+	std::vector<float> vertices = {
+		  0.0f,  0.0f, 0.0f,
+		  0.1f, -0.1f, 0.2f,
+		  0.1f,  0.1f, 0.2f,
+		 -0.1f, -0.1f, 0.2f,
+		 -0.1f,  0.1f, 0.2f,
+			0.0f, 0.0f, 0.0f,
+	};
 
+	std::vector<GLuint> indices = {
+		0,1,2,
+		0,2,4,
+		0,4,3,
+		0,3,1
+	};
+
+	debugCamVAO.Bind();
+	debugCamVBO = VBO(vertices);
+	debugCamVAO.LinkAttrib(debugCamVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+	debugCamVAO.LinkAttrib(debugCamVBO, 1, 3, GL_FLOAT, 0, (void*)(15 * sizeof(float)));
+	debugCamVAO.LinkAttrib(debugCamVBO, 2, 3, GL_FLOAT, 0, (void*)(15 * sizeof(float)));
+	debugCamVAO.LinkAttrib(debugCamVBO, 3, 2, GL_FLOAT, 0, (void*)(15 * sizeof(float)));
+
+	debugCamEBO = EBO(indices);
 }
 
 std::string Player::getControlStateString() {
@@ -127,6 +209,37 @@ double Player::LHSignedAngle(glm::vec3 a, glm::vec3 b, glm::vec3 n) {
 	return atan2(glm::dot(glm::cross(b, a), n), glm::dot(a, b));
 }
 
+double Player::wingEfficiency(float angleOfAttack)
+{
+	float divingEfficiency = 0.8f;
+	float divingCriticalAoa = -30.0f;
+	float criticalAoaMin = 20.0f;
+	float criticalAoaMax = 25.0f;
+	if (angleOfAttack > 90 or angleOfAttack < -90)
+	{
+		// What the fuck are you doing to fly backwards ?
+		// At this stage, only flying will save you.
+		// Oh, and remember that you might spin out of control.That will be implemented some other time.
+		return 0.2f;
+	}
+
+	if (angleOfAttack < divingCriticalAoa)
+		// 0.8
+		return divingEfficiency;
+	else if (angleOfAttack < 0)
+		// 0.8 ~ 1
+		return 1.0f - (1.0f - divingEfficiency) * (angleOfAttack / divingCriticalAoa);
+	else if (angleOfAttack < criticalAoaMin)
+		// 1 ~ 1.2
+		return 1 + angleOfAttack / 5 / criticalAoaMin;
+	else if (angleOfAttack <= criticalAoaMax)
+		// 1.2
+		return 1.2f;
+	else
+		// At 50 degrees the efficiency is 0.2 (the minumum, for now)
+		return std::max(1.2f - (angleOfAttack - criticalAoaMax) / 25, 0.2f);
+}
+
 glm::vec3 Player::wingLiftForce() {
 
 
@@ -155,10 +268,40 @@ glm::vec3 Player::wingAcceleration(double time) {
 
 
 
-void Player::Draw() {
+void Player::Draw(Shader& shader) {
 	// Debug graphics! (A bunch of lines)
+	if (controlState == ControlState::FREECAM) {
+		shader.Activate();
+		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(projMatrix * viewMatrix));
+
+		glm::quat camRot = RotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), camOrientation);
+		//debugVec3("Rotation EulerAngles: ", glm::eulerAngles(camRot));
+		glm::mat4 camRotMat = glm::mat4_cast(camRot);
+		//debugMat4("Rotation Mat4: ", camRotMat);
+		glm::mat4 translation = glm::mat4(1.0f);
+		translation = glm::translate(translation, position + camUp);
+		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "rotation"), 1, GL_FALSE, glm::value_ptr(camRotMat));
+		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "translation"), 1, GL_FALSE, glm::value_ptr(translation));
+		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "scale"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+
+		debugCamVAO.Bind();
+		debugCamVBO.Bind();
+		debugCamEBO.Bind();
+
+		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+	}
 
 	return;
+}
+
+void Player::debugText(Font& font, Shader& fontShader) {
+	font.renderLine("Control state: " + getControlStateString(), 0, 580, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Position: ", position), 0, 560, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Velocity: ", velocity), 0, 540, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Temp Debug Field 1: ", debugTempVec1), 0, 520, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Temp Debug Field 1: ", debugTempVec2), 0, 500, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderAll(fontShader);
 }
 
 void Player::Tick(GLFWwindow* window, float time) {
@@ -170,7 +313,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 	double gravityMagnitude;
 
 	// F1 to switch to levitation
-	if (keymap[GLFW_KEY_F1].pressed && !hasDebugSwitched) {
+	if (keymap[GLFW_KEY_F1].status && !hasDebugSwitched) {
 		if (controlState != ControlState::FREECAM) {
 			prevControlState = controlState;
 			controlState = ControlState::FREECAM;
@@ -180,12 +323,13 @@ void Player::Tick(GLFWwindow* window, float time) {
 		}
 		hasDebugSwitched = true;
 	}
-	if (!keymap[GLFW_KEY_F1].pressed) {
+	if (!keymap[GLFW_KEY_F1].status) {
 		hasDebugSwitched = false;
 	}
 
 	// Determine if control regime needs to switch
 
+	// For now, use a constant 0 ground y
 	int groundY = 0;
 	if (position.y < groundY && controlState != ControlState::GROUND_WALKING) {
 		velocity.y = 0;
@@ -199,73 +343,124 @@ void Player::Tick(GLFWwindow* window, float time) {
 	switch (controlState) {
 	case (ControlState::FLIGHT): {
 		printf("Flight is not implemented yet!\n");
+		controlState = ControlState::FREEFALL;
 		break;
-		// Temporarily skip this part. It's kinda complicated after all
 		glm::vec3 totalForce = glm::vec3(0.0f);
 		glm::vec3 totalRotForce = glm::vec3(0.0f);
 
 		gravityMagnitude = G * EQUUSMASS * mass / pow(EQUUSRADIUS + position.y, 2);
-		totalForce += glm::vec3(0.0f, gravityMagnitude, 0.0f);
+		totalForce += glm::vec3(0.0f, -gravityMagnitude, 0.0f);
+
+		// No flapping for now, only gliding
+
+		std::vector<glm::vec3> axes = getAxes();
+		glm::vec3 axisX = axes[0], axisY = axes[1], axisZ = axes[2];
+		float primaryAngle = 0, secondaryAngle = 0;
+		float PRIMARY_LIFT_COEFFICIENT = 1.3;
+		float SECONDARY_LIFT_COEFFICIENT_CLOSED = 1.1;
+		float SECONDARY_LIFT_COEFFICIENT_OPEN = -0.1;
+		float air_density = 1;
+
+		//Primary
+		glm::vec3 primaryAirDirection = -velocity;
+		glm::vec3 primaryLiftDirection = glm::rotate(glm::rotate(primaryAirDirection, glm::radians(-80.0f), axisZ), primaryAngle,
+			axisX);
+		float primaryLiftMagnitude = 0.5f * PRIMARY_LIFT_COEFFICIENT * (
+			0.66 * (wingSpan - humurusLength) * primaryFeatherLength) * \
+			air_density * glm::length(primaryAirDirection);
+		glm::vec3 primaryLiftForce = primaryLiftDirection * primaryLiftMagnitude;
+		totalForce += primaryLiftForce;
+
+		//Secondary
+		glm::vec3 secondaryAirDirection = -velocity;
+		glm::vec3 secondaryLiftDir = glm::rotate(glm::rotate(secondaryAirDirection, glm::radians(-80.0f), axisZ), secondaryAngle,
+			axisX);
+		float secondaryLiftMagnitude = 0.5 * SECONDARY_LIFT_COEFFICIENT_CLOSED * (humurusLength * primaryFeatherLength) * \
+			air_density * glm::length(secondaryAirDirection);
+		glm::vec3 secondaryLiftForce = secondaryLiftDir * secondaryLiftMagnitude;
+		totalForce += secondaryLiftForce;
+
 
 		glm::vec3 finalAcceleration = totalForce / (float)mass;
 		glm::vec3 finalRotAcceleration = totalRotForce * momentOfInertia;
-		printf("Acc: <%lf, %lf, %lf>\nRotAcc: <%lf, %lf, %lf>\n---------\n",
-			finalAcceleration.x, finalAcceleration.x, finalAcceleration.x,
-			finalRotAcceleration.x, finalRotAcceleration.x, finalRotAcceleration.x
-		);
+		debugVec3("Acc", finalAcceleration);
+		debugVec3("RotAcc", finalRotAcceleration);
 
 		// Assume const acceleration for the frame
-		//position += velocity * time + finalAcceleration * time * time * 0.5f;
+		position += velocity * time + finalAcceleration * time * time * 0.5f;
 		//rot *= glm::quat(glm::eulerAngles(rotVelocity) * time + finalRotAcceleration * time * time);
-		//velocity += finalAcceleration * time;
+		velocity += finalAcceleration * time;
 		//rotVelocity *= finalRotAcceleration * time;
+
+		camPos = position + camRelPos;
 		}
+		if (keymap[GLFW_KEY_1].status == 1) {
+			position = glm::vec3(0.0f, 100.0f, 0.0f);
+		}
+							   
 		break;
 
 	case (ControlState::GROUND_WALKING): {
 		// Ground requires little use of velocity/acceleration.
 		// (This will be different from running, which uses velo/acc)
 
-		// Basically, what to do is
-		// Based on current normal of ground, compute the x-z velocity
-		// Then put the player there and make y match the ground y
-		// Very simple.
-		// Also makes walking while looking up/down a bit slower
+		// Target direction
+		glm::vec3 target = glm::vec3(0.0f);
+		if (keymap[GLFW_KEY_W].status == 1) {
+			target += glm::normalize(camOrientation);
+		}
+		if (keymap[GLFW_KEY_A].status == 1) {
+			target += -glm::normalize(glm::cross(camOrientation, camUp));
+		}
+		if (keymap[GLFW_KEY_S].status == 1) {
+			target += -glm::normalize(camOrientation);
+		}
+		if (keymap[GLFW_KEY_D].status == 1) {
+			target += glm::normalize(glm::cross(camOrientation, camUp));
+		}
+		target.y = 0;													// You can't walk on air lol
+		if (target != glm::vec3(0.0f)) target = glm::normalize(target);	// Normalize the target direction, if the target isn't stopping
+		target *= walkingTargetSpeed;									// Find target velocity
 
-		// For now, use a constant 0 ground y
+		// Natural velocity loss, and walking acceleration to keep up / change direction
+		glm::vec3 retainedVelocity = velocity * std::pow(walkingRetention,time);
+		glm::vec3 diffVelocity = target - retainedVelocity;
+		float resultAccMagnitude = glm::min(glm::length(diffVelocity), walkingMaxAcceleration);
+		glm::vec3 acceleration = glm::vec3(0.0f);
+		if (resultAccMagnitude != 0)
+			acceleration = glm::normalize(diffVelocity) * resultAccMagnitude;
+			
 
-		glm::vec3 newVelocity = glm::vec3(0.0f);
-		// Movement keys - just wasd. No jumping
-		if (keymap[GLFW_KEY_W].pressed) {
-			newVelocity += walkingSpeed * camOrientation;
-		}
-		if (keymap[GLFW_KEY_A].pressed) {
-			newVelocity += walkingSpeed * -glm::normalize(glm::cross(camOrientation, camUp));
-		}
-		if (keymap[GLFW_KEY_S].pressed) {
-			newVelocity += walkingSpeed * -camOrientation;
-		}
-		if (keymap[GLFW_KEY_D].pressed) {
-			newVelocity += walkingSpeed * glm::normalize(glm::cross(camOrientation, camUp));
-		}
+		// Consume stamina using resultAccMagnitude
+		
 
-		// Jumping
-		if (keymap[GLFW_KEY_SPACE].pressed) {
-			newVelocity += camUp * jumpVelocity;
-			velocity = newVelocity;
-			controlState = ControlState::FREEFALL;
-			// Don't want to instantly switch to flying, so space needs to be pressed again
-			keymap[GLFW_KEY_SPACE].pressed = false;
-			break;
-		}
+		// Ground handling - ignored for now
+		float groundSlope = 0;
+
+
+
+		// Jumping - fix later
+		//if (keymap[GLFW_KEY_SPACE].status == 1) {
+		//	newVelocity += glm::vec3(0.0f, jumpVelocity, 0.0f); // Replace with ground vec3 when I get there
+		//	velocity = newVelocity;
+		//	controlState = ControlState::FREEFALL;
+		//	// Don't want to instantly switch to flying, so space needs to be pressed again
+		//	keymap[GLFW_KEY_SPACE].status = false;
+		//	break;
+		//}
 
 		// Linearly interpolate between velocities
-		position += newVelocity * time * 0.5f + velocity * time * 0.5f;
-		position.y = groundY;
-		velocity = newVelocity;
+		position += velocity * time + acceleration * time * time * 0.5f;
+		position.y = groundY; // Crude ground handling for now
+		velocity += acceleration * time;
+
+		// Turn body & camera accordingly
 
 		camPos = position + camRelPos;
 
+		// Debug stuff
+		debugTempVec1 = target;
+		debugTempVec2 = acceleration;
 		}
 		break;
 
@@ -301,7 +496,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 		}
 
 		// Spread your wings and fly!
-		if (keymap[GLFW_KEY_SPACE].pressed) {
+		if (keymap[GLFW_KEY_SPACE].status == 1) {
 			controlState = ControlState::FLIGHT;
 			break;
 		}
@@ -312,35 +507,35 @@ void Player::Tick(GLFWwindow* window, float time) {
 		// Basically Minecraft freecam hax
 		// Does not sync position - after this ends, position returns to physics pos
 
-		float speed = 0.5f;
+		float speed = 2.5f;
 		// If control is pressed, speed goes higher (Yeah, minecraft inf-drag creative flying)
-		if (keymap[GLFW_KEY_LEFT_CONTROL].pressed)
+		if (keymap[GLFW_KEY_LEFT_CONTROL].status == 1)
 		{
-			speed = 2.0f;
+			speed = 20.0f;
 		}
 
 		// Movement keys
-		if (keymap[GLFW_KEY_W].pressed)
+		if (keymap[GLFW_KEY_W].status == 1)
 		{
 			camPos += speed * (float)time * camOrientation;
 		}
-		if (keymap[GLFW_KEY_A].pressed)
+		if (keymap[GLFW_KEY_A].status == 1)
 		{
 			camPos += speed * (float)time * -glm::normalize(glm::cross(camOrientation, camUp));
 		}
-		if (keymap[GLFW_KEY_S].pressed)
+		if (keymap[GLFW_KEY_S].status == 1)
 		{
 			camPos += speed * (float)time * -camOrientation;
 		}
-		if (keymap[GLFW_KEY_D].pressed)
+		if (keymap[GLFW_KEY_D].status == 1)
 		{
 			camPos += speed * (float)time * glm::normalize(glm::cross(camOrientation, camUp));
 		}
-		if (keymap[GLFW_KEY_SPACE].pressed)
+		if (keymap[GLFW_KEY_SPACE].status == 1)
 		{
 			camPos += speed * (float)time * camUp;
 		}
-		if (keymap[GLFW_KEY_LEFT_SHIFT].pressed)
+		if (keymap[GLFW_KEY_LEFT_SHIFT].status == 1)
 		{
 			camPos += speed * (float)time * -camUp;
 		}
@@ -351,11 +546,11 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 	// Roll keys (Q, E controls roll)
 	float rollSpeed = 25.0f;
-	if (keymap[GLFW_KEY_Q].pressed)
+	if (keymap[GLFW_KEY_Q].status == 1)
 	{
 		camUp = glm::rotate(camUp, (float)glm::radians(-rollSpeed * time), glm::normalize(camOrientation));
 	}
-	if (keymap[GLFW_KEY_E].pressed)
+	if (keymap[GLFW_KEY_E].status == 1)
 	{
 		camUp = glm::rotate(camUp, (float)glm::radians(rollSpeed * time), glm::normalize(camOrientation));
 	}
@@ -426,7 +621,7 @@ void Player::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	double time = glfwGetTime();
 	if (action == GLFW_PRESS)
 	{
-		keymap[key].pressed = true;
+		keymap[key].status = true;
 		if (time - keymap[key].lastPress < doubleClickTime) {
 			keymap[key].consecutiveClicks++;
 		}
@@ -441,7 +636,7 @@ void Player::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	}
 	else if (action == GLFW_RELEASE)
 	{
-		keymap[key].pressed = false;
+		keymap[key].status = false;
 	}
 }
 

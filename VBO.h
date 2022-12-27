@@ -25,6 +25,8 @@ public:
 	VBO(std::vector<Vertex>& vertices);
 	// Constructor with floats list
 	VBO(float vertices[]);
+	// Constructor with floats vector
+	VBO(std::vector<float> vertices);
 
 	// Bind the VBO to tell OpenGL to use it
 	void Bind();

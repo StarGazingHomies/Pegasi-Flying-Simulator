@@ -156,6 +156,7 @@
     <ClCompile Include="debugCamera.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="FBO.cpp" />
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="debugCamera.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="FBO.h" />
+    <ClInclude Include="Font.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Phys.h" />
     <ClInclude Include="Phys_Object.h" />
@@ -190,6 +192,8 @@
     <None Include="shaders\default.frag" />
     <None Include="shaders\default.geom" />
     <None Include="shaders\default.vert" />
+    <None Include="shaders\text.frag" />
+    <None Include="shaders\text.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -22,6 +22,9 @@
     <Filter Include="Resource Files\Shaders\default">
       <UniqueIdentifier>{09e20703-abff-4de9-b566-c1e3077d6502}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\text">
+      <UniqueIdentifier>{a48ac42d-fd96-491f-9d3a-34c4a0412856}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -66,6 +69,9 @@
     <ClCompile Include="Phys.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Phys_Object.h">
@@ -101,6 +107,9 @@
     <ClInclude Include="Phys.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\debug_grid.frag">
@@ -126,6 +135,12 @@
     </None>
     <None Include="shaders\default.vert">
       <Filter>Resource Files\Shaders\default</Filter>
+    </None>
+    <None Include="shaders\text.frag">
+      <Filter>Resource Files\Shaders\text</Filter>
+    </None>
+    <None Include="shaders\text.vert">
+      <Filter>Resource Files\Shaders\text</Filter>
     </None>
   </ItemGroup>
 </Project>

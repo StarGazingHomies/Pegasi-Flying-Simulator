@@ -116,6 +116,11 @@ int main(int argc, char* argv[]) {
 	std::unique_ptr <Player> p = std::make_unique<Player>();
 	p->windowResizeCallback(800, 600);
 
+	std::unique_ptr <Font> font = std::make_unique<Font>();
+	font->Load("fonts/CelestiaRedux.ttf",72,800,600);
+	Shader textShader;
+	textShader.Compile("shaders/text.vert", "shaders/text.frag");
+
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.18f, 0.02f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -126,7 +131,8 @@ int main(int argc, char* argv[]) {
 		p->Tick(window, frameTime);
 		glm::mat4 proj = p->getProjMatrix();
 		glm::mat4 view = p->getViewMatrix();
-		p->Draw();
+		p->Draw(default_shader);
+		p->debugText(*font, textShader);
 
 		default_shader.Activate();
 		if (checkOBBCollision(*e, *f)) {
@@ -137,7 +143,7 @@ int main(int argc, char* argv[]) {
 			glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)0);
 		}
 
-		physEngine->Draw(default_shader, proj, view);
+		//physEngine->Draw(default_shader, proj, view);
 		physEngine->Tick(frameTime);
 
 		// Render the grid

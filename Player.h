@@ -1,5 +1,7 @@
 #pragma once
 
+#include <format>
+
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<glm/glm.hpp>
@@ -9,12 +11,12 @@
 #include<glm/gtx/vector_angle.hpp>
 
 #include"Phys_Object.h"
+#include"Font.h"
 
 enum class WingMotion {
 	IDLE,
 	DOWN,
 	UP,
-
 };
 
 enum class ControlState {
@@ -35,7 +37,7 @@ enum class ControlState {
 };
 
 struct keyStatus {
-	bool pressed;
+	int status;
 	double lastPress;
 	unsigned int consecutiveClicks;
 };
@@ -97,13 +99,22 @@ public:
 	double wingSpan = 5.5;      // Very beeg wings lol
 	double primaryFeatherLength = 2.55;
 	double humurusLength = 1.0; // The humurus doesn't really move when flapping to provide lift.
-
-
+	
 
 	// Not really Consts (changes very little over the game, but it does and should change!)
 	double mass = 40;
 	glm::mat3 momentOfInertia = glm::mat3(1.0f);
-	float jumpVelocity = 3.0, walkingSpeed = 1.3;
+	float jumpVelocity = 4.0, walkingSpeed = 4.0;
+	glm::vec3 ponyHalfSize = glm::vec3(0.5f, 0.5f, 0.25f);
+	glm::vec3 ponyLoafHalfSize = glm::vec3(0.5f, 0.5f, 0.25f);
+	float foreFootLengths[3] = {0.0f, 0.0f, 0.0f};
+	
+	double maxStamina = 100;
+	double maxBurstStamina = 10;
+	float walkingMaxAcceleration = 5.0;
+	float walkingRetention = 0.04;
+	float walkingTargetSpeed = 4.0;
+
 
 	// Variables
 
@@ -111,6 +122,7 @@ public:
 	// Acceleration is calculated per frame
 	glm::vec3 position, velocity;
 	glm::quat rot, rotVelocity;
+	// Need more variables for player's exact state, such as the 4 hooves
 	glm::vec3 camPos, camOrientation, camUp;
 	glm::vec3 camRelPos = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -125,6 +137,9 @@ public:
 	bool hasDebugSwitched = false;
 	double firstClick = false;
 
+	// Ground movement
+	double stamina = 0, burstStamina = 0;
+
 	// Window stuff
 	int width, height;
 	double sensitivity = 100.0;
@@ -133,9 +148,11 @@ public:
 
 	// Debug display
 	bool debugGraphics;
-	VAO debugVAO;
-	VBO debugVBO;
-	EBO debugEBO;
+	VAO debugCamVAO;
+	VBO debugCamVBO;
+	EBO debugCamEBO;
+	// Temp debug vars
+	glm::vec3 debugTempVec1, debugTempVec2;
 
 	// Initializer
 	Player();
@@ -166,13 +183,14 @@ public:
 
 	double RHSignedAngle(glm::vec3 a, glm::vec3 b, glm::vec3 n);
 	double LHSignedAngle(glm::vec3 a, glm::vec3 b, glm::vec3 n);
-	double wingEfficiency();
+	double wingEfficiency(float angleOfAttack);
 	glm::vec3 wingLiftForce();
 	glm::vec3 wingStrokeForce();
 	glm::vec3 wingAcceleration(double time);
 	glm::vec3 wingAngularAcceleration(double time);
 
 	// Main functions
-	void Draw();
+	void Draw(Shader& shader);
+	void debugText(Font& font, Shader& fontShader);
 	void Tick(GLFWwindow* window, float time);
 };

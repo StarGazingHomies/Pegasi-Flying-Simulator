@@ -36,6 +36,11 @@ enum class ControlState {
 	FREECAM // Debug
 };
 
+enum class CameraState {
+	FIRST_PERSON,
+	THIRD_PERSON
+};
+
 struct keyStatus {
 	int status;
 	double lastPress;
@@ -58,7 +63,7 @@ public:
 	* Smaller birds tend to flap faster, so maybe a pegasus filly should flap much, much faster than an adult.
 	* Like how scootaloo buzzes her wings on the scooter
 	* No idea if biology allows for this type of muscle development though.
-	* 
+	*
 	* That's something to worry about later, for now, estimate the adult consts.
 	* Times are for a full stroke (up and down).
 	*/
@@ -74,32 +79,32 @@ public:
 
 	/*
 	* Next is the size of the wings.
-	* 
+	*
 	* Note: Humurus/Ulna/Manus are the three sections (name of bones) of a bird's wing
 	* but the wingspan also includes primary feather length!
-	* 
+	*
 	* Again, no idea how big a pegasus is relative to a human.
 	* If we use IRL pony size as a reference... well, ponies don't fly
 	* But the wandering albatross has the biggest wingspan of 2.51~3.5 (mean 3.1)m
 	* And weighs 6.35-11.91 (mean depending on place, but prolly 9.1)kg
 	* (Source: Wikipedia. Yeah, I'm not proud of it)
-	* 
+	*
 	* However, wingspan also has a relationship with mass to consider
-	* 
+	*
 	* Total arm length related to weight^0.42 approximately
 	* Primary feather length related to arm length^0.82 ish
 	* https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0015665
 	* https://www.researchgate.net/profile/Robert-Nudds/publication/272152474_Wing_bone_length_allometry_in_birds/links/5cd41defa6fdccc9dd98075e/Wing-bone-length-allometry-in-birds.pdf
-	* 
+	*
 	* Note: Cruising velocity goes by wing area ^0.25
 	* https://www.science.org/doi/10.1126/sciadv.aat4269
 	*/
-	
+
 	// Very crude estimates, for now
 	double wingSpan = 5.5;      // Very beeg wings lol
 	double primaryFeatherLength = 2.55;
 	double humurusLength = 1.0; // The humurus doesn't really move when flapping to provide lift.
-	
+
 
 	// Not really Consts (changes very little over the game, but it does and should change!)
 	double mass = 40;
@@ -107,22 +112,27 @@ public:
 	float jumpVelocity = 4.0, walkingSpeed = 4.0;
 	glm::vec3 ponyHalfSize = glm::vec3(0.5f, 0.5f, 0.25f);
 	glm::vec3 ponyLoafHalfSize = glm::vec3(0.5f, 0.5f, 0.25f);
-	float foreFootLengths[3] = {0.0f, 0.0f, 0.0f};
+	float forehoofLengths[3] = { 0.2f, 0.18f, 0.22f };
+	float backhoofLengths[3] = { 0.25f, 0.05f, 0.3f };
 	
 	// Stamina
 	double staminaRegen = 0.1;
 	double maxStamina = 100;
 	double maxBurstStamina = 10;
 
-	// Walking
-	float walkingMaxAcceleration = 5.0;		// Range: (0,+inf), technically maxWalkingSpeed = walkingMaxAcceleration / (1-walkingRetention)
-	float walkingStopAcceleration = 12.0;   // Rnage: [0, +inf), maximum stopping accr
-	float walkingRetention = 0.25;			// Range: [0,1) (Change maxAcc accordingly)
-	float walkingTargetSpeed = 4.0;			// Range: [0,maxWalkingSpeed]
-	float walkingLookImportance = 0.2f;		// Range: [0,0.5] (0 --> Look dir no impact, 0.5 --> Going back velocity 0)
-	float walkingLookStaminaImpact = 1.5f;  // Range: [0,+inf) (0 --> Look dir no additional impact)
-	float walkingInstantStop = 0.05f;		// Range: [0,+inf) (0 --> never completely stop; inf --> instantly completely stop)
-	float walkingMaxAccStaminaCost = 0.19f; // Range: [0,+inf) stamina cost of maximum acceleration
+	// Walking (and standing still)
+	float walkingMaxAcceleration = 12.0;		// Range: (0,+inf), technically maxWalkingSpeed = walkingMaxAcceleration / (1-walkingRetention)
+	float walkingStopAcceleration = 18.0;		// Rnage: [0, +inf), maximum stopping accr
+	float walkingRetention = 0.25;				// Range: [0,1) (Change maxAcc accordingly)
+	float walkingTargetSpeed = 4.0;				// Range: [0,maxWalkingSpeed]
+	float walkingLookImportance = 0.08f;		// Range: [0,0.5] (0 --> Look dir no impact, 0.5 --> Going back velocity 0)
+	float walkingBodyImportance = 0.14f;		// Range: [0,0.5] (0 --> Look dir no impact, 0.5 --> Going back velocity 0)
+	float walkingDirectionStaminaImpact = 1.5f;	// Range: [0,+inf) (0 --> Look dir no additional impact)
+	float walkingInstantStop = 0.05f;			// Range: [0,+inf) (0 --> never completely stop; inf --> instantly completely stop)
+	float walkingDirWeight = 4.0f;				// Range: [0,+inf) (0 --> Direction has no weight, inf --> never turn)
+	float walkingMaxAccStaminaCost = 0.44f;		// Range: [0,+inf) stamina cost of maximum acceleration
+
+	bool walkingAutoTurn = true;
 
 	// Variables
 
@@ -142,7 +152,8 @@ public:
 	// Status of player
 	ControlState controlState = ControlState::GROUND_WALKING;
 	ControlState prevControlState = ControlState::GROUND_WALKING;
-	bool hasDebugSwitched = false;
+	CameraState camState = CameraState::FIRST_PERSON;
+	float camThirdPersonDistance = 5;
 	double firstClick = false;
 
 	// Ground movement
@@ -156,9 +167,9 @@ public:
 
 	// Debug display
 	bool debugGraphics;
-	VAO debugCamVAO;
-	VBO debugCamVBO;
-	EBO debugCamEBO;
+	VAO debugCamVAO, debugBodyVAO;
+	VBO debugCamVBO, debugBodyVBO;
+	EBO debugCamEBO, debugBodyEBO;
 	// Temp debug vars
 	glm::vec3 debugTempVec1, debugTempVec2;
 
@@ -171,6 +182,7 @@ public:
 	// Inputs
 	std::vector<keyStatus> keymap;
 	void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+	void keyClear(int key);
 	void windowResizeCallback(int width, int height);
 
 	// Camera helper functions

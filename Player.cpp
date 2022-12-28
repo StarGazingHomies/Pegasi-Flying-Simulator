@@ -128,6 +128,36 @@ Player::Player() {
 	debugCamVAO.LinkAttrib(debugCamVBO, 3, 2, GL_FLOAT, 0, (void*)(15 * sizeof(float)));
 
 	debugCamEBO = EBO(indices);
+
+	std::vector<float> bodyVertices = {
+		-0.5f, 0.5f, -0.2f,
+		 0.5f, 0.5f, -0.2f,
+		-0.5f, 0.5f,  0.2f,
+		 0.5f, 0.5f,  0.2f,
+		-0.5f, 0.7f, -0.2f,
+		 0.5f, 0.7f, -0.2f,
+		-0.5f, 0.7f,  0.2f,
+		 0.5f, 0.7f,  0.2f,
+		 0.0f, 0.0f,  0.0f
+	};
+
+	std::vector<GLuint> bodyIndices = {
+		0,1,2,0,2,3,
+		4,5,6,4,6,7,
+		0,1,4,0,4,5,
+		2,3,6,2,6,7,
+		0,2,4,0,4,6,
+		1,3,5,1,5,7
+	};
+
+	debugBodyVAO.Bind();
+	debugBodyVBO = VBO(bodyVertices);
+	debugBodyVAO.LinkAttrib(debugBodyVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+	debugBodyVAO.LinkAttrib(debugBodyVBO, 1, 3, GL_FLOAT, 0, (void*)(24 * sizeof(float)));
+	debugBodyVAO.LinkAttrib(debugBodyVBO, 2, 3, GL_FLOAT, 0, (void*)(24 * sizeof(float)));
+	debugBodyVAO.LinkAttrib(debugBodyVBO, 3, 2, GL_FLOAT, 0, (void*)(24 * sizeof(float)));
+
+	debugBodyEBO = EBO(bodyIndices);
 }
 
 std::string Player::getControlStateString() {
@@ -278,10 +308,10 @@ glm::vec3 Player::wingAcceleration(double time) {
 
 void Player::Draw(Shader& shader) {
 	// Debug graphics! (A bunch of lines)
-	if (controlState == ControlState::FREECAM) {
-		shader.Activate();
-		glUniformMatrix4fv(glGetUniformLocation(shader.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(projMatrix * viewMatrix));
+	shader.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(projMatrix * viewMatrix));
 
+	if (controlState == ControlState::FREECAM) {
 		glm::quat camRot = RotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), camOrientation);
 		//debugVec3("Rotation EulerAngles: ", glm::eulerAngles(camRot));
 		glm::mat4 camRotMat = glm::mat4_cast(camRot);
@@ -299,6 +329,19 @@ void Player::Draw(Shader& shader) {
 
 		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 	}
+
+	glm::mat4 bodyRotMat = glm::mat4_cast(rot);
+	glm::mat4 translation = glm::mat4(1.0f);
+	translation = glm::translate(translation, position);
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "rotation"), 1, GL_FALSE, glm::value_ptr(bodyRotMat));
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "translation"), 1, GL_FALSE, glm::value_ptr(translation));
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "scale"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+
+	debugBodyVAO.Bind();
+	debugBodyVBO.Bind();
+	debugBodyEBO.Bind();
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
 	return;
 }
@@ -322,7 +365,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 	double gravityMagnitude;
 
 	// F1 to switch to levitation
-	if (keymap[GLFW_KEY_F1].status && !hasDebugSwitched) {
+	if (keymap[GLFW_KEY_F1].status) {
 		if (controlState != ControlState::FREECAM) {
 			prevControlState = controlState;
 			controlState = ControlState::FREECAM;
@@ -330,10 +373,13 @@ void Player::Tick(GLFWwindow* window, float time) {
 		else {
 			controlState = prevControlState;
 		}
-		hasDebugSwitched = true;
+		keyClear(GLFW_KEY_F1);
 	}
-	if (!keymap[GLFW_KEY_F1].status) {
-		hasDebugSwitched = false;
+
+	if (keymap[GLFW_KEY_F5].status) {
+		if (camState == CameraState::FIRST_PERSON) camState = CameraState::THIRD_PERSON;
+		else if (camState == CameraState::THIRD_PERSON) camState = CameraState::FIRST_PERSON;
+		keyClear(GLFW_KEY_F5);
 	}
 
 	// Determine if control regime needs to switch
@@ -435,7 +481,10 @@ void Player::Tick(GLFWwindow* window, float time) {
 		// Normalize the target direction, if the target isn't stopping
 		if (target != glm::vec3(0.0f)) { 
 			target = glm::normalize(target); 
-			directionFactor = (1 - walkingLookImportance) + walkingLookImportance * glm::dot(glm::normalize(target), camOrientation);
+			directionFactor = 
+				(1 - walkingLookImportance - walkingBodyImportance)
+				+ walkingLookImportance * glm::dot(target, camOrientation)
+				+ walkingBodyImportance * glm::dot(target, getAxes()[0]);
 		}
 		// Find target velocity
 		target *= walkingTargetSpeed * directionFactor;
@@ -468,13 +517,13 @@ void Player::Tick(GLFWwindow* window, float time) {
 			// Consume stamina using resultAccMagnitude and directionFactor
 			// (Going backwards takes a lot!)
 			percentAcc = resultAccMagnitude / walkingMaxAcceleration;
-			double staminaFactor = percentAcc * std::pow(directionFactor, -walkingLookStaminaImpact);
+			double staminaFactor = percentAcc * std::pow(directionFactor, -walkingDirectionStaminaImpact);
 			stamina -= staminaFactor * walkingMaxAccStaminaCost * time;
 		}
 
-
 		// Ground handling - ignored for now
 		float groundSlope = 0;
+
 
 
 
@@ -493,16 +542,32 @@ void Player::Tick(GLFWwindow* window, float time) {
 		position.y = groundY; // Crude ground handling for now
 		velocity = retainedVelocity + acceleration * time;
 
+		// Turning
+		glm::vec3 targetEulerAngles = glm::vec3(0.0f);
+		glm::vec3 originalEulerAngles = glm::eulerAngles(rot);
+		if (walkingAutoTurn && velocity != glm::vec3(0.0f) && target != glm::vec3(0.0f)) {
+			targetEulerAngles.y = RHSignedAngle(
+				glm::vec3(1.0f, 0.0f, 0.0f),
+				glm::normalize(velocity + walkingDirWeight * getAxes()[0]),
+				glm::vec3(0.0f, 1.0f, 0.0f));
+
+			rot = glm::quat(targetEulerAngles);
+		}
+
 		// Regen stamina
 		stamina = std::min(stamina + staminaRegen * time, maxStamina);
 
 		// Turn body / update camera accordingly
-
-		camPos = position + camRelPos;
+		if (camState == CameraState::FIRST_PERSON) {
+			camPos = position + camRelPos;
+		}
+		else {
+			camPos = position + camRelPos - camOrientation * camThirdPersonDistance;
+		}
 
 
 		// Debug stuff
-		debugTempVec1 = diffVelocity;
+		debugTempVec1 = targetEulerAngles;
 		debugTempVec2 = acceleration;
 		}
 		break;
@@ -589,11 +654,15 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 	// Roll keys (Q, E controls roll)
 	float rollSpeed = 25.0f;
-	if (keymap[GLFW_KEY_Q].status == 1)
+	if (keymap[GLFW_KEY_Q].status == 1 && keymap[GLFW_KEY_E].status == 1) {
+		// Reset
+		camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	}
+	else if (keymap[GLFW_KEY_Q].status == 1)
 	{
 		camUp = glm::rotate(camUp, (float)glm::radians(-rollSpeed * time), glm::normalize(camOrientation));
 	}
-	if (keymap[GLFW_KEY_E].status == 1)
+	else if (keymap[GLFW_KEY_E].status == 1)
 	{
 		camUp = glm::rotate(camUp, (float)glm::radians(rollSpeed * time), glm::normalize(camOrientation));
 	}
@@ -683,10 +752,15 @@ void Player::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	}
 }
 
+void Player::keyClear(int key) {
+	keymap[key].consecutiveClicks = 0;
+	keymap[key].status = false;
+}
+
 void Player::updateMatrix() {
 	projMatrix = glm::perspective(glm::radians(FOVdeg), (double)width / height, nearPlane, farPlane);
-	// Multiply by the character's rotation since ur mouse basically controls head movement
-	viewMatrix = glm::lookAt(camPos, camPos + camOrientation*glm::mat3(glm::mat4_cast(rot)), camUp);
+	//viewMatrix = glm::lookAt(camPos, camPos + camOrientation * glm::mat3(glm::mat4_cast(rot)), camUp);
+	viewMatrix = glm::lookAt(camPos, camPos + camOrientation, camUp);
 }
 
 glm::mat4 Player::getProjMatrix() {

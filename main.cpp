@@ -61,6 +61,10 @@ int main(int argc, char* argv[]) {
 
 	glfwSetKeyCallback(window, keyCallback);
 
+	glfwWindowHint(GLFW_SAMPLES, 4);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glEnable(GL_MULTISAMPLE);
 	glfwSwapInterval(1);
 
 	std::unique_ptr<OBB> e = std::make_unique<OBB>();
@@ -84,7 +88,7 @@ int main(int argc, char* argv[]) {
 		"shaders/debug_grid.tesc",
 		"shaders/debug_grid.tese");
 
-	glEnable(GL_DEPTH_TEST);
+
 	double curTime = glfwGetTime(), frameTime;
 
 	GLuint terrainVAO, terrainVBO;

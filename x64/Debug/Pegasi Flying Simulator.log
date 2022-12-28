@@ -1,18 +1,3 @@
-﻿  Player.cpp
-C:\OpenGL\Pegasi Flying Simulator\Player.cpp(259,23): warning C4101: 'rightForce': unreferenced local variable
-C:\OpenGL\Pegasi Flying Simulator\Player.cpp(368,39): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\OpenGL\Pegasi Flying Simulator\Player.cpp(369,48): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\OpenGL\Pegasi Flying Simulator\Player.cpp(370,47): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\OpenGL\Pegasi Flying Simulator\Player.cpp(377,30): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\OpenGL\Pegasi Flying Simulator\Player.cpp(387,32): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\OpenGL\Pegasi Flying Simulator\Player.cpp(493,16): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
-          with
-          [
-              T=float
-          ]
-C:\OpenGL\Pegasi Flying Simulator\Player.cpp(621,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\OpenGL\Pegasi Flying Simulator\Player.cpp(622,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-  main.cpp
-C:\OpenGL\Pegasi Flying Simulator\main.cpp(131,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-  Generating Code...
+﻿  main.cpp
+C:\OpenGL\Pegasi Flying Simulator\main.cpp(135,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   Pegasi Flying Simulator.vcxproj -> C:\OpenGL\Pegasi Flying Simulator\x64\Debug\Pegasi Flying Simulator.exe

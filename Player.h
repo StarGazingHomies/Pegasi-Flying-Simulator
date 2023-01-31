@@ -117,6 +117,7 @@ public:
 	
 	// Stamina
 	double staminaRegen = 0.1;
+	double burstStaminaRegen = 0.5;
 	double maxStamina = 100;
 	double maxBurstStamina = 10;
 
@@ -127,9 +128,12 @@ public:
 	float walkingTargetSpeed = 4.0;				// Range: [0,maxWalkingSpeed]
 	float walkingLookImportance = 0.08f;		// Range: [0,0.5] (0 --> Look dir no impact, 0.5 --> Going back velocity 0)
 	float walkingBodyImportance = 0.14f;		// Range: [0,0.5] (0 --> Look dir no impact, 0.5 --> Going back velocity 0)
-	float walkingDirectionStaminaImpact = 1.5f;	// Range: [0,+inf) (0 --> Look dir no additional impact)
-	float walkingInstantStop = 0.05f;			// Range: [0,+inf) (0 --> never completely stop; inf --> instantly completely stop)
-	float walkingDirWeight = 4.0f;				// Range: [0,+inf) (0 --> Direction has no weight, inf --> never turn)
+	float walkingDirectionStaminaImpact = 1.9f;	// Range: [0,+inf) (0 --> Look dir no additional impact)
+	float walkingInstantStop = 0.15f;			// Range: [0,+inf) (0 --> never completely stop; inf --> instantly completely stop)
+	float walkingDirWeight = 0.3f;				// Range: [0,+inf) (0 --> Old direction has no weight, inf --> very important)
+	float walkingTargetDirWeight = 1.5f;		// Range: [0,+inf) (0 --> Target direction has no weight, inf --> very important)
+	float walkingVelocityDirWeight = 1.0f;		// Range: [0,+inf) (0 --> Velocity direction has no weight, inf --> very important)
+	float walkingMaxTurnSpeed = 8.0f;			// Range: [0,+inf) (0 --> No turning, inf --> Instant turn)
 	float walkingMaxAccStaminaCost = 0.44f;		// Range: [0,+inf) stamina cost of maximum acceleration
 
 	bool walkingAutoTurn = true;

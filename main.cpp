@@ -5,7 +5,7 @@
 #include<GLFW/glfw3.h>
 
 #include"Phys_Object.h"
-#include"shaderClass.h"
+#include"Shader.h"
 #include"Phys.h"
 #include"Player.h"
 
@@ -31,8 +31,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 	keyEvents.push(mods);
 }
 
+int newWidth = -1, newHeight = -1;
 void windowResizeCallback(GLFWwindow* window, int scrWidth, int scrHeight)
 {
+	newWidth = scrWidth;
+	newHeight = scrHeight;
 	//cam.windowResizeCallback(scrWidth, scrHeight);
 }
 
@@ -60,6 +63,7 @@ int main(int argc, char* argv[]) {
 	glDebugMessageCallback(MessageCallback, 0);
 
 	glfwSetKeyCallback(window, keyCallback);
+	glfwSetWindowSizeCallback(window, windowResizeCallback);
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glEnable(GL_DEPTH_TEST);
@@ -169,6 +173,14 @@ int main(int argc, char* argv[]) {
 			int action = keyEvents.front(); keyEvents.pop();
 			int mods = keyEvents.front(); keyEvents.pop();
 			p->keyCallback(window, key, scancode, action, mods);
+		}
+
+		if (newHeight != -1) {
+			glViewport(0, 0, newWidth, newHeight);
+			p->windowResizeCallback(newWidth, newHeight);
+			font->updateScreenSize(newWidth, newHeight);
+			std::cout << newWidth << ", " << newHeight << "\n";
+			newHeight = -1;
 		}
 	}
 

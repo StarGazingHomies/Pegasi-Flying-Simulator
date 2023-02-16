@@ -606,6 +606,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 		// You can't walk up
 		target.y = 0;
 		float directionFactor = 1;
+
 		// Normalize the target direction, if the target isn't stopping
 		if (target != glm::vec3(0.0f)) {
 			target = glm::normalize(target);
@@ -615,10 +616,11 @@ void Player::Tick(GLFWwindow* window, float time) {
 				+ walkingLookImportance * glm::dot(target, camOrientation)
 				+ walkingBodyImportance * glm::dot(target, getAxes()[0]);
 		}
+
 		// Find target velocity
 		target *= walkingTargetSpeed * directionFactor;
 
-		// Natural velocity loss, and walking acceleration to keep up / change direction
+		// Natural velocity loss, find walking acceleration to keep up / change direction
 		glm::vec3 retainedVelocity = velocity * (1 - (1 - walkingRetention) * time);
 		glm::vec3 diffVelocity = target - retainedVelocity;
 		float diffLength = glm::length(diffVelocity);
@@ -668,7 +670,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 		position.y = groundY; // Crude ground handling for now
 		velocity = retainedVelocity + acceleration * time;
 
-		// Turning
+		// Turning (Using Euler Angles because we are only looking at yaw)
 		glm::vec3 targetEulerAngles = glm::vec3(0.0f);
 		glm::vec3 originalEulerAngles = glm::eulerAngles(rot);
 		if (walkingAutoTurn && velocity != glm::vec3(0.0f) && target != glm::vec3(0.0f)) {
@@ -695,7 +697,8 @@ void Player::Tick(GLFWwindow* window, float time) {
 		// Regen stamina
 		stamina = std::min(stamina + staminaRegen * time, maxStamina);
 
-		// Turn body / update camera accordingly
+		// Update camera accordingly
+		// Camera does not turn with body, maybe a setting could enable it in the future
 		if (camState == CameraState::FIRST_PERSON) {
 			camPos = position + camRelPos;
 		}
@@ -729,16 +732,11 @@ void Player::Tick(GLFWwindow* window, float time) {
 			controlState = ControlState::FREEFALL;
 			break;
 		}
-
-		// Debug stuff
 	}
 	break;
 
 	case (ControlState::FREEFALL):
 	{
-		// TODO: You can only really flail around so much (wasd has very limited movement potential)
-		// in the future this will be replaced by orientation control and drag will make u move
-
 		// Gravity!
 		glm::vec3 totalForce = glm::vec3(0.0f);
 		glm::vec3 totalRotForce = glm::vec3(0.0f);
@@ -748,8 +746,6 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 		glm::vec3 finalAcceleration = totalForce / (float)mass;
 		glm::vec3 finalRotAcceleration = totalRotForce * momentOfInertia;
-
-		// TODO: Add drag! (No lift, I don't wanna simulate friend-shaped ICBMs)
 
 
 		/*printf("Acc: <%lf, %lf, %lf>\nRotAcc: <%lf, %lf, %lf>\n---------\n",

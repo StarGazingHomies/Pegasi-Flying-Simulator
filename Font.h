@@ -12,7 +12,7 @@
 #include<algorithm>
 #include<stb/stb_image.h>
 
-#include"shaderClass.h"
+#include"Shader.h"
 #include"VAO.h"
 #include"VBO.h"
 #include"EBO.h"

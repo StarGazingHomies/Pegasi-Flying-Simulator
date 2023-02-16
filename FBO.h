@@ -3,7 +3,7 @@
 
 #include<glad/glad.h>
 #include"VAO.h"
-#include"shaderClass.h"
+#include"Shader.h"
 
 class FBO
 {

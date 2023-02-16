@@ -10,6 +10,12 @@ std::string debugVec3Str(std::string name, glm::vec3 vec) {
 	return std::format("{}: <{:.2f}, {:.2f}, {:.2f}> / {:.2f}", name.c_str(), vec.x, vec.y, vec.z, glm::length(vec));
 }
 
+std::string debugQuatStr(std::string name, glm::quat quat) {
+	glm::vec3 eulerAngles = glm::eulerAngles(quat);
+	return std::format("{}: <{:.4f}, {:.4f}, {:.4f}, {:.4f}> / <{:.2f}, {:.2f}, {:.2f}>",
+		name.c_str(), quat.x, quat.y, quat.z, quat.w, eulerAngles.x, eulerAngles.y, eulerAngles.z);
+}
+
 std::string debugFloatStr(std::string name, float num) {
 	return std::format("{}: {:.2f}", name.c_str(), num);
 }
@@ -96,6 +102,10 @@ double rotationalInterpolation(double a, double b, double md) {
 		if (rdst < md) return b;
 		return a + rdir * md;
 	}
+}
+
+glm::quat scale(glm::quat q, float factor) {
+	return glm::angleAxis(glm::angle(q) * factor, glm::axis(q));
 }
 
 // Player class
@@ -341,6 +351,17 @@ void Player::Draw(Shader& shader) {
 
 	if (controlState == ControlState::FREECAM) {
 		glm::quat camRot = RotationBetweenVectors(glm::vec3(0.0f, 0.0f, 1.0f), camOrientation);
+		// camUp isn't actually 90 degrees to camera!
+		// Cross it twice so it's perpendicular to camOrientation
+		glm::vec3 desiredUp = glm::normalize(glm::cross(glm::cross(camUp, camOrientation), camOrientation));
+
+		// Make sure it's upright
+		glm::vec3 newUp = camRot * glm::vec3(0.0f, 1.0f, 0.0f);
+		glm::quat camRot2 = RotationBetweenVectors(newUp, desiredUp);
+
+		// First thing is applied last
+		camRot = camRot2 * camRot;
+
 		//debugVec3("Rotation EulerAngles: ", glm::eulerAngles(camRot));
 		glm::mat4 camRotMat = glm::mat4_cast(camRot);
 		//debugMat4("Rotation Mat4: ", camRotMat);
@@ -588,7 +609,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 		// Normalize the target direction, if the target isn't stopping
 		if (target != glm::vec3(0.0f)) {
 			target = glm::normalize(target);
-			// You go a tiny bit faster if you (and your body) face in the right direction
+			// You go a bit faster if you (and your body) face in the right direction
 			directionFactor =
 				(1 - walkingLookImportance - walkingBodyImportance)
 				+ walkingLookImportance * glm::dot(target, camOrientation)
@@ -635,15 +656,12 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 
 
-		// Jumping - fix later
-		//if (keymap[GLFW_KEY_SPACE].status == 1) {
-		//	newVelocity += glm::vec3(0.0f, jumpVelocity, 0.0f); // Replace with ground vec3 when I get there
-		//	velocity = newVelocity;
-		//	controlState = ControlState::FREEFALL;
-		//	// Don't want to instantly switch to flying, so space needs to be pressed again
-		//	keymap[GLFW_KEY_SPACE].status = false;
-		//	break;
-		//}
+		// Jumping, Pt. 1
+		glm::quat originalRot{};
+		if (keymap[GLFW_KEY_SPACE].status == 1) {
+			// Record some data so we know what exactly happened in the last frame we had on the ground
+			originalRot = rot;
+		}
 
 		// Linearly interpolate between velocities
 		position += (velocity + retainedVelocity) * time * 0.5f + acceleration * time * time * 0.5f;
@@ -685,6 +703,32 @@ void Player::Tick(GLFWwindow* window, float time) {
 			camPos = position + camRelPos - camOrientation * camThirdPersonDistance;
 		}
 
+		// Jumping, Pt. 2
+		if (keymap[GLFW_KEY_SPACE].status == 1) {
+
+			// Don't want to instantly switch to flying, so space needs to be pressed again
+			keyClear(GLFW_KEY_SPACE);
+
+			// Add velocity for jump, since acceleration will be almost instantaneous anyway.
+			// TODO: At some point, make holding space charge your jump
+			velocity = retainedVelocity + glm::vec3(0.0f, jumpVelocity, 0.0f); // Replace with ground vec3 when I get there
+
+
+
+			// The rotation this frame
+			rotVelocity = rot * scale(originalRot, -1);
+
+			// The rotation per second
+			rotVelocity = glm::angleAxis(glm::angle(rotVelocity) / time, glm::axis(rotVelocity));
+
+			std::cout << debugQuatStr("originalRot", originalRot) << "\n";
+			std::cout << debugQuatStr("rot", rot) << "\n";
+			std::cout << debugQuatStr("rotVelocity", rotVelocity) << "\n";
+
+			// Now we are not on the ground anymore
+			controlState = ControlState::FREEFALL;
+			break;
+		}
 
 		// Debug stuff
 	}
@@ -708,15 +752,17 @@ void Player::Tick(GLFWwindow* window, float time) {
 		// TODO: Add drag! (No lift, I don't wanna simulate friend-shaped ICBMs)
 
 
-		//printf("Acc: <%lf, %lf, %lf>\nRotAcc: <%lf, %lf, %lf>\n---------\n",
-		//	finalAcceleration.x, finalAcceleration.y, finalAcceleration.z,
-		//	finalRotAcceleration.x, finalRotAcceleration.y, finalRotAcceleration.z
-		//);
+		/*printf("Acc: <%lf, %lf, %lf>\nRotAcc: <%lf, %lf, %lf>\n---------\n",
+			finalAcceleration.x, finalAcceleration.y, finalAcceleration.z,
+			finalRotAcceleration.x, finalRotAcceleration.y, finalRotAcceleration.z
+		);*/
+
+		//std::cout << debugQuatStr("rotVelocity", rotVelocity) << std::endl;
 
 		position += velocity * time + finalAcceleration * time * time * 0.5f;
-		//rot *= glm::quat(glm::eulerAngles(rotVelocity) * time + finalRotAcceleration * time * time);
+		rot *= scale(rotVelocity, time) * scale(finalRotAcceleration, time * time * 0.5f);
 		velocity += finalAcceleration * time;
-		//rotVelocity *= finalRotAcceleration * time;
+		rotVelocity *= scale(finalRotAcceleration, time);
 
 		camPos = position + camRelPos;
 	}

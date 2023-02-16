@@ -8,6 +8,7 @@
 #include"Shader.h"
 #include"Phys.h"
 #include"Player.h"
+#include"resourceManager.h"
 
 void GLAPIENTRY MessageCallback(GLenum source,
 	GLenum type,
@@ -81,11 +82,10 @@ int main(int argc, char* argv[]) {
 	//f.rotVelocity = glm::quat();
 	//e.rotVelocity = glm::quat();
 
-	Shader default_shader;
-	default_shader.Compile("shaders/default.vert", "shaders/default.frag", "shaders/default.geom");
+	Shader default_shader = resourceManager::loadShader("default","shaders/default.vert", "shaders/default.frag", "shaders/default.geom");
 
-	Shader debugGridShader;
-	debugGridShader.Compile(
+	Shader debugGridShader = resourceManager::loadShader(
+		"debugGrid",
 		"shaders/debug_grid.vert",
 		"shaders/debug_grid.frag",
 		"shaders/debug_grid.geom",
@@ -124,10 +124,8 @@ int main(int argc, char* argv[]) {
 	std::unique_ptr <Player> p = std::make_unique<Player>();
 	p->windowResizeCallback(800, 600);
 
-	std::unique_ptr <Font> font = std::make_unique<Font>();
-	font->Load("fonts/CelestiaRedux.ttf",72,800,600);
-	Shader textShader;
-	textShader.Compile("shaders/text.vert", "shaders/text.frag");
+	Font font = resourceManager::loadFont("celestiaRedux", "fonts/CelestiaRedux.ttf",72,800,600);
+	Shader textShader = resourceManager::loadShader("text", "shaders/text.vert", "shaders/text.frag");
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.18f, 0.02f, 0.17f, 1.0f);
@@ -140,7 +138,7 @@ int main(int argc, char* argv[]) {
 		glm::mat4 proj = p->getProjMatrix();
 		glm::mat4 view = p->getViewMatrix();
 		p->Draw(default_shader);
-		p->debugText(*font, textShader);
+		p->debugText(font, textShader);
 
 		default_shader.Activate();
 		if (checkOBBCollision(*e, *f)) {
@@ -178,8 +176,8 @@ int main(int argc, char* argv[]) {
 		if (newHeight != -1) {
 			glViewport(0, 0, newWidth, newHeight);
 			p->windowResizeCallback(newWidth, newHeight);
-			font->updateScreenSize(newWidth, newHeight);
-			std::cout << newWidth << ", " << newHeight << "\n";
+			font.updateScreenSize(newWidth, newHeight);
+			//std::cout << newWidth << ", " << newHeight << "\n";
 			newHeight = -1;
 		}
 	}

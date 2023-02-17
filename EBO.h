@@ -11,6 +11,7 @@ public:
 
 	// Constructors
 	EBO();
+	EBO(std::vector<int>& indices);
 	EBO(std::vector<GLuint>& indices);
 
 	// Bind the EBO to tell OpenGL to use it

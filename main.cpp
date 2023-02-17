@@ -9,6 +9,7 @@
 #include"Phys.h"
 #include"Player.h"
 #include"resourceManager.h"
+#include"Terrain.h"
 
 void GLAPIENTRY MessageCallback(GLenum source,
 	GLenum type,
@@ -95,31 +96,8 @@ int main(int argc, char* argv[]) {
 
 	double curTime = glfwGetTime(), frameTime;
 
-	GLuint terrainVAO, terrainVBO;
-	std::vector<float> terrainVertices = {
-		-32.0f, 0.0f, -32.0f, 0.0f, 0.0f,
-		 32.0f, 0.0f, -32.0f, 0.0f, 0.0f,
-		-32.0f, 0.0f,  32.0f, 0.0f, 0.0f,
-		 32.0f, 0.0f,  32.0f, 0.0f, 0.0f,
-	};
-
-	glGenVertexArrays(1, &terrainVAO);
-	glBindVertexArray(terrainVAO);
-
-	glGenBuffers(1, &terrainVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, terrainVBO);
-	glBufferData(GL_ARRAY_BUFFER,
-		terrainVertices.size() * sizeof(float),       // size of vertices buffer
-		&terrainVertices[0],                          // pointer to first element
-		GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	Terrain terrain;
+	terrain.Generate(-32, -32, 64, 64, 1, 1);
 
 	std::unique_ptr <Player> p = std::make_unique<Player>();
 	p->windowResizeCallback(800, 600);
@@ -153,14 +131,7 @@ int main(int argc, char* argv[]) {
 		physEngine->Tick(frameTime);
 
 		// Render the grid
-		glPatchParameteri(GL_PATCH_VERTICES, 4);
-		debugGridShader.Activate();
-		glUniformMatrix4fv(glGetUniformLocation(debugGridShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(proj));
-		glUniformMatrix4fv(glGetUniformLocation(debugGridShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniform3f(glGetUniformLocation(debugGridShader.ID, "camPos"), p->camPos.x, p->camPos.y, p->camPos.z);
-
-		glBindVertexArray(terrainVAO);
-		glDrawArrays(GL_PATCHES, 0, 4);
+		terrain.Draw(debugGridShader, proj, view, p->camPos);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

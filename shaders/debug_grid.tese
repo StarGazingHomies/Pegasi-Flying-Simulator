@@ -15,10 +15,10 @@ in vec2 TextureCoord[];
 out DATA
 {
     float height;
-    vec2 texCoord;
     mat4 model;
     mat4 view;
     mat4 projection;
+    vec3 debug;
 } data_out;
 
 void main()
@@ -27,23 +27,20 @@ void main()
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
 
-    // ----------------------------------------------------------------------
-    // retrieve control point texture coordinates
-    vec2 t00 = TextureCoord[0];
-    vec2 t01 = TextureCoord[1];
-    vec2 t10 = TextureCoord[2];
-    vec2 t11 = TextureCoord[3];
+    // Bilinear interpolation for height
+    float h00 = texture(heightMap, TextureCoord[0]).r;
+    float h01 = texture(heightMap, TextureCoord[1]).r;
+    float h10 = texture(heightMap, TextureCoord[2]).r;
+    float h11 = texture(heightMap, TextureCoord[3]).r;
 
-    // bilinearly interpolate texture coordinate across patch
-    vec2 t0 = (t01 - t00) * u + t00;
-    vec2 t1 = (t11 - t10) * u + t10;
-    vec2 texCoord = (t1 - t0) * v + t0;
+    float h0 = (h01 - h00) * u + h00;
+    float h1 = (h11 - h10) * u + h10;
+    data_out.height = (h1 - h0) * v + h0;
 
-    data_out.height = 0;
-    data_out.texCoord = texCoord;
     data_out.projection = projection;
     data_out.view = view;
     data_out.model = model;
+    data_out.debug = vec3(data_out.height / 128, 1.0f, 1.0f);
 
     // ----------------------------------------------------------------------
     // retrieve control point position coordinates

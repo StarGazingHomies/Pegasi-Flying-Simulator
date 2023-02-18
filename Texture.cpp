@@ -184,7 +184,7 @@ Texture Texture::hmapTexture(std::vector<float> data, int w, int h) {
 	glTexImage2D(
 		GL_TEXTURE_2D,
 		0,
-		GL_RGBA,
+		GL_R32F,
 		w,
 		h,
 		0,

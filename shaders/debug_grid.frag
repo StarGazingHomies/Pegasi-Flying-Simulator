@@ -2,10 +2,11 @@
 
 in vec3 crntPos;
 in vec2 texCoord;
+in vec3 debug;
 
 out vec4 FragColor;
 
 void main()
 {
-    FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    FragColor = vec4(debug, 1.0f);
 }

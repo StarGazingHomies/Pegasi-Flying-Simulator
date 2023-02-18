@@ -99,7 +99,7 @@ int main(int argc, char* argv[]) {
 	double curTime = glfwGetTime(), frameTime;
 
 	Terrain terrain;
-	terrain.Generate(-64, -64, 128, 128, 2, 2,
+	terrain.Generate(-64, -64, 128, 128, 10, 10,
 		[](float a, float b) {return sqrt(a * a + b * b); });
 
 	std::unique_ptr <Player> p = std::make_unique<Player>();

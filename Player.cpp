@@ -627,8 +627,13 @@ void Player::Tick(GLFWwindow* window, float time) {
 		float resultAccMagnitude = 0;
 		double percentAcc = 0;
 		glm::vec3 acceleration = glm::vec3(0.0f);
-		if (target == glm::vec3(0.0f)) {
-			// If you are stopping
+
+		// Debug stuff
+		debugTempVec1 = glm::vec3(directionFactor, 0.0f, 0.0f);
+		debugTempVec2 = target;
+
+		if (target == glm::vec3(0.0f) || glm::dot(target, retainedVelocity) < 0) {
+			// If you are stopping or reversing direction
 			// (Stamina cost of stopping is 0, for simplification)
 			if (diffLength > walkingInstantStop) {
 				// If the diff is beeg
@@ -643,7 +648,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 			// If the difference is too large to be ignored:
 			resultAccMagnitude = glm::min(diffLength / time, walkingMaxAcceleration * directionFactor);
 			if (resultAccMagnitude != 0)
-				acceleration = glm::normalize(diffVelocity) * resultAccMagnitude;
+				acceleration = glm::normalize(diffVelocity + walkingDirAccelerationWeight * getAxes()[0]) * resultAccMagnitude;
 
 			// Consume stamina using resultAccMagnitude and directionFactor
 			// (Going backwards takes a lot!)
@@ -665,11 +670,6 @@ void Player::Tick(GLFWwindow* window, float time) {
 			originalRot = rot;
 		}
 
-		// Linearly interpolate between velocities
-		position += (velocity + retainedVelocity) * time * 0.5f + acceleration * time * time * 0.5f;
-		position.y = groundY; // Crude ground handling for now
-		velocity = retainedVelocity + acceleration * time;
-
 		// Turning (Using Euler Angles because we are only looking at yaw)
 		glm::vec3 targetEulerAngles = glm::vec3(0.0f);
 		glm::vec3 originalEulerAngles = glm::eulerAngles(rot);
@@ -687,12 +687,15 @@ void Player::Tick(GLFWwindow* window, float time) {
 					walkingTargetDirWeight * target),
 				glm::vec3(0.0f, 1.0f, 0.0f));
 
-			debugTempVec1 = originalEulerAngles;
-			debugTempVec2 = targetEulerAngles;
 
 			targetEulerAngles.y = rotationalInterpolation(originalEulerAngles.y, targetEulerAngles.y, walkingMaxTurnSpeed*time);
 			rot = glm::quat(targetEulerAngles);
 		}
+
+		// Linearly interpolate between velocities
+		position += (velocity + retainedVelocity) * time * 0.5f + acceleration * time * time * 0.5f;
+		position.y = groundY; // Crude ground handling for now
+		velocity = retainedVelocity + acceleration * time;
 
 		// Regen stamina
 		stamina = std::min(stamina + staminaRegen * time, maxStamina);
@@ -722,7 +725,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 			rotVelocity = rot * scale(originalRot, -1);
 
 			// The rotation per second
-			rotVelocity = glm::angleAxis(glm::angle(rotVelocity) / time, glm::axis(rotVelocity));
+			rotVelocity = scale(rotVelocity, 1 / time / 3);
 
 			std::cout << debugQuatStr("originalRot", originalRot) << "\n";
 			std::cout << debugQuatStr("rot", rot) << "\n";

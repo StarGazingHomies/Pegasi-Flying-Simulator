@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include <random>
 
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
@@ -10,6 +11,7 @@
 #include"Player.h"
 #include"resourceManager.h"
 #include"Terrain.h"
+
 
 void GLAPIENTRY MessageCallback(GLenum source,
 	GLenum type,
@@ -97,7 +99,8 @@ int main(int argc, char* argv[]) {
 	double curTime = glfwGetTime(), frameTime;
 
 	Terrain terrain;
-	terrain.Generate(-32, -32, 64, 64, 1, 1);
+	terrain.Generate(-64, -64, 128, 128, 2, 2,
+		[](float a, float b) {return sqrt(a * a + b * b); });
 
 	std::unique_ptr <Player> p = std::make_unique<Player>();
 	p->windowResizeCallback(800, 600);

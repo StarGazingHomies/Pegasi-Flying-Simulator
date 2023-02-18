@@ -130,9 +130,10 @@ public:
 	float walkingBodyImportance = 0.14f;		// Range: [0,0.5] (0 --> Look dir no impact, 0.5 --> Going back velocity 0)
 	float walkingDirectionStaminaImpact = 1.9f;	// Range: [0,+inf) (0 --> Look dir no additional impact)
 	float walkingInstantStop = 0.15f;			// Range: [0,+inf) (0 --> never completely stop; inf --> instantly completely stop)
-	float walkingDirWeight = 0.8f;				// Range: [0,+inf) (0 --> Old direction has no weight, inf --> very important)
-	float walkingTargetDirWeight = 0.7f;		// Range: [0,+inf) (0 --> Target direction has no weight, inf --> very important)
+	float walkingDirWeight = 1.2f;				// Range: [0,+inf) (0 --> Old direction has no weight, inf --> very important)
+	float walkingTargetDirWeight = 0.4f;		// Range: [0,+inf) (0 --> Target direction has no weight, inf --> very important)
 	float walkingVelocityDirWeight = 1.0f;		// Range: [0,+inf) (0 --> Velocity direction has no weight, inf --> very important)
+	float walkingDirAccelerationWeight = 2.5f;  // Range: [0,+inf) (0 --> Body direction has no impact on accr, inf --> body direction determine accr)
 	float walkingMaxTurnSpeed = 8.0f;			// Range: [0,+inf) (0 --> No turning, inf --> Instant turn)
 	float walkingMaxAccStaminaCost = 0.44f;		// Range: [0,+inf) stamina cost of maximum acceleration
 

@@ -61,15 +61,15 @@ void Terrain::Generate(int x, int y, int w, int h, int rx, int ry,
 	//    0     1    2    3    4  ...  w-1    w  (each row has w+1 elements)
 	//  w+1   w+2  w+3  w+4  w+5  ...  2w  2w+1
 	// 2w+2  2w+3  ... 
-	// we have 0, 1, w+2, w+1 to cover each quad
+	// we have 0, 1, w+1, w+2 to cover each quad
 
 	for (int col = 0; col < rx; col++) {
 		for (int row = 0; row < ry; row++) {
 			int curIndex = col * (ry + 1) + row;
 			indices.push_back(curIndex);
 			indices.push_back(curIndex + 1);
-			indices.push_back(curIndex + ry + 2);
 			indices.push_back(curIndex + ry + 1);
+			indices.push_back(curIndex + ry + 2);
 		}
 	}
 
@@ -97,6 +97,8 @@ void Terrain::Draw(Shader& terrainShader, glm::mat4 proj, glm::mat4 view, glm::v
 
 	terrainVAO.Bind();
 	terrainEBO.Bind();
-	glDrawArrays(GL_PATCHES, 0, 4);
+
+	glDrawElements(GL_PATCHES, indices.size(), GL_UNSIGNED_INT, 0);
+	//glDrawArrays(GL_PATCHES, 0, 4);
 
 }

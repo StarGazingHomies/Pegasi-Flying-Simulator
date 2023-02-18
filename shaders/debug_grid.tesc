@@ -18,10 +18,10 @@ void main()
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
     TextureCoord[gl_InvocationID] = TexCoord[gl_InvocationID];
 
-    const int MIN_TESS_LEVEL = 4;
+    const int MIN_TESS_LEVEL = 2;
     const int MAX_TESS_LEVEL = 16;
-    const float MIN_DISTANCE = 25;
-    const float MAX_DISTANCE = 200;
+    const float MIN_DISTANCE = 5;
+    const float MAX_DISTANCE = 25;
 
     // transform vertex with view&model matrix (no projection yet)
     vec4 eyeSpacePos00 = view * model * gl_in[0].gl_Position;

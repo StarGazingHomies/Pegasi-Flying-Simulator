@@ -1,8 +1,5 @@
 #include"Game.h"
 
-
-
-
 int main(int argc, char* argv[]) {
 
 	// Init stuff
@@ -10,5 +7,4 @@ int main(int argc, char* argv[]) {
 	g.init();
 	g.run();
 	g.cleanup();
-
 }

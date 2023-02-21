@@ -1,6 +1,8 @@
 #include"Button.h"
 
-Button::Button(int x1, int y1, int x2, int y2, const char* defaultImg, const char* hoverImg, const char* pressedImg) {
+Button::Button() {}
+
+void Button::set(int x1, int y1, int x2, int y2, const char* defaultImg, const char* hoverImg, const char* pressedImg) {
 	// Sides
 	this->x1 = x1;
 	this->x2 = x2;
@@ -19,12 +21,12 @@ Button::Button(int x1, int y1, int x2, int y2, const char* defaultImg, const cha
 
 
 	std::vector<float> vertices = {
-		(float)x1, (float)y1, 0.0f, 0.0f,
-		(float)x1, (float)y2, 0.0f, 1.0f,
-		(float)x2, (float)y1, 1.0f, 0.0f,
-		(float)x2, (float)y2, 1.0f, 1.0f,
-		(float)x2, (float)y1, 1.0f, 0.0f,
-		(float)x1, (float)y2, 0.0f, 1.0f,
+		(float)x1, (float)y1, 0.0f, 1.0f,
+		(float)x1, (float)y2, 0.0f, 0.0f,
+		(float)x2, (float)y1, 1.0f, 1.0f,
+		(float)x2, (float)y2, 1.0f, 0.0f,
+		(float)x2, (float)y1, 1.0f, 1.0f,
+		(float)x1, (float)y2, 0.0f, 0.0f,
 	};
 
 	buttonVAO.Bind();
@@ -44,6 +46,7 @@ Button::Button(int x1, int y1, int x2, int y2, const char* defaultImg, const cha
 		+ std::to_string(x2) + ", " + std::to_string(y2) + ">";
 	hoverFunc = [buttonRepString]() {printf((buttonRepString + " is hovered.\n").c_str()); };
 	pressFunc = [buttonRepString]() {printf((buttonRepString + " is pressed.\n").c_str()); };
+	printf("%lld\n", pressFunc);
 	releaseFunc = [buttonRepString]() {printf((buttonRepString + " is released.\n").c_str()); };
 	dragFunc = [](int x, int y) {};
 	/* Fix this later
@@ -64,16 +67,16 @@ Button::Button(int x1, int y1, int x2, int y2, const char* defaultImg, const cha
 
 // Functions to set callbacks
 void Button::setHoverCallBack(std::function<void()> func) {
-	hoverFunc = func;
+	this->hoverFunc = func;
 }
-void Button::setPressCallBack(std::function<void()> func) {
-	pressFunc = func;
+void Button::setPressCallBack(const std::function<void()>& func) {
+	this->pressFunc = func;
 }
 void Button::setReleaseCallBack(std::function<void()> func) {
-	releaseFunc = func;
+	this->releaseFunc = func;
 }
 void Button::setDragCallBack(std::function<void(int, int)> func) {
-	dragFunc = func;
+	this->dragFunc = func;
 }
 
 bool Button::isInRange(int mouseX, int mouseY) {
@@ -89,7 +92,7 @@ void Button::Tick(int mouseX, int mouseY, int mouseButton) {
 		if (mouseButton) {
 			// Functions only execute once when it changes state
 			if (buttonState != ButtonState::PRESS) {
-				pressFunc();
+				this->pressFunc();
 				pressX = mouseX;
 				pressY = mouseY;
 			}
@@ -118,7 +121,7 @@ void Button::Tick(int mouseX, int mouseY, int mouseButton) {
 void Button::Draw(Shader& buttonShader) {
 
 	buttonShader.Activate();
-	glm::mat4 orthoProj = glm::ortho(0.0f, 800.0f, 0.0f, 800.0f);
+	glm::mat4 orthoProj = glm::ortho(0.0f, 800.0f, 800.0f, 0.0f);
 	glUniformMatrix4fv(glGetUniformLocation(buttonShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(orthoProj));
 
 	switch (buttonState) {

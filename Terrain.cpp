@@ -9,9 +9,9 @@ void Terrain::Load(const char* file) {
 void Terrain::Generate(int x, int y, int w, int h, int rx, int ry,
 	std::function<float(float, float)> genFunc) {
 
-	vertices.clear();
-	indices.clear();
-	heights.clear();
+	if (!vertices.empty()) vertices.clear();
+	if (!indices.empty()) indices.clear();
+	if (!heights.empty()) heights.clear();
 
 	posX = x; posY = y;
 	width = w; height = h;

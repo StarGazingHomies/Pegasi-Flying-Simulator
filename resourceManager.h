@@ -14,6 +14,7 @@ public:
 	static std::map<std::string, Shader> shaders;
 	static std::map<std::string, FBO> framebuffers;
 	static std::map<std::string, Font> fonts;
+	static std::map<std::string, Button> buttons;
 
 	static Shader& loadShader(
 		std::string name,
@@ -40,5 +41,18 @@ public:
 		int height);
 
 	static FBO& getFBO(std::string name);
+
+	static Button& generateButton(
+		std::string name, 
+		int x1, int y1, int x2, int y2, 
+		const char* defaultImg = nullptr, 
+		const char* hoverImg = nullptr, 
+		const char* pressedImg = nullptr
+		);
+
+	static Button& getButton(
+		std::string name);
+
+	static void updateScreenSize(int newWidth, int newHeight);
 };
 

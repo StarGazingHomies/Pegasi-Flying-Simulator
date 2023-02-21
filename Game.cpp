@@ -10,15 +10,18 @@ void GLAPIENTRY MessageCallback(GLenum source,
 	const GLchar* message,
 	const void* userParam)
 {
+	if (type == 0x8251) return;
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
 		(type == GL_DEBUG_TYPE_ERROR ? "* GL ERROR *" : ""),
 		type, severity, message);
 }
 
 std::queue<int> Game::keyEvents;
-int Game::newWidth = -1;
-int Game::newHeight = -1;
+bool Game::updateScreenSize = false;
+int Game::scrWidth = 800;
+int Game::scrHeight = 600;
 
+// Unfortunately these can't be instance methods
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	Game::keyEvents.push(key);
@@ -29,8 +32,9 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
 void windowResizeCallback(GLFWwindow* window, int scrWidth, int scrHeight)
 {
-	Game::newWidth = scrWidth;
-	Game::newHeight = scrHeight;
+	Game::updateScreenSize = true;
+	Game::scrWidth = scrWidth;
+	Game::scrHeight = scrHeight;
 }
 
 int Game::init() {
@@ -91,20 +95,97 @@ int Game::init() {
 	Font font = resourceManager::loadFont("celestiaRedux", "fonts/CelestiaRedux.ttf", 72, 800, 600);
 	Shader textShader = resourceManager::loadShader("text", "shaders/text.vert", "shaders/text.frag");
 
+	terrain = std::make_unique<Terrain>();
+	terrain->Generate(-64, -64, 128, 128, 10, 10,
+		[](float a, float b) { return 0;  (a * a - b * b) / 512; });
+
+
+	Shader buttonShader = resourceManager::loadShader("button", "shaders/button.vert", "shaders/button.frag");
+	Button& startButton = resourceManager::generateButton("startMenu_Test", 0, 0, 100, 100,
+		"resources/debug_buttonDefault.png",
+		"resources/debug_buttonHover.png",
+		"resources/debug_buttonPress.png");
+	
+	std::function<void()> func = [this]() {
+		this->gameState = GameState::IN_GAME; 
+		glfwSetCursorPos(this->window, (this->scrWidth / 2), (this->scrHeight / 2));
+	};
+	startButton.setPressCallBack(func);
+
 	return 0;
+}
+
+void Game::startMenu_draw() {
+	Shader buttonShader = resourceManager::getShader("button");
+	resourceManager::getButton("startMenu_Test").Draw(buttonShader);
+}
+
+void Game::startMenu_tick(double frameTime) {
+	Button& b = resourceManager::getButton("startMenu_Test");
+	double xpos, ypos; glfwGetCursorPos(window, &xpos, &ypos);
+	int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+	b.Tick(xpos, ypos, state==GLFW_PRESS?1:0);
+
+	while (!keyEvents.empty()) {
+		keyEvents.pop();
+	}
+	if (updateScreenSize) {
+		glViewport(0, 0, scrWidth, scrHeight);
+		p->windowResizeCallback(scrWidth, scrHeight);
+		resourceManager::updateScreenSize(scrWidth, scrHeight);
+		updateScreenSize = false;
+	}
+}
+
+void Game::inGame_draw() {
+	Shader default_shader = resourceManager::getShader("default");
+	Shader textShader = resourceManager::getShader("text");
+	Shader debugGridShader = resourceManager::getShader("debugGrid");
+	Font font = resourceManager::getFont("celestiaRedux");
+
+	glm::mat4 proj = p->getProjMatrix();
+	glm::mat4 view = p->getViewMatrix();
+	p->Draw(default_shader);
+	p->debugText(font, textShader);
+
+	default_shader.Activate();
+	if (checkOBBCollision(physEngine->objects[0], physEngine->objects[1])) {
+		glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)1);
+		//glm::vec3 lsa = getLeastSeparatingAxis(e, f);
+	}
+	else {
+		glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)0);
+	}
+
+	//physEngine->Draw(default_shader, proj, view);
+
+	// Render the grid
+	terrain->Draw(debugGridShader, proj, view, p->camPos);
+}
+
+void Game::inGame_tick(double frameTime) {
+	p->Tick(window, frameTime);
+	physEngine->Tick(frameTime);
+
+	if (!keyEvents.empty()) {
+		int key = keyEvents.front(); keyEvents.pop();
+		int scancode = keyEvents.front(); keyEvents.pop();
+		int action = keyEvents.front(); keyEvents.pop();
+		int mods = keyEvents.front(); keyEvents.pop();
+		p->keyCallback(window, key, scancode, action, mods);
+	}
+
+	if (updateScreenSize) {
+		glViewport(0, 0, scrWidth, scrHeight);
+		p->windowResizeCallback(scrWidth, scrHeight);
+		resourceManager::updateScreenSize(scrWidth, scrHeight);
+		updateScreenSize = false;
+	}
 }
 
 int Game::run() {
 
 	double curTime = glfwGetTime(), frameTime;
-	Shader default_shader = resourceManager::getShader("default");
-	Shader textShader = resourceManager::getShader("text"); 
-	Shader debugGridShader = resourceManager::getShader("debugGrid");
-	Font font = resourceManager::getFont("celestiaRedux");
-
-	Terrain terrain;
-	terrain.Generate(-64, -64, 128, 128, 10, 10,
-		[](float a, float b) { return (a * a - b * b) / 512; });
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.18f, 0.02f, 0.17f, 1.0f);
@@ -113,45 +194,24 @@ int Game::run() {
 		frameTime = glfwGetTime() - curTime;
 		curTime = glfwGetTime();
 
-		p->Tick(window, frameTime);
-		glm::mat4 proj = p->getProjMatrix();
-		glm::mat4 view = p->getViewMatrix();
-		p->Draw(default_shader);
-		p->debugText(font, textShader);
-
-		default_shader.Activate();
-		if (checkOBBCollision(physEngine->objects[0], physEngine->objects[1])) {
-			glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)1);
-			//glm::vec3 lsa = getLeastSeparatingAxis(e, f);
+		switch (gameState) {
+		case (GameState::START_MENU): 
+			startMenu_tick(frameTime);
+			startMenu_draw();
+			break;
+		case (GameState::PAUSE_MENU):
+			break; 
+		case (GameState::SETTINGS):
+			break; 
+		case (GameState::IN_GAME):
+			inGame_tick(frameTime);
+			inGame_draw();
+			break;
 		}
-		else {
-			glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)0);
-		}
-
-		//physEngine->Draw(default_shader, proj, view);
-		physEngine->Tick(frameTime);
-
-		// Render the grid
-		terrain.Draw(debugGridShader, proj, view, p->camPos);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
-		if (!keyEvents.empty()) {
-			int key = keyEvents.front(); keyEvents.pop();
-			int scancode = keyEvents.front(); keyEvents.pop();
-			int action = keyEvents.front(); keyEvents.pop();
-			int mods = keyEvents.front(); keyEvents.pop();
-			p->keyCallback(window, key, scancode, action, mods);
-		}
-
-		if (newHeight != -1) {
-			glViewport(0, 0, newWidth, newHeight);
-			p->windowResizeCallback(newWidth, newHeight);
-			font.updateScreenSize(newWidth, newHeight);
-			//std::cout << newWidth << ", " << newHeight << "\n";
-			newHeight = -1;
-		}
 	}
 	return 0;
 }

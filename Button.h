@@ -34,11 +34,13 @@ public:
 	ButtonState buttonState;
 
 	// Constructors
-	Button(int x1, int y1, int x2, int y2, const char* defaultImg = nullptr, const char* hoverImg = nullptr, const char* pressedImg = nullptr);
+	Button();
+
+	void set(int x1, int y1, int x2, int y2, const char* defaultImg = nullptr, const char* hoverImg = nullptr, const char* pressedImg = nullptr);
 	
 	// Callbacks
 	void setHoverCallBack(std::function<void()> func);
-	void setPressCallBack(std::function<void()> func);
+	void setPressCallBack(const std::function<void()>& func);
 	void setReleaseCallBack(std::function<void()> func);
 	void setDragCallBack(std::function<void(int, int)> func);
 

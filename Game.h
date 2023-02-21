@@ -13,6 +13,13 @@
 #include"resourceManager.h"
 #include"Terrain.h"
 
+enum class GameState {
+	START_MENU,
+	PAUSE_MENU,
+	SETTINGS,
+	IN_GAME
+};
+
 class Game
 {
 public:
@@ -20,15 +27,26 @@ public:
 
 	std::unique_ptr<Physics> physEngine;
 	std::unique_ptr<Player> p;
+	std::unique_ptr<Terrain> terrain;
+
+	GameState gameState = GameState::START_MENU;
 
 	static std::queue<int> keyEvents;
 
-	static int newWidth, newHeight;
+	static bool updateScreenSize;
+	static int scrWidth, scrHeight;
 
 	Game();
 
 	int init();
 	int run();
+
+	void startMenu_draw();
+	void startMenu_tick(double frameTime);
+
+	void inGame_draw();
+	void inGame_tick(double frameTime);
+
 	int cleanup();
 };
 

@@ -28,6 +28,12 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{2f5754e4-075d-4395-ab9b-c0ebccc9b46c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\button">
+      <UniqueIdentifier>{621e3fd2-910e-48b1-91f9-ec453338afc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\git">
+      <UniqueIdentifier>{d7ad4714-01cf-4747-80ea-25559bd2d425}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -87,6 +93,9 @@
     <ClCompile Include="Terrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Sky.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Phys_Object.h">
@@ -137,6 +146,9 @@
     <ClInclude Include="Terrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Sky.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\debug_grid.frag">
@@ -168,6 +180,18 @@
     </None>
     <None Include="shaders\text.vert">
       <Filter>Resource Files\Shaders\text</Filter>
+    </None>
+    <None Include="shaders\button.frag">
+      <Filter>Resource Files\Shaders\button</Filter>
+    </None>
+    <None Include="shaders\button.vert">
+      <Filter>Resource Files\Shaders\button</Filter>
+    </None>
+    <None Include=".gitattributes">
+      <Filter>Resource Files\git</Filter>
+    </None>
+    <None Include=".gitignore">
+      <Filter>Resource Files\git</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -167,6 +167,7 @@
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="resourceManager.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Sky.cpp" />
     <ClCompile Include="stb.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Texture.cpp" />
@@ -186,12 +187,17 @@
     <ClInclude Include="Player.h" />
     <ClInclude Include="resourceManager.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Sky.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="VAO.h" />
     <ClInclude Include="VBO.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".gitattributes" />
+    <None Include=".gitignore" />
+    <None Include="shaders\button.frag" />
+    <None Include="shaders\button.vert" />
     <None Include="shaders\debug_grid.frag" />
     <None Include="shaders\debug_grid.geom" />
     <None Include="shaders\debug_grid.tesc" />

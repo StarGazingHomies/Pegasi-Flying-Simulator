@@ -26,7 +26,7 @@ public:
 	// Constructor with floats list
 	VBO(float vertices[]);
 	// Constructor with floats vector
-	VBO(std::vector<float> vertices);
+	VBO(std::vector<float> vertices, GLenum usage = GL_STATIC_DRAW);
 
 	// Bind the VBO to tell OpenGL to use it
 	void Bind();

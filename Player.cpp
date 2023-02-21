@@ -719,13 +719,11 @@ void Player::Tick(GLFWwindow* window, float time) {
 			// TODO: At some point, make holding space charge your jump
 			velocity = retainedVelocity + glm::vec3(0.0f, jumpVelocity, 0.0f); // Replace with ground vec3 when I get there
 
-
-
 			// The rotation this frame
 			rotVelocity = rot * scale(originalRot, -1);
 
 			// The rotation per second
-			rotVelocity = scale(rotVelocity, 1 / time / 3);
+			rotVelocity = scale(rotVelocity, 1 / time );
 
 			std::cout << debugQuatStr("originalRot", originalRot) << "\n";
 			std::cout << debugQuatStr("rot", rot) << "\n";

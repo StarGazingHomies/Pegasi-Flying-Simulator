@@ -1,3 +1,44 @@
-﻿  Game.cpp
-C:\OpenGL\Pegasi Flying Simulator\Game.cpp(116,19): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+﻿  Player.cpp
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(327,23): warning C4101: 'rightForce': unreferenced local variable
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(449,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(450,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(540,39): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(541,48): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(542,47): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(549,30): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(559,32): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(679,80): warning C4244: '=': conversion from 'genType' to 'T', possible loss of data
+          with
+          [
+              genType=double
+          ]
+          and
+          [
+              T=float
+          ]
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(680,52): warning C4244: '=': conversion from 'genType' to 'T', possible loss of data
+          with
+          [
+              genType=double
+          ]
+          and
+          [
+              T=float
+          ]
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(682,39): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(691,49): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(697,16): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Pegasi Flying Simulator.vcxproj -> C:\OpenGL\Pegasi Flying Simulator\x64\Debug\Pegasi Flying Simulator.exe

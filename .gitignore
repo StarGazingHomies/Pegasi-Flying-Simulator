@@ -33,5 +33,3 @@
 *.exe
 *.out
 *.app
-/Sky.h
-/Sky.cpp

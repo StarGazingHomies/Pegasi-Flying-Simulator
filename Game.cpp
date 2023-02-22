@@ -78,9 +78,9 @@ int Game::init() {
 	physEngine->objects.push_back(*e);
 	physEngine->objects.push_back(*f);
 
-	Shader default_shader = resourceManager::loadShader("default", "shaders/default.vert", "shaders/default.frag", "shaders/default.geom");
+	Shader& default_shader = resourceManager::loadShader("default", "shaders/default.vert", "shaders/default.frag", "shaders/default.geom");
 
-	Shader debugGridShader = resourceManager::loadShader(
+	Shader& debugGridShader = resourceManager::loadShader(
 		"debugGrid",
 		"shaders/debug_grid.vert",
 		"shaders/debug_grid.frag",
@@ -92,15 +92,15 @@ int Game::init() {
 	p = std::make_unique<Player>();
 	p->windowResizeCallback(800, 600);
 
-	Font font = resourceManager::loadFont("celestiaRedux", "fonts/CelestiaRedux.ttf", 72, 800, 600);
-	Shader textShader = resourceManager::loadShader("text", "shaders/text.vert", "shaders/text.frag");
+	Font& font = resourceManager::loadFont("celestiaRedux", "fonts/CelestiaRedux.ttf", 72, 800, 600);
+	Shader& textShader = resourceManager::loadShader("text", "shaders/text.vert", "shaders/text.frag");
 
 	terrain = std::make_unique<Terrain>();
 	terrain->Generate(-64, -64, 128, 128, 10, 10,
 		[](float a, float b) { return 0;  (a * a - b * b) / 512; });
 
 
-	Shader buttonShader = resourceManager::loadShader("button", "shaders/button.vert", "shaders/button.frag");
+	Shader& buttonShader = resourceManager::loadShader("button", "shaders/button.vert", "shaders/button.frag");
 	Button& startButton = resourceManager::generateButton("startMenu_Test", 0, 0, 100, 100,
 		"resources/debug_buttonDefault.png",
 		"resources/debug_buttonHover.png",
@@ -111,6 +111,12 @@ int Game::init() {
 		glfwSetCursorPos(this->window, (this->scrWidth / 2), (this->scrHeight / 2));
 	};
 	startButton.setPressCallBack(func);
+
+	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");
+
+	tempSky = std::make_unique<Sky>();
+
+	tempSky->Generate();
 
 	return 0;
 }
@@ -138,10 +144,11 @@ void Game::startMenu_tick(double frameTime) {
 }
 
 void Game::inGame_draw() {
-	Shader default_shader = resourceManager::getShader("default");
-	Shader textShader = resourceManager::getShader("text");
-	Shader debugGridShader = resourceManager::getShader("debugGrid");
-	Font font = resourceManager::getFont("celestiaRedux");
+	Shader& default_shader = resourceManager::getShader("default");
+	Shader& textShader = resourceManager::getShader("text");
+	Shader& debugGridShader = resourceManager::getShader("debugGrid");
+	Font& font = resourceManager::getFont("celestiaRedux");
+	Shader& skyShader = resourceManager::getShader("skydome");
 
 	glm::mat4 proj = p->getProjMatrix();
 	glm::mat4 view = p->getViewMatrix();
@@ -161,6 +168,9 @@ void Game::inGame_draw() {
 
 	// Render the grid
 	terrain->Draw(debugGridShader, proj, view, p->camPos);
+
+	// Render the sky
+	tempSky->Draw(skyShader, proj, view);
 }
 
 void Game::inGame_tick(double frameTime) {

@@ -34,6 +34,12 @@
     <Filter Include="Resource Files\git">
       <UniqueIdentifier>{d7ad4714-01cf-4747-80ea-25559bd2d425}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\sphere">
+      <UniqueIdentifier>{6126c959-1c0f-402d-ac3a-cc81a8846627}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\skydome">
+      <UniqueIdentifier>{4a93669f-150a-4ca0-96fe-5de28986f74f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -192,6 +198,24 @@
     </None>
     <None Include=".gitignore">
       <Filter>Resource Files\git</Filter>
+    </None>
+    <None Include="shaders\sphere.geom">
+      <Filter>Resource Files\Shaders\sphere</Filter>
+    </None>
+    <None Include="shaders\sphere.vert">
+      <Filter>Resource Files\Shaders\sphere</Filter>
+    </None>
+    <None Include="shaders\sphere.frag">
+      <Filter>Resource Files\Shaders\sphere</Filter>
+    </None>
+    <None Include="shaders\skydome.frag">
+      <Filter>Resource Files\Shaders\skydome</Filter>
+    </None>
+    <None Include="shaders\skydome.geom">
+      <Filter>Resource Files\Shaders\skydome</Filter>
+    </None>
+    <None Include="shaders\skydome.vert">
+      <Filter>Resource Files\Shaders\skydome</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

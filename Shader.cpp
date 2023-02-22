@@ -14,6 +14,7 @@ std::string get_file_contents(const char* filename)
 		in.close();
 		return(contents);
 	}
+	std::cout << "Error reading file at " << filename << std::endl;
 	throw(errno);
 }
 

@@ -206,6 +206,12 @@
     <None Include="shaders\default.frag" />
     <None Include="shaders\default.geom" />
     <None Include="shaders\default.vert" />
+    <None Include="shaders\skydome.frag" />
+    <None Include="shaders\skydome.geom" />
+    <None Include="shaders\skydome.vert" />
+    <None Include="shaders\sphere.frag" />
+    <None Include="shaders\sphere.geom" />
+    <None Include="shaders\sphere.vert" />
     <None Include="shaders\text.frag" />
     <None Include="shaders\text.vert" />
   </ItemGroup>

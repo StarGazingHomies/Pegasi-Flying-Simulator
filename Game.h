@@ -12,6 +12,7 @@
 #include"Player.h"
 #include"resourceManager.h"
 #include"Terrain.h"
+#include"Sky.h"
 
 enum class GameState {
 	START_MENU,
@@ -28,6 +29,7 @@ public:
 	std::unique_ptr<Physics> physEngine;
 	std::unique_ptr<Player> p;
 	std::unique_ptr<Terrain> terrain;
+	std::unique_ptr<Sky> tempSky;
 
 	GameState gameState = GameState::START_MENU;
 

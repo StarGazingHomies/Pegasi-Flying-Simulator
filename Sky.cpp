@@ -48,10 +48,10 @@ void Sky::Generate() {
 	
 	// EBO needs to do less for first & last layers
 
-	for (int i = 0; i < hrztSegs; i++) {
+	for (int j = 0; j < hrztSegs; j++) {
 		indices.push_back(0);
-		indices.push_back(i + 1);
-		indices.push_back((i + 1) % hrztSegs + 1); // May seem complicated but it's necessary
+		indices.push_back(j + 1);
+		indices.push_back((j + 1) % hrztSegs + 1); // May seem complicated but it's necessary
 	}
 
 	for (int i = 1; i < vertSegs - 1; i++) {
@@ -66,6 +66,14 @@ void Sky::Generate() {
 			indices.push_back(bottomLayerBegin + (j + 1) % hrztSegs);
 			indices.push_back(topLayerBegin + (j + 1) % hrztSegs);
 		}
+	}
+
+	int lastIndex = (vertSegs - 1) * hrztSegs + 1;
+	int lastRowBegin = (vertSegs - 2) * hrztSegs + 1;
+	for (int j = 0; j < hrztSegs; j++) {
+		indices.push_back(lastIndex);
+		indices.push_back(lastRowBegin + j);
+		indices.push_back(lastRowBegin + (j + 1) % hrztSegs);
 	}
 
 	skyEBO = EBO(indices);
@@ -84,7 +92,8 @@ void Sky::Draw(Shader& skyShader, glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 
 	skyShader.Activate();
 	glUniformMatrix4fv(glGetUniformLocation(skyShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projMatrix));
-	//glUniformMatrix4fv(glGetUniformLocation(skyShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	// Cast view to mat3 and then back to mat4 to remove translation
+	glUniformMatrix4fv(glGetUniformLocation(skyShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(glm::mat4(glm::mat3(viewMatrix))));
 
 	skyVAO.Bind();
 	skyEBO.Bind();

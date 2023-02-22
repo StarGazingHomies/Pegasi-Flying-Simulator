@@ -2,7 +2,7 @@
 
 in vec2 texCoord;
 
-uniform vec3 color = vec3(0.8f, 0.9f, 0.4f);
+uniform vec3 color = vec3(0.1f, 0.0f, 0.1f);
 
 out vec4 FragColor;
 

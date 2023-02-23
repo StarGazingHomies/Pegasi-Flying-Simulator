@@ -581,8 +581,8 @@ void Player::Tick(GLFWwindow* window, float time) {
 	break;
 
 	case (ControlState::GROUND_WALKING): {
-		// Ground requires little use of velocity/acceleration.
-		// (This will be different from running, which uses velo/acc)
+		// Ground requires little use of acceleration.
+		// (This will be different from running, which will probably use acc?)
 
 
 		// Target direction

@@ -5,18 +5,16 @@ Sky::Sky() {}
 void Sky::Generate() {
 	// Obviously need to draw a sphere
 
-	int vertSegs = 18;
-	int hrztSegs = 36;
+	int vertSegs = 36;
+	int hrztSegs = 72;
 
-	// vec3 pos, vec2 texcoord
-	// Texcoord is here so that even after camera proj/view we still know dir of point in world space
+	// vec3 pos
+	// No need for texcoord, since position is effectively a vector that points in that direction!
 	
 
 	// First layer, one point. Gimbal lock yay
 	vertices.push_back(0.0f);
 	vertices.push_back(1.0f);
-	vertices.push_back(0.0f);
-	vertices.push_back(0.0f);
 	vertices.push_back(0.0f);
 
 	for (int i = 1; i < vertSegs; i++) {
@@ -29,17 +27,13 @@ void Sky::Generate() {
 			vertices.push_back(x);
 			vertices.push_back(y);
 			vertices.push_back(z);
-			vertices.push_back(pitch);
-			vertices.push_back(yaw);
-			std::cout << x << ", " << y << ", " << z << ", " << pitch << ", " << yaw << std::endl;
+			//std::cout << x << ", " << y << ", " << z << ", " << pitch << ", " << yaw << std::endl;
 		}
 	}
 
 	// Last layer, one point
 	vertices.push_back(0.0f);
 	vertices.push_back(-1.0f);
-	vertices.push_back(0.0f);
-	vertices.push_back(1.0f);
 	vertices.push_back(0.0f);
 
 	skyVBO = VBO(vertices);
@@ -80,8 +74,7 @@ void Sky::Generate() {
 
 	skyVAO.Bind();
 	skyVBO.Bind();
-	skyVAO.LinkAttrib(skyVBO, 0, 3, GL_FLOAT, 5 * sizeof(float), (void*) 0 );
-	skyVAO.LinkAttrib(skyVBO, 1, 2, GL_FLOAT, 5 * sizeof(float), (void*) (3 * sizeof(float)) );
+	skyVAO.LinkAttrib(skyVBO, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*) 0 );
 
 	skyVBO.Unbind();
 	skyVAO.Unbind();

@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Cloud.cpp" />
     <ClCompile Include="debugCamera.cpp" />
     <ClCompile Include="EBO.cpp" />
     <ClCompile Include="FBO.cpp" />
@@ -176,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Cloud.h" />
     <ClInclude Include="debugCamera.h" />
     <ClInclude Include="EBO.h" />
     <ClInclude Include="FBO.h" />

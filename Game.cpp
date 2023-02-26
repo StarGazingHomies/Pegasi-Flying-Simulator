@@ -113,6 +113,24 @@ int Game::init() {
 	startButton.setPressCallBack(func);
 
 	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");
+	
+	GLfloat stars[300];
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis1(0, glm::pi<float>());
+	std::uniform_real_distribution<> dis2(0, 2 * glm::pi<float>());
+	for (int i = 0; i < 100; i++) {
+		float theta = dis1(gen);
+		float psi = dis2(gen);
+		float X = sin(theta) * cos(psi);
+		float Y = sin(theta) * sin(psi);
+		float Z = cos(theta);
+		stars[i * 3] = X;
+		stars[i * 3 + 1] = Y;
+		stars[i * 3 + 2] = Z;
+	}
+	skyShader.Activate();
+	glUniform3fv(glGetUniformLocation(skyShader.ID, "stars"), 300, stars);
 
 	tempSky = std::make_unique<Sky>();
 
@@ -153,7 +171,6 @@ void Game::inGame_draw() {
 	glm::mat4 proj = p->getProjMatrix();
 	glm::mat4 view = p->getViewMatrix();
 	p->Draw(default_shader);
-	p->debugText(font, textShader);
 
 	default_shader.Activate();
 	if (checkOBBCollision(physEngine->objects[0], physEngine->objects[1])) {
@@ -171,6 +188,10 @@ void Game::inGame_draw() {
 
 	// Render the sky
 	tempSky->Draw(skyShader, proj, view);
+
+	// Render text last
+	p->debugText(font, textShader);
+
 }
 
 void Game::inGame_tick(double frameTime) {

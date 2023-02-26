@@ -8,6 +8,9 @@ uniform sampler2D textTex;
 
 void main()
 {
+    // Get rid of empty pixels. Only needed if text rendering is not the last thing done.
+    // if (texture(textTex, TexCoords).r == 0.0f) discard;
+
     fragColor = vec4(Color, texture(textTex, TexCoords).r);
     //fragColor = vec4(0.8, 0.5, 0.2, 1.0);
 }

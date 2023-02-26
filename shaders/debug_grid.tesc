@@ -20,8 +20,8 @@ void main()
 
     const int MIN_TESS_LEVEL = 2;
     const int MAX_TESS_LEVEL = 16;
-    const float MIN_DISTANCE = 5;
-    const float MAX_DISTANCE = 25;
+    const float MIN_DISTANCE = 25;
+    const float MAX_DISTANCE = 100;
 
     // transform vertex with view&model matrix (no projection yet)
     vec4 eyeSpacePos00 = view * model * gl_in[0].gl_Position;

@@ -4,6 +4,7 @@
 #include"VBO.h"
 #include"Shader.h"
 #include"EBO.h"
+#include"Texture.h"
 
 #include<glm/glm.hpp>
 #include<glm/gtc/constants.hpp>
@@ -15,9 +16,12 @@ public:
 	VAO skyVAO;
 	VBO skyVBO;
 	EBO skyEBO;
+	Texture sunTex, moonTex;
 
 	std::vector<float> vertices;
 	std::vector<GLuint> indices;
+
+	//static glm::vec3 skyColourFromTime(double time);
 
 	Sky();
 	void Generate();

@@ -234,5 +234,11 @@
     <Image Include="resources\debug_buttonPress.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
+    <Image Include="resources\sun.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="resources\moon.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -1,12 +1,16 @@
 #include "Sky.h"
 
+//glm::vec3 Sky::skyColourFromTime(double time) {
+//	return glm::vec3(1.0f);
+//}
+
 Sky::Sky() {}
 
 void Sky::Generate() {
 	// Obviously need to draw a sphere
 
-	int vertSegs = 36;
-	int hrztSegs = 72;
+	int vertSegs = 180;
+	int hrztSegs = 360;
 
 	// vec3 pos
 	// No need for texcoord, since position is effectively a vector that points in that direction!
@@ -78,6 +82,9 @@ void Sky::Generate() {
 
 	skyVBO.Unbind();
 	skyVAO.Unbind();
+
+	sunTex = Texture("resources/sun.png", "sunTex", 0);
+	moonTex = Texture("resources/moon.png", "moonTex", 1);
 }
 
 void Sky::Draw(Shader& skyShader, glm::mat4 projMatrix, glm::mat4 viewMatrix) {
@@ -87,9 +94,13 @@ void Sky::Draw(Shader& skyShader, glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 	glUniformMatrix4fv(glGetUniformLocation(skyShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projMatrix));
 	// Cast view to mat3 and then back to mat4 to remove translation
 	glUniformMatrix4fv(glGetUniformLocation(skyShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(glm::mat4(glm::mat3(viewMatrix))));
+	glUniform1i(glGetUniformLocation(skyShader.ID, "sunTex"), 0);	
+	glUniform1i(glGetUniformLocation(skyShader.ID, "moonTex"), 1);
 
 	skyVAO.Bind();
 	skyEBO.Bind();
+	sunTex.Bind();
+	moonTex.Bind();
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	skyEBO.Unbind();
 	skyVAO.Unbind();

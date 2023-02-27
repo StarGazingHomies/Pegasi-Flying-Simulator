@@ -1,14 +1,42 @@
 #include "Sky.h"
 
-//glm::vec3 Sky::skyColourFromTime(double time) {
-//	return glm::vec3(1.0f);
-//}
-
 Sky::Sky() {}
+
+std::vector<std::pair<float, glm::vec3>> colourAtTime = {
+	std::pair<float, glm::vec3>(0 * 3600, glm::vec3(0.05f, 0.0f, 0.11f)),
+
+	std::pair<float, glm::vec3>(5 * 3600, glm::vec3(0.05f, 0.0f, 0.11f)),
+	std::pair<float, glm::vec3>(6 * 3600, glm::vec3(0.62f, 0.12f, 0.41f)),
+	std::pair<float, glm::vec3>(7 * 3600, glm::vec3(0.8f, 0.84f, 1.0f)),
+
+	std::pair<float, glm::vec3>(17 * 3600, glm::vec3(0.8f, 0.84f, 1.0f)),
+	std::pair<float, glm::vec3>(18 * 3600, glm::vec3(0.63f, 0.44f, 0.22f)),
+	std::pair<float, glm::vec3>(19 * 3600, glm::vec3(0.05f, 0.0f, 0.11f)),
+
+	std::pair<float, glm::vec3>(24 * 3600, glm::vec3(0.05f, 0.0f, 0.11f)),
+};
+
+glm::vec3 Sky::skyColourFromTime() {
+	for (int i = 0; i < colourAtTime.size() - 1; i++) {
+		if (colourAtTime[i].first <= time && time <= colourAtTime[i + 1].first) {
+			return (
+				colourAtTime[i].second * (colourAtTime[i + 1].first - time) +
+				colourAtTime[i + 1].second * (time - colourAtTime[i].first) )
+				/ (colourAtTime[i + 1].first - colourAtTime[i].first);
+		}
+	}
+
+	return glm::vec3(1.0f);
+}
+
+glm::vec3 Sky::sunPosFromTime() {
+	double frac = time / 86400 * 2 * glm::pi<double>();
+	return glm::vec3(sin(frac), -cos(frac), 0.0f);
+}
 
 void Sky::Generate() {
 	// Obviously need to draw a sphere
-
+	// For now, just use euler angles. Maybe in the future this will change.
 	int vertSegs = 180;
 	int hrztSegs = 360;
 
@@ -16,7 +44,7 @@ void Sky::Generate() {
 	// No need for texcoord, since position is effectively a vector that points in that direction!
 	
 
-	// First layer, one point. Gimbal lock yay
+	// First layer, one point.
 	vertices.push_back(0.0f);
 	vertices.push_back(1.0f);
 	vertices.push_back(0.0f);
@@ -94,6 +122,13 @@ void Sky::Draw(Shader& skyShader, glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 	glUniformMatrix4fv(glGetUniformLocation(skyShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projMatrix));
 	// Cast view to mat3 and then back to mat4 to remove translation
 	glUniformMatrix4fv(glGetUniformLocation(skyShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(glm::mat4(glm::mat3(viewMatrix))));
+
+	glm::vec3 skyColor = skyColourFromTime();
+	glUniform3f(glGetUniformLocation(skyShader.ID, "baseColor"), skyColor.x, skyColor.y, skyColor.z);
+	glm::vec3 sunPos = sunPosFromTime();
+	glUniform3f(glGetUniformLocation(skyShader.ID, "sunPos"), sunPos.x, sunPos.y, sunPos.z);
+	glm::vec3 moonPos = -sunPos;
+	glUniform3f(glGetUniformLocation(skyShader.ID, "moonPos"), moonPos.x, moonPos.y, moonPos.z);
 	glUniform1i(glGetUniformLocation(skyShader.ID, "sunTex"), 0);	
 	glUniform1i(glGetUniformLocation(skyShader.ID, "moonTex"), 1);
 
@@ -109,5 +144,7 @@ void Sky::Draw(Shader& skyShader, glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 }
 
 void Sky::Tick() {
-
+	time += 10;
+	if (time >= 86400) time -= 86400;
+	std::cout << time << std::endl;
 }

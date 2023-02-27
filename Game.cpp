@@ -187,6 +187,7 @@ void Game::inGame_draw() {
 	terrain->Draw(debugGridShader, proj, view, p->camPos);
 
 	// Render the sky
+	tempSky->Tick();
 	tempSky->Draw(skyShader, proj, view);
 
 	// Render text last
@@ -216,14 +217,22 @@ void Game::inGame_tick(double frameTime) {
 
 int Game::run() {
 
-	double curTime = glfwGetTime(), frameTime;
+	double curTime = glfwGetTime(), frameTime, lastFPSUpdate = glfwGetTime();
+	int framesPerSecond = 0, frameCounter = 0;
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.18f, 0.02f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
+		// Frames counter
 		frameTime = glfwGetTime() - curTime;
 		curTime = glfwGetTime();
+		frameCounter++;
+		if (lastFPSUpdate + 1 < curTime) {
+			framesPerSecond = frameCounter;
+			frameCounter = 0;
+			lastFPSUpdate = curTime;
+		}
 
 		switch (gameState) {
 		case (GameState::START_MENU): 

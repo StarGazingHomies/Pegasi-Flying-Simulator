@@ -18,10 +18,13 @@ public:
 	EBO skyEBO;
 	Texture sunTex, moonTex;
 
+	float time = 0;
+
 	std::vector<float> vertices;
 	std::vector<GLuint> indices;
 
-	//static glm::vec3 skyColourFromTime(double time);
+	glm::vec3 skyColourFromTime();
+	glm::vec3 sunPosFromTime();
 
 	Sky();
 	void Generate();

@@ -196,18 +196,7 @@ void Game::inGame_draw() {
 	tempSky->Draw(skyShader, proj, view);
 
 	//tempClouds->Draw(cloudShader, proj, view);
-
-	// Testing stuff
-	font.renderLine("CENTER_TOP", DisplayPos{ Alignment::CENTER_TOP, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
-	font.renderLine("CENTER_BOTTOM", DisplayPos{ Alignment::CENTER_BOTTOM, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
-	font.renderLine("CENTER_RIGHT", DisplayPos{ Alignment::CENTER_RIGHT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
-	font.renderLine("CENTER_LEFT", DisplayPos{ Alignment::CENTER_LEFT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
-	font.renderLine("TOP_LEFT", DisplayPos{ Alignment::TOP_LEFT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
-	font.renderLine("BOTTOM_LEFT", DisplayPos{ Alignment::BOTTOM_LEFT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
-	font.renderLine("TOP_RIGHT", DisplayPos{ Alignment::TOP_RIGHT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
-	font.renderLine("BOTTOM_RIGHT", DisplayPos{ Alignment::BOTTOM_RIGHT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
-	font.renderLine("CENTER", DisplayPos{ Alignment::CENTER, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
-
+	
 	// Render text last
 	p->debugText(font, textShader);
 
@@ -251,6 +240,9 @@ int Game::run() {
 			frameCounter = 0;
 			lastFPSUpdate = curTime;
 		}
+
+		Font& font = resourceManager::getFont("celestiaRedux");
+		font.renderLine("FPS:" + std::to_string(framesPerSecond), DisplayPos{Alignment::TOP_RIGHT, 0, 0}, 20, glm::vec3(1.0f, 0.0f, 1.0f));
 
 		switch (gameState) {
 		case (GameState::START_MENU): 

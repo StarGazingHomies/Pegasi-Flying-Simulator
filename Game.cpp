@@ -136,6 +136,10 @@ int Game::init() {
 
 	tempSky->Generate();
 
+	Shader& cloudShader = resourceManager::loadShader("clouds", "shaders/sphere.vert", "shaders/sphere.frag", "shaders/sphere.geom");
+	tempClouds = std::make_unique<Clouds>();
+	tempClouds->Generate();
+
 	return 0;
 }
 
@@ -167,6 +171,7 @@ void Game::inGame_draw() {
 	Shader& debugGridShader = resourceManager::getShader("debugGrid");
 	Font& font = resourceManager::getFont("celestiaRedux");
 	Shader& skyShader = resourceManager::getShader("skydome");
+	Shader& cloudShader = resourceManager::getShader("clouds");
 
 	glm::mat4 proj = p->getProjMatrix();
 	glm::mat4 view = p->getViewMatrix();
@@ -189,6 +194,19 @@ void Game::inGame_draw() {
 	// Render the sky
 	tempSky->Tick();
 	tempSky->Draw(skyShader, proj, view);
+
+	//tempClouds->Draw(cloudShader, proj, view);
+
+	// Testing stuff
+	font.renderLine("CENTER_TOP", DisplayPos{ Alignment::CENTER_TOP, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+	font.renderLine("CENTER_BOTTOM", DisplayPos{ Alignment::CENTER_BOTTOM, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+	font.renderLine("CENTER_RIGHT", DisplayPos{ Alignment::CENTER_RIGHT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+	font.renderLine("CENTER_LEFT", DisplayPos{ Alignment::CENTER_LEFT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+	font.renderLine("TOP_LEFT", DisplayPos{ Alignment::TOP_LEFT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+	font.renderLine("BOTTOM_LEFT", DisplayPos{ Alignment::BOTTOM_LEFT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+	font.renderLine("TOP_RIGHT", DisplayPos{ Alignment::TOP_RIGHT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+	font.renderLine("BOTTOM_RIGHT", DisplayPos{ Alignment::BOTTOM_RIGHT, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+	font.renderLine("CENTER", DisplayPos{ Alignment::CENTER, 0, 0 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
 
 	// Render text last
 	p->debugText(font, textShader);

@@ -1,8 +1,6 @@
 #version 410 core
 
-in vec2 texCoord;
-
-uniform vec3 color = vec3(0.8f, 0.3f, 0.9f);
+uniform vec3 color = vec3(0.94f, 0.91f, 1.0f);
 
 out vec4 FragColor;
 

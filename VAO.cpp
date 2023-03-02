@@ -14,6 +14,16 @@ void VAO::LinkAttrib(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type,
 	VBO.Unbind();
 }
 
+void VAO::LinkAttribInstanced(VBO& VBO, GLuint divisor, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset)
+{
+	VBO.Bind();
+	glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
+	//Enable the vertex attributes so OpenGL uses it
+	glEnableVertexAttribArray(layout);
+	glVertexAttribDivisor(layout, divisor);
+	VBO.Unbind();
+}
+
 void VAO::Bind()
 {
 	glBindVertexArray(ID);

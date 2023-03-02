@@ -396,13 +396,13 @@ void Player::Draw(Shader& shader) {
 }
 
 void Player::debugText(Font& font, Shader& fontShader) {
-	font.renderLine("Control state: " + getControlStateString(), 0, 580, 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("CamPos: ", camPos), 0, 560, 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Position: ", position), 0, 540, 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Velocity: ", velocity), 0, 520, 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Temp Debug Field 1: ", debugTempVec1), 0, 500, 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Temp Debug Field 2: ", debugTempVec2), 0, 480, 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(std::format("Stamina: {:.2f} / {:.2f}", stamina, maxStamina), 0, 460, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine("Control state: " + getControlStateString(), DisplayPos{Alignment::TOP_LEFT, 0, 0}, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("CamPos: ", camPos), DisplayPos{ Alignment::TOP_LEFT, 0, 20 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Position: ", position), DisplayPos{ Alignment::TOP_LEFT, 0, 40 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Velocity: ", velocity), DisplayPos{ Alignment::TOP_LEFT, 0, 60 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Temp Debug Field 1: ", debugTempVec1), DisplayPos{ Alignment::TOP_LEFT, 0, 80 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Temp Debug Field 2: ", debugTempVec2), DisplayPos{ Alignment::TOP_LEFT, 0, 100 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(std::format("Stamina: {:.2f} / {:.2f}", stamina, maxStamina), DisplayPos{ Alignment::TOP_LEFT, 0, 120 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
 	font.renderAll(fontShader);
 }
 

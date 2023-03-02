@@ -41,10 +41,28 @@ struct DisplaySize {
     float height, width;
 };
 
+enum class Alignment {
+    TOP_LEFT,
+    TOP_RIGHT,
+    BOTTOM_LEFT,
+    BOTTOM_RIGHT,
+    CENTER_TOP,
+    CENTER_LEFT,
+    CENTER_RIGHT,
+    CENTER_BOTTOM,
+    CENTER
+};
+
+struct DisplayPos {
+    Alignment alignment;
+    float x, y;
+};
+
 // TODO: Make text accept alpha channel in colours
 class Font
 {
 public:
+
     // Stores all loaded characters
     std::map<char, Character> charMap;
     std::map<char, std::vector<float>> renderPos;
@@ -53,10 +71,12 @@ public:
     unsigned int VAO, VBO;
     unsigned int texture;
 
+    // Screen width, screen height, and size used when loading the font
     unsigned int scrWidth, scrHeight, size;
+    // The width and height of the texture atlas
     unsigned int atlas_width, atlas_height;
 
-    // Max size due to allocated buffer size
+    // Max size due to allocated buffer size.
     unsigned long max_size = sizeof(float) * 1024 * 6;
 
     // Constructor
@@ -67,13 +87,18 @@ public:
     void updateScreenSize(unsigned int newWidth, unsigned int newHeight);
     // Prepare to render a single line of text
     void renderLine(std::string text, float x, float y, unsigned int fontSize, glm::vec3 color, bool textShadow = true, float shadowOffset = 1.0f);
+    // Prepare to render while aligning the text to some corner/center
+    void renderLine(std::string text, DisplayPos pos, unsigned int fontSize, glm::vec3 color, bool textShadow = true, float shadowOffset = 1.0f);
     // Prepare to render a block of text, with automatic line splits
     void renderText(std::string text, float x, float y, float maxWidth, unsigned int fontSize, glm::vec3 color, bool centered = false, float spacing = 1.0f, bool textShadow = true, float shadowOffset = 1.0f);
     // Render all previously prepared text
     void renderAll(Shader& textShader);
 
     // Determine the width and height of a particular line of text
-    DisplaySize getTextSize(std::string text);
+    std::pair<float, float> getTextSize(std::string text);
+
+    // Get the absolute position of aligned text based on window size and the position
+    std::pair<float, float> absolutePos(std::string text, int fontSize, DisplayPos position);
 
     // Delete the object
     void Delete();

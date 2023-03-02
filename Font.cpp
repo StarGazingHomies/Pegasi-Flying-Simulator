@@ -17,6 +17,41 @@ void FONT_printErrorString(std::string location) {
     std::cout << location << " in Font.cpp: " << FONT_getErrorString(glGetError()) << "\n";
 }
 
+std::pair<float, float> Font::absolutePos(std::string text, int fontSize, DisplayPos position) {
+    std::pair<float, float> textSize = getTextSize(text);
+    float sizeX = textSize.first * fontSize / size;
+    float sizeY = fontSize;
+    switch (position.alignment) {
+    case (Alignment::BOTTOM_LEFT):   return std::pair<float, float>(
+        position.x,                 
+        position.y);
+    case (Alignment::TOP_LEFT):      return std::pair<float, float>(                
+        position.x,     
+        scrHeight - sizeY - position.y);
+    case (Alignment::BOTTOM_RIGHT):  return std::pair<float, float>(     
+        scrWidth - sizeX - position.x,                 
+        position.y);
+    case (Alignment::TOP_RIGHT):     return std::pair<float, float>(
+        scrWidth - sizeX - position.x,
+        scrHeight - sizeY - position.y);
+    case (Alignment::CENTER_LEFT):   return std::pair<float, float>(
+        position.x, 
+        scrHeight / 2 + sizeY / 2 + position.y);
+    case (Alignment::CENTER_RIGHT):  return std::pair<float, float>(     
+        scrWidth - sizeX - position.x, 
+        scrHeight / 2 + sizeY / 2 + position.y);
+    case (Alignment::CENTER_TOP):    return std::pair<float, float>( 
+        scrWidth / 2 - sizeX / 2 + position.x,
+        position.y);
+    case (Alignment::CENTER_BOTTOM): return std::pair<float, float>( 
+        scrWidth / 2 - sizeX / 2 + position.x,
+        scrHeight - sizeY - position.y);
+    case (Alignment::CENTER):        return std::pair<float, float>(
+        scrWidth / 2 - sizeX / 2 + position.x,
+        scrHeight / 2 + sizeY / 2 + position.y);
+    }
+}
+
 Font::Font() {}
 
 void Font::Load(const char* fontName, unsigned int height, unsigned int scrWidth, unsigned int scrHeight)
@@ -208,6 +243,12 @@ void Font::renderLine(std::string text, float x, float y, unsigned int fontSize,
     }
 }
 
+void Font::renderLine(std::string text, DisplayPos pos, unsigned int fontSize, glm::vec3 color, bool textShadow, float shadowOffset) {
+    std::pair<float, float> p = Font::absolutePos(text, fontSize, pos);
+    renderLine(text, p.first, p.second, fontSize, color, textShadow, shadowOffset);
+}
+
+
 void Font::renderAll(Shader& textShader) {
     // Enable blend so alpha is considered when overlaying
     glEnable(GL_BLEND);
@@ -292,7 +333,7 @@ void Font::renderText(std::string text, float x, float y, float maxWidth, unsign
     else renderLine(drawStr, x, (y - line * scale * spacing * size), fontSize, color, textShadow, shadowOffset);
 }
 
-DisplaySize Font::getTextSize(std::string text) {
+std::pair<float, float> Font::getTextSize(std::string text) {
     float x = 0, y = 0;
     for (char c : text) {
         Character p = charMap[c];
@@ -300,9 +341,7 @@ DisplaySize Font::getTextSize(std::string text) {
         x += p.Advance.x;
         y = std::max(y, p.Size.y);
     }
-    DisplaySize d;
-    d.width = x; d.height = y;
-    return d;
+    return std::pair<float, float>(x, y);
 }
 
 void Font::Delete()

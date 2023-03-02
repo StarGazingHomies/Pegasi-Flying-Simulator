@@ -14,6 +14,9 @@ public:
 		
 	// Links a vertex attribute using a certain layout
 	void LinkAttrib(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset);
+	// Instanced attribute linking
+	void LinkAttribInstanced(VBO& VBO, GLuint divisor, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset);
+
 	// Bind the VAO
 	void Bind();
 	// Unbind the VAO

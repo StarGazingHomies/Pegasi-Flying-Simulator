@@ -124,8 +124,8 @@ public:
 	// Walking (and standing still)
 	float walkingMaxAcceleration = 12.0;		// Range: (0,+inf), technically maxWalkingSpeed = walkingMaxAcceleration / (1-walkingRetention)
 	float walkingStopAcceleration = 18.0;		// Rnage: [0, +inf), maximum stopping accr
-	float walkingRetention = 0.25;				// Range: [0,1) (Change maxAcc accordingly)
-	float walkingTargetSpeed = 4.0;				// Range: [0,maxWalkingSpeed]
+	float walkingRetention = 0.35;				// Range: [0,1) (Change maxAcc accordingly)
+	float walkingTargetSpeed = 5.0;				// Range: [0,maxWalkingSpeed]
 	float walkingLookImportance = 0.18f;		// Range: [0,0.5] (0 --> Look dir no impact, 0.5 --> Going back velocity 0)
 	float walkingBodyImportance = 0.14f;		// Range: [0,0.5] (0 --> Look dir no impact, 0.5 --> Going back velocity 0)
 	float walkingDirectionStaminaImpact = 1.9f;	// Range: [0,+inf) (0 --> Look dir no additional impact)

@@ -1,14 +1,79 @@
 ﻿  Game.cpp
-C:\OpenGL\Pegasi Flying Simulator\Libraries\include\glm\detail\type_quat.hpp(48,30): warning C4201: nonstandard extension used: nameless struct/union
-C:\OpenGL\Pegasi Flying Simulator\Libraries\include\glm\detail\type_quat.hpp(133,3): message : see reference to class template instantiation 'glm::qua<T,Q>' being compiled
-C:\OpenGL\Pegasi Flying Simulator\Terrain.h(32,38): warning C4100: 'b': unreferenced formal parameter
-C:\OpenGL\Pegasi Flying Simulator\Terrain.h(32,38): warning C4100: 'a': unreferenced formal parameter
+  Player.cpp
+  main.cpp
+C:\OpenGL\Pegasi Flying Simulator\Libraries\include\glm\detail\type_quat.hpp(48,30): warning C4201: nonstandard extension used: nameless struct/union (compiling source file Game.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Libraries\include\glm\detail\type_quat.hpp(133,3): message : see reference to class template instantiation 'glm::qua<T,Q>' being compiled (compiling source file Game.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Libraries\include\glm\detail\type_quat.hpp(48,30): warning C4201: nonstandard extension used: nameless struct/union (compiling source file main.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Libraries\include\glm\detail\type_quat.hpp(133,3): message : see reference to class template instantiation 'glm::qua<T,Q>' being compiled (compiling source file main.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Libraries\include\glm\detail\type_quat.hpp(48,30): warning C4201: nonstandard extension used: nameless struct/union (compiling source file Player.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Libraries\include\glm\detail\type_quat.hpp(133,3): message : see reference to class template instantiation 'glm::qua<T,Q>' being compiled (compiling source file Player.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Player.h(127,8): warning C4305: 'initializing': truncation from 'double' to 'float' (compiling source file Player.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Player.h(127,8): warning C4305: 'initializing': truncation from 'double' to 'float' (compiling source file Game.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(83,19): warning C4459: declaration of 'PI' hides global declaration
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(3,14): message : see declaration of 'PI'
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(228,39): warning C4458: declaration of 'width' hides class member
+C:\OpenGL\Pegasi Flying Simulator\Player.h(168,6): message : see declaration of 'Player::width' (compiling source file Player.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(228,50): warning C4458: declaration of 'height' hides class member
+C:\OpenGL\Pegasi Flying Simulator\Player.h(168,13): message : see declaration of 'Player::height' (compiling source file Player.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(273,44): warning C4100: 'altitude': unreferenced formal parameter
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(327,23): warning C4101: 'rightForce': unreferenced local variable
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(341,43): warning C4100: 'time': unreferenced formal parameter
+C:\OpenGL\Pegasi Flying Simulator\Player.h(127,8): warning C4305: 'initializing': truncation from 'double' to 'float' (compiling source file main.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(449,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(450,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(540,39): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(541,48): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(542,47): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(549,30): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(559,32): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(679,80): warning C4244: '=': conversion from 'genType' to 'T', possible loss of data
+          with
+          [
+              genType=double
+          ]
+          and
+          [
+              T=float
+          ]
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(680,52): warning C4244: '=': conversion from 'genType' to 'T', possible loss of data
+          with
+          [
+              genType=double
+          ]
+          and
+          [
+              T=float
+          ]
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(682,39): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(691,49): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(697,16): warning C4244: '=': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(542,9): warning C4189: 'SECONDARY_LIFT_COEFFICIENT_OPEN': local variable is initialized but not referenced
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(658,9): warning C4189: 'groundSlope': local variable is initialized but not referenced
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(821,85): warning C4100: 'mods': unreferenced formal parameter
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(821,59): warning C4100: 'scancode': unreferenced formal parameter
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(821,38): warning C4100: 'window': unreferenced formal parameter
+C:\OpenGL\Pegasi Flying Simulator\Terrain.h(32,38): warning C4100: 'b': unreferenced formal parameter (compiling source file Game.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Terrain.h(32,38): warning C4100: 'a': unreferenced formal parameter (compiling source file Game.cpp)
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(11,14): warning C4100: 'userParam': unreferenced formal parameter
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(9,10): warning C4100: 'length': unreferenced formal parameter
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(7,9): warning C4100: 'id': unreferenced formal parameter
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(5,40): warning C4100: 'source': unreferenced formal parameter
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(25,30): warning C4100: 'window': unreferenced formal parameter
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(33,39): warning C4100: 'window': unreferenced formal parameter
+C:\OpenGL\Pegasi Flying Simulator\Terrain.h(32,38): warning C4100: 'b': unreferenced formal parameter (compiling source file main.cpp)
+C:\OpenGL\Pegasi Flying Simulator\Terrain.h(32,38): warning C4100: 'a': unreferenced formal parameter (compiling source file main.cpp)
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(100,53): warning C4552: '/': result of expression not used
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(123,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(124,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
@@ -23,11 +88,13 @@ C:\OpenGL\Pegasi Flying Simulator\Game.cpp(155,9): warning C4244: 'argument': co
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(151,34): warning C4100: 'frameTime': unreferenced formal parameter
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(174,10): warning C4189: 'cloudShader': local variable is initialized but not referenced
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(206,18): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\OpenGL\Pegasi Flying Simulator\main.cpp(3,26): warning C4100: 'argv': unreferenced formal parameter
+C:\OpenGL\Pegasi Flying Simulator\main.cpp(3,14): warning C4100: 'argc': unreferenced formal parameter
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\functional(672,31): warning C4244: 'return': conversion from 'int' to '_Rx', possible loss of data
           with
           [
               _Rx=float
-          ]
+          ] (compiling source file Game.cpp)
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\functional(832,1): message : see reference to function template instantiation '_Rx std::_Invoker_ret<_Rx>::_Call<_Callable&,_Ty,_Ty>(_Fx,_Ty &&,_Ty &&) noexcept(false)' being compiled
           with
           [
@@ -35,7 +102,7 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.3193
               _Callable=Game::init::<lambda_1>,
               _Ty=float,
               _Fx=Game::init::<lambda_1> &
-          ]
+          ] (compiling source file Game.cpp)
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\functional(833,9): message : see reference to function template instantiation '_Rx std::_Invoker_ret<_Rx>::_Call<_Callable&,_Ty,_Ty>(_Fx,_Ty &&,_Ty &&) noexcept(false)' being compiled
           with
           [
@@ -43,32 +110,32 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.3193
               _Callable=Game::init::<lambda_1>,
               _Ty=float,
               _Fx=Game::init::<lambda_1> &
-          ]
+          ] (compiling source file Game.cpp)
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\functional(832,1): message : while compiling class template member function '_Rx std::_Func_impl_no_alloc<Game::init::<lambda_1>,_Rx,float,float>::_Do_call(float &&,float &&)'
           with
           [
               _Rx=float
-          ]
+          ] (compiling source file Game.cpp)
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\functional(730,1): message : see reference to class template instantiation 'std::_Func_impl_no_alloc<Game::init::<lambda_1>,_Ret,float,float>' being compiled
           with
           [
               _Ret=float
-          ]
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\functional(916,23): message : see reference to variable template 'const bool _Is_large<std::_Func_impl_no_alloc<`Game::init'::`2'::<lambda_1>,float,float,float> >' being compiled
+          ] (compiling source file Game.cpp)
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\functional(916,23): message : see reference to variable template 'const bool _Is_large<std::_Func_impl_no_alloc<`Game::init'::`2'::<lambda_1>,float,float,float> >' being compiled (compiling source file Game.cpp)
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\functional(1043,1): message : see reference to function template instantiation 'void std::_Func_class<_Ret,float,float>::_Reset<_Ty>(_Fx &&)' being compiled
           with
           [
               _Ret=float,
               _Ty=Game::init::<lambda_1>,
               _Fx=Game::init::<lambda_1>
-          ]
+          ] (compiling source file Game.cpp)
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\functional(1043,21): message : see reference to function template instantiation 'void std::_Func_class<_Ret,float,float>::_Reset<_Ty>(_Fx &&)' being compiled
           with
           [
               _Ret=float,
               _Ty=Game::init::<lambda_1>,
               _Fx=Game::init::<lambda_1>
-          ]
+          ] (compiling source file Game.cpp)
 C:\OpenGL\Pegasi Flying Simulator\Game.cpp(100,61): message : see reference to function template instantiation 'std::function<float (float,float)>::function<Game::init::<lambda_1>,0>(_Fx &&)' being compiled
           with
           [
@@ -79,4 +146,6 @@ C:\OpenGL\Pegasi Flying Simulator\Game.cpp(99,19): message : see reference to fu
           [
               _Fx=Game::init::<lambda_1>
           ]
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(529): warning C4702: unreachable code
+C:\OpenGL\Pegasi Flying Simulator\Player.cpp(579): warning C4702: unreachable code
   Pegasi Flying Simulator.vcxproj -> C:\OpenGL\Pegasi Flying Simulator\x64\Debug\Pegasi Flying Simulator.exe

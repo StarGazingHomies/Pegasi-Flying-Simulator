@@ -242,7 +242,7 @@ int Game::run() {
 		}
 
 		Font& font = resourceManager::getFont("celestiaRedux");
-		font.renderLine("FPS:" + std::to_string(framesPerSecond), DisplayPos{Alignment::TOP_RIGHT, 0, 0}, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+		font.renderLine("FPS:" + std::to_string(framesPerSecond), DisplayPos{Alignment::TOP_RIGHT, 2, 2}, 20, glm::vec3(1.0f, 0.0f, 1.0f));
 
 		switch (gameState) {
 		case (GameState::START_MENU): 

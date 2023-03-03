@@ -628,11 +628,8 @@ void Player::Tick(GLFWwindow* window, float time) {
 		double percentAcc = 0;
 		glm::vec3 acceleration = glm::vec3(0.0f);
 
-		// Debug stuff
-		debugTempVec1 = glm::vec3(directionFactor, 0.0f, 0.0f);
-		debugTempVec2 = target;
 
-		if (target == glm::vec3(0.0f) || glm::dot(target, retainedVelocity) < 0) {
+		if (target == glm::vec3(0.0f) || glm::dot(target, retainedVelocity) < 0 || glm::dot(target, diffVelocity) < 0) {
 			// If you are stopping or reversing direction
 			// (Stamina cost of stopping is 0, for simplification)
 			if (diffLength > walkingInstantStop) {
@@ -646,7 +643,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 		}
 		else {
 			// If the difference is too large to be ignored:
-			resultAccMagnitude = glm::min(diffLength / time, walkingMaxAcceleration * directionFactor);
+			resultAccMagnitude = std::min(diffLength / time, walkingMaxAcceleration * directionFactor);
 			if (resultAccMagnitude != 0)
 				acceleration = glm::normalize(diffVelocity + walkingDirAccelerationWeight * getAxes()[0]) * resultAccMagnitude;
 
@@ -661,6 +658,9 @@ void Player::Tick(GLFWwindow* window, float time) {
 		float groundSlope = 0;
 
 
+		// Debug stuff
+		debugTempVec1 = glm::vec3(diffLength, 0.0f, 0.0f);
+		debugTempVec2 = acceleration;
 
 
 		// Jumping, Pt. 1
@@ -702,13 +702,6 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 		// Update camera accordingly
 		// Camera does not turn with body, maybe a setting could enable it in the future
-		if (camState == CameraState::FIRST_PERSON) {
-			camPos = position + camRelPos;
-		}
-		else {
-			camPos = position + camRelPos - camOrientation * camThirdPersonDistance;
-		}
-
 		// Jumping, Pt. 2
 		if (keymap[GLFW_KEY_SPACE].status == 1) {
 
@@ -811,6 +804,14 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 	}
 	break;
+	}
+
+	if (camState == CameraState::FIRST_PERSON && controlState != ControlState::FREECAM) {
+		camPos = position + camRelPos;
+	}
+	else if (controlState != ControlState::FREECAM) {
+		// F5 handling if it isn't freecam and we are not in first person
+		camPos = position + camRelPos - camOrientation * camThirdPersonDistance;
 	}
 
 	// Now that the player has moved, update the matricies!

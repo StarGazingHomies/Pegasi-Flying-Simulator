@@ -140,6 +140,8 @@ int Game::init() {
 	tempClouds = std::make_unique<Clouds>();
 	tempClouds->Generate();
 
+	Shader& debugVecShader = resourceManager::loadShader("debugVec", "shaders/debug_vector.vert", "shaders/debug_vector.frag");
+
 	return 0;
 }
 
@@ -172,6 +174,7 @@ void Game::inGame_draw() {
 	Font& font = resourceManager::getFont("celestiaRedux");
 	Shader& skyShader = resourceManager::getShader("skydome");
 	Shader& cloudShader = resourceManager::getShader("clouds");
+	Shader& debugVecShader = resourceManager::getShader("debugVec");
 
 	glm::mat4 proj = p->getProjMatrix();
 	glm::mat4 view = p->getViewMatrix();
@@ -199,6 +202,7 @@ void Game::inGame_draw() {
 	
 	// Render text last
 	p->debugText(font, textShader);
+	p->debugVectors(debugVecShader);
 
 }
 

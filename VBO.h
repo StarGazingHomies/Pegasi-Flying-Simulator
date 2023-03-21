@@ -32,6 +32,8 @@ public:
 	void Bind();
 	// Unbind the VBO to avoid accidentally modifying it
 	void Unbind();
+	// Change the VBO's data. Suggested to only use with GL_DYNAMIC_... VBO's
+	void Data(std::vector<float> vertices);
 	// Delete the VBO and free up VRAM.
 	void Delete();
 };

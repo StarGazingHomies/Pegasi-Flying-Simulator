@@ -101,14 +101,15 @@ public:
 	*/
 
 	// Very crude estimates, for now
-	double wingSpan = 5.5;      // Very beeg wings lol
-	double primaryFeatherLength = 2.55;
+	double wingSpan = 5.5;      // Very beeg wings lol. That's what meter-tall horsies need to fly, apparently. Tiny MLP wings just don't cut it.
+	double primaryFeatherLength = 2.55; // Will also happen to be the primary feather width used for Coefficient of Lift...
 	double humurusLength = 1.0; // The humurus doesn't really move when flapping to provide lift.
+	double secondaryWidth = 1.95; // Width of secondary feathers
 
 
 	// Not really Consts (changes very little over the game, but it does and should change!)
 	double mass = 40;
-	glm::mat3 momentOfInertia = glm::mat3(1.0f);
+	glm::mat3 momentOfInertia = glm::mat3(1.0f); // Inverse of moment of inertia
 	float jumpVelocity = 4.0, walkingSpeed = 4.0;
 	glm::vec3 ponyHalfSize = glm::vec3(0.5f, 0.5f, 0.25f);
 	glm::vec3 ponyLoafHalfSize = glm::vec3(0.5f, 0.5f, 0.25f);
@@ -172,16 +173,19 @@ public:
 
 	// Debug display
 	bool debugGraphics;
-	VAO debugCamVAO, debugBodyVAO;
-	VBO debugCamVBO, debugBodyVBO;
+	VAO debugCamVAO, debugBodyVAO, debugVectorsVAO;
+	VBO debugCamVBO, debugBodyVBO, debugVectorsVBO;
 	EBO debugCamEBO, debugBodyEBO;
+	// Debug vector display additional stuff
+	// Fmt: vec3 pos, vec3 col;
+	std::vector<float> debugVecData;
 	// Temp debug vars
 	glm::vec3 debugTempVec1, debugTempVec2;
 
 	// Initializer
 	Player();
 
-	// Debug display functions
+	// Debug helper functions
 	std::string getControlStateString();
 
 	// Inputs
@@ -217,5 +221,7 @@ public:
 	// Main functions
 	void Draw(Shader& shader);
 	void debugText(Font& font, Shader& fontShader);
+	void debugVectors(Shader& vecDebugShader);
+	void addDebugVector(glm::vec3 src, glm::vec3 dir, glm::vec3 colour);
 	void Tick(GLFWwindow* window, float time);
 };

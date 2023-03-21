@@ -144,7 +144,7 @@ void Sky::Draw(Shader& skyShader, glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 }
 
 void Sky::Tick() {
-	time += 10;
+	//time += 10;
 	if (time >= 86400) time -= 86400;
 	//std::cout << time << std::endl;
 }

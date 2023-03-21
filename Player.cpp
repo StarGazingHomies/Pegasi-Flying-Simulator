@@ -24,6 +24,11 @@ std::string debugIntStr(std::string name, int num) {
 	return std::format("{}: {}", name.c_str(), num);
 }
 
+void debugQuat(std::string name, glm::quat quat) {
+	glm::vec3 eulerAngles = glm::eulerAngles(quat);
+	std::cout << debugQuatStr(name, quat) << std::endl;
+}
+
 // Non player specific helpers
 void debugMat4(std::string name, glm::mat4 mat4) {
 	printf("%s:\n<%.2f, %.2f, %.2f, %.2f>\n<%.2f, %.2f, %.2f, %.2f>\n<%.2f, %.2f, %.2f, %.2f>\n<%.2f, %.2f, %.2f, %.2f>\n",
@@ -196,6 +201,12 @@ Player::Player() {
 	debugBodyVAO.LinkAttrib(debugBodyVBO, 3, 2, GL_FLOAT, 0, (void*)(24 * sizeof(float)));
 
 	debugBodyEBO = EBO(bodyIndices);
+
+	// Init with empty size --> will auto resize, so this is fine.
+	debugVectorsVAO.Bind();
+	debugVectorsVBO = VBO(std::vector<float>());
+	debugBodyVAO.LinkAttrib(debugVectorsVBO, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+	debugBodyVAO.LinkAttrib(debugVectorsVBO, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 }
 
 std::string Player::getControlStateString() {
@@ -400,13 +411,43 @@ void Player::debugText(Font& font, Shader& fontShader) {
 	font.renderLine(debugVec3Str("CamPos: ", camPos), DisplayPos{ Alignment::TOP_LEFT, 0, 20 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
 	font.renderLine(debugVec3Str("Position: ", position), DisplayPos{ Alignment::TOP_LEFT, 0, 40 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
 	font.renderLine(debugVec3Str("Velocity: ", velocity), DisplayPos{ Alignment::TOP_LEFT, 0, 60 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Temp Debug Field 1: ", debugTempVec1), DisplayPos{ Alignment::TOP_LEFT, 0, 80 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Temp Debug Field 2: ", debugTempVec2), DisplayPos{ Alignment::TOP_LEFT, 0, 100 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(std::format("Stamina: {:.2f} / {:.2f}", stamina, maxStamina), DisplayPos{ Alignment::TOP_LEFT, 0, 120 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Rot: ", glm::eulerAngles(rot)), DisplayPos{ Alignment::TOP_LEFT, 0, 80 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("RotVelocity: ", glm::eulerAngles(rotVelocity)), DisplayPos{ Alignment::TOP_LEFT, 0, 100 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Temp Debug Field 1: ", debugTempVec1), DisplayPos{ Alignment::TOP_LEFT, 0, 120 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Temp Debug Field 2: ", debugTempVec2), DisplayPos{ Alignment::TOP_LEFT, 0, 140 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(std::format("Stamina: {:.2f} / {:.2f}", stamina, maxStamina), DisplayPos{ Alignment::TOP_LEFT, 0, 160 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
 	font.renderAll(fontShader);
 }
 
+void Player::addDebugVector(glm::vec3 src, glm::vec3 dir, glm::vec3 colour) {
+	debugVecData.push_back(src.x);
+	debugVecData.push_back(src.y);
+	debugVecData.push_back(src.z);
+	debugVecData.push_back(colour.x);
+	debugVecData.push_back(colour.y);
+	debugVecData.push_back(colour.z);
+	debugVecData.push_back(src.x+dir.x);
+	debugVecData.push_back(src.y+dir.y);
+	debugVecData.push_back(src.z+dir.z);
+	debugVecData.push_back(colour.x);
+	debugVecData.push_back(colour.y);
+	debugVecData.push_back(colour.z);
+}
+
+void Player::debugVectors(Shader& vecDebugShader) {
+	// Put some additional data in
+	addDebugVector(position + glm::vec3(0.0f, 0.5f, 0.0f), velocity, glm::vec3(1.0f, 0.0f, 0.0f));
+
+	vecDebugShader.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(vecDebugShader.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(projMatrix * viewMatrix));
+	debugVectorsVAO.Bind();
+	debugVectorsVBO.Data(debugVecData);
+	glDrawArrays(GL_LINES, 0, debugVecData.size() / 6);
+}
+
 void Player::Tick(GLFWwindow* window, float time) {
+	// Clear debug vector data
+	debugVecData.clear();
 
 	// Roll keys (Q, E controls roll)
 	float rollSpeed = 25.0f;
@@ -523,9 +564,9 @@ void Player::Tick(GLFWwindow* window, float time) {
 
 	switch (controlState) {
 	case (ControlState::FLIGHT): {
-		printf("Flight is not implemented yet!\n");
-		controlState = ControlState::FREEFALL;
-		break;
+		//printf("Flight is not implemented yet!\n");
+		//controlState = ControlState::FREEFALL;
+		//break;
 		glm::vec3 totalForce = glm::vec3(0.0f);
 		glm::vec3 totalRotForce = glm::vec3(0.0f);
 
@@ -539,8 +580,102 @@ void Player::Tick(GLFWwindow* window, float time) {
 		float primaryAngle = 0, secondaryAngle = 0;
 		float PRIMARY_LIFT_COEFFICIENT = 1.3;
 		float SECONDARY_LIFT_COEFFICIENT_CLOSED = 1.1;
-		float SECONDARY_LIFT_COEFFICIENT_OPEN = -0.1;
+		float SECONDARY_LIFT_COEFFICIENT_OPEN = -0.05;
 		float air_density = 1;
+
+		// Left Primary
+		// First, gotta find the center of lift.
+		// Note: Spreading wings wider when coming into landing moves CofL forward to in front of CofG
+		// During high speed flight, flexing and sweeping slightly backward moves CofL backwards to reduce drag.
+		// (https://watermark.silverchair.com/47-4-215.pdf?token=AQECAHi208BE49Ooan9kkhW_Ercy7Dm3ZL_9Cf3qfKAc485ysgAAAsgwggLEBgkqhkiG9w0BBwagggK1MIICsQIBADCCAqoGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM7MID65-OUCLW9LPsAgEQgIICe3iN9gtGuM5S76EP9n3RYb0mbHr3IbKqNJ4x0E-CZhHqatsd72MhmcRnl3KQJUWpIpS-7Ic4kqZVi8reJA3B6j2LBtcXL-JCazhNGXqzk13RObzWau3pP7gDP0DykWShYwzSAxZbdxI1lg8Zba7H7NgN681Vy-wUVzTgze3wbbXDk0p8rk5vH4Zd_YzjYHpKAeQC_5Q4b1BbmgqPlNkBmrAmzs9Qich68UdTwBPRqHK-YUkC1dTYRRzlUGM4LUjEByX0qcTymhCB2mAqXN6IU1vJba9dS7fVqhHjkd9wxs3-85xtcJUTr6dE1NkQhZBWmOApTCWJbg2VmycFi0VAV8E-Axgt9AuTfP4IURyhhXZp4QVylW35IMZ2UoIvuYKbpecdKf1CK1KQWMTWbNmyge9RXFLLQszWwchTetkghFiWtSeu0kj_rbynC4vaWkgAara6OtWgUbc7vYsQfnQiGzMS7voU9kk5tLc7SX9vlprH61WG8kx4edW3Sp2zuDKdhzLBHqwuVG1FoVUX0nqfw225wZtCFDyTW5Bd5s1zftCx1N66rviwL4VKrWjKj73dF4X23dfulv6C6UhUwRgyVSzEg3sf3vwpMy8_OA7zvyDOp_tKTdd7ecuWMI5QkUnlMAXwdHxbEDLWhDdzsO3Zm0ezZX5QVQGzyI0w6cSbIwDrXlsmnBdcJAg9cB6X8guMKPDt5KH5KzDvQ05c9Kk3noqofA39mwfwbGgUdE_hZZ-bKuBUDTet8PMn4QiXTEo8vyIf6V7wdL2-It52avF0y34JbprLVPlbrwD4Y3ZzTpjznaJdPBGZ-qFv1e-NxtAEFMeEi28uYmDw6NU4)
+		// But also, CofL is a bit backwards.
+		// For now, the wing's CofL will be right on the CofG, like many airplanes.
+		// Note that all of these will be in the birb/pegasus's reference frame.
+		// Pegasus's, Pegasus's, Pegasus's, repeat that a few times, will ya?
+
+		// Relative velocity to the pegasus
+		glm::vec3 relVelocity = scale(rot, -1) * velocity;
+
+		// left primary feathers debug colour
+		glm::vec3 LP_debugCol = glm::vec3(0.95f, 0.75f, 0.3f);
+
+		// left primary feathers center of lift
+		glm::vec3 LP_CenterOfLift = glm::vec3(
+			0.0f,
+			0.0f,
+			-humurusLength - secondaryWidth - 0.5 * primaryFeatherLength
+		);
+		addDebugVector(
+			position + glm::vec3(0.0f, 0.5f, 0.0f), 
+			rot * LP_CenterOfLift,
+			LP_debugCol
+		);
+
+		// Air enter velocity towards the left primary feathers
+		glm::vec3 LP_enterAirVelocity = -relVelocity + (rotVelocity * LP_CenterOfLift - LP_CenterOfLift);
+		// Air enter direction
+		glm::vec3 LP_enterAirDirection = glm::normalize(LP_enterAirVelocity);
+		addDebugVector(
+			position + glm::vec3(0.0f, 0.5f, 0.0f) + rot * (LP_CenterOfLift - LP_enterAirDirection),
+			rot * LP_enterAirDirection,
+			LP_debugCol
+		);
+
+		float LP_wingAngle = -1 / 9 * PI; // 20 degs
+		glm::vec3 LP_wingNormal = glm::vec3(
+			sin(LP_wingAngle),
+			-cos(LP_wingAngle),
+			0.0f
+		);
+		// Air exit direction
+		// The wing should have minimal impact to the lateral direction of air, BUT the turbulence / air closer to the
+		// body, passing by the secondary / tertiary wings will have an impact.
+		// No idea how to model that yet... a factor of 0.7 on the z-axis?
+		
+		// Air exit direction
+		glm::vec3 LP_exitAirDirection = glm::reflect(LP_enterAirDirection, LP_wingNormal);
+		addDebugVector(
+			position + glm::vec3(0.0f, 0.5f, 0.0f) + rot * LP_CenterOfLift,
+			rot * LP_exitAirDirection,
+			LP_debugCol
+		);
+
+		glm::vec3 LP_liftDirection = LP_enterAirDirection - LP_exitAirDirection;
+		addDebugVector(
+			position + glm::vec3(0.0f, 0.5f, 0.0f) + rot * LP_CenterOfLift,
+			rot * LP_liftDirection,
+			LP_debugCol
+		);
+
+		float LP_liftMagnitude = 0.5f * PRIMARY_LIFT_COEFFICIENT * (
+			0.66 * (wingSpan - humurusLength) * primaryFeatherLength) * \
+			air_density * glm::length(LP_enterAirDirection);
+
+		glm::vec3 LP_liftForce = LP_liftDirection * LP_liftMagnitude;
+
+		debugTempVec1 = LP_liftForce;
+		debugTempVec2 = relVelocity;
+
+
+		// Right Primary
+		glm::vec3 RP_debugCol = glm::vec3(0.3f, 0.75f, 0.95f);
+		glm::vec3 RP_CenterOfLift = glm::vec3(
+			0.0f,
+			0.0f,
+			humurusLength + secondaryWidth + 0.5 * primaryFeatherLength
+		);
+		addDebugVector(
+			position + glm::vec3(0.0f, 0.5f, 0.0f),
+			glm::mat3(glm::mat4_cast(rot)) * RP_CenterOfLift,
+			RP_debugCol
+		);
+		// Air enter velocity towards the right primary feathers
+		glm::vec3 RP_enterAirVelocity = -velocity + glm::mat3(glm::mat4_cast(rotVelocity * rot)) * RP_CenterOfLift;
+		addDebugVector(
+			position + glm::vec3(0.0f, 0.5f, 0.0f) + glm::mat3(glm::mat4_cast(rot)) * RP_CenterOfLift,
+			RP_enterAirVelocity,
+			RP_debugCol
+		);
 
 		//Primary
 		glm::vec3 primaryAirDirection = -velocity;
@@ -560,18 +695,22 @@ void Player::Tick(GLFWwindow* window, float time) {
 			air_density * glm::length(secondaryAirDirection);
 		glm::vec3 secondaryLiftForce = secondaryLiftDir * secondaryLiftMagnitude;
 		totalForce += secondaryLiftForce;
-
+		glm::vec3 secondaryLiftLocation = glm::vec3(0.0f);
+		totalRotForce += glm::cross(secondaryLiftForce, secondaryLiftLocation);
 
 		glm::vec3 finalAcceleration = totalForce / (float)mass;
 		glm::vec3 finalRotAcceleration = totalRotForce * momentOfInertia;
-		debugVec3("Acc", finalAcceleration);
-		debugVec3("RotAcc", finalRotAcceleration);
+		//debugVec3("Acc", finalAcceleration);
+		//debugVec3("RotAcc", finalRotAcceleration);
+		//debugQuat("ScaledRotAcc", scale(glm::quat(finalRotAcceleration), time));
+		//debugQuat("Rot", rot);
+		//debugQuat("RotVelo", rotVelocity);
 
 		// Assume const acceleration for the frame
 		position += velocity * time + finalAcceleration * time * time * 0.5f;
-		//rot *= glm::quat(glm::eulerAngles(rotVelocity) * time + finalRotAcceleration * time * time);
+		rot *= scale(rotVelocity, time) * scale(glm::quat(finalRotAcceleration), time*time*0.5);
 		velocity += finalAcceleration * time;
-		//rotVelocity *= finalRotAcceleration * time;
+		rotVelocity *= scale(glm::quat(finalRotAcceleration), time);
 
 		camPos = position + camRelPos;
 	}
@@ -581,8 +720,8 @@ void Player::Tick(GLFWwindow* window, float time) {
 	break;
 
 	case (ControlState::GROUND_WALKING): {
-		// Ground requires little use of acceleration.
-		// (This will be different from running, which will probably use acc?)
+		// Walking requires little use of acceleration variable (speed limited by accr still)
+		// (This will be different from running, which will probably use acc more?)
 
 
 		// Target direction
@@ -750,15 +889,17 @@ void Player::Tick(GLFWwindow* window, float time) {
 		//std::cout << debugQuatStr("rotVelocity", rotVelocity) << std::endl;
 
 		position += velocity * time + finalAcceleration * time * time * 0.5f;
-		rot *= scale(rotVelocity, time) * scale(finalRotAcceleration, time * time * 0.5f);
+		rot *= scale(rotVelocity, time) * scale(glm::quat(finalRotAcceleration), time * time * 0.5f);
 		velocity += finalAcceleration * time;
-		rotVelocity *= scale(finalRotAcceleration, time);
+		rotVelocity *= scale(glm::quat(finalRotAcceleration), time);
 
 		camPos = position + camRelPos;
 	}
 
 	// Spread your wings and fly!
 	if (keymap[GLFW_KEY_SPACE].status == 1) {
+		// For debug, get 100m up in the air
+		position = glm::vec3(0.0f, 100.0f, 0.0f);
 		controlState = ControlState::FLIGHT;
 		break;
 	}

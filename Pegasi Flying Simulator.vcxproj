@@ -213,6 +213,8 @@
     <None Include="shaders\debug_grid.tesc" />
     <None Include="shaders\debug_grid.tese" />
     <None Include="shaders\debug_grid.vert" />
+    <None Include="shaders\debug_vector.frag" />
+    <None Include="shaders\debug_vector.vert" />
     <None Include="shaders\default.frag" />
     <None Include="shaders\default.geom" />
     <None Include="shaders\default.vert" />

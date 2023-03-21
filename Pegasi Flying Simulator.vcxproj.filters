@@ -40,6 +40,9 @@
     <Filter Include="Resource Files\Shaders\skydome">
       <UniqueIdentifier>{4a93669f-150a-4ca0-96fe-5de28986f74f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\debug_vector">
+      <UniqueIdentifier>{e85b0219-b5a0-4856-a328-6e1ae47289f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -222,6 +225,12 @@
     </None>
     <None Include="shaders\skydome.vert">
       <Filter>Resource Files\Shaders\skydome</Filter>
+    </None>
+    <None Include="shaders\debug_vector.frag">
+      <Filter>Resource Files\Shaders\debug_vector</Filter>
+    </None>
+    <None Include="shaders\debug_vector.vert">
+      <Filter>Resource Files\Shaders\debug_vector</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

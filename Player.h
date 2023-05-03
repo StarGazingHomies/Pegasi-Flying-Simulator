@@ -212,7 +212,9 @@ public:
 
 	double RHSignedAngle(glm::vec3 a, glm::vec3 b, glm::vec3 n);
 	double LHSignedAngle(glm::vec3 a, glm::vec3 b, glm::vec3 n);
-	double wingEfficiency(float angleOfAttack);
+	//double wingEfficiency(float angleOfAttack);
+	double wingDragCoefficient(float angleOfAttack);
+	double wingLiftCoefficient(float angleOfAttack);
 	glm::vec3 wingLiftForce();
 	glm::vec3 wingStrokeForce();
 	glm::vec3 wingAcceleration(double time);

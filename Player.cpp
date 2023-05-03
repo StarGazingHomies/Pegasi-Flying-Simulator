@@ -296,40 +296,66 @@ double Player::LHSignedAngle(glm::vec3 a, glm::vec3 b, glm::vec3 n) {
 	return atan2(glm::dot(glm::cross(b, a), n), glm::dot(a, b));
 }
 
-double Player::wingEfficiency(float angleOfAttack)
-{
-	float divingEfficiency = 0.8f;
-	float divingCriticalAoa = -30.0f;
-	float criticalAoaMin = 20.0f;
-	float criticalAoaMax = 25.0f;
-	if (angleOfAttack > 90 or angleOfAttack < -90)
-	{
-		// What the fuck are you doing to fly backwards ?
-		// At this stage, only flying will save you.
-		// Oh, and remember that you might spin out of control.That will be implemented some other time.
-		return 0.2f;
-	}
+//double Player::wingEfficiency(float angleOfAttack)
+//{
+//	float divingEfficiency = 0.8f;
+//	float divingCriticalAoa = -30.0f;
+//	float criticalAoaMin = 20.0f;
+//	float criticalAoaMax = 25.0f;
+//	if (angleOfAttack > 90 or angleOfAttack < -90)
+//	{
+//		// What the fuck are you doing to fly backwards ?
+//		// At this stage, only flying will save you.
+//		// Oh, and remember that you might spin out of control.That will be implemented some other time.
+//		return 0.2f;
+//	}
+//
+//	if (angleOfAttack < divingCriticalAoa)
+//		// 0.8
+//		return divingEfficiency;
+//	else if (angleOfAttack < 0)
+//		// 0.8 ~ 1
+//		return 1.0f - (1.0f - divingEfficiency) * (angleOfAttack / divingCriticalAoa);
+//	else if (angleOfAttack < criticalAoaMin)
+//		// 1 ~ 1.2
+//		return 1 + angleOfAttack / 5 / criticalAoaMin;
+//	else if (angleOfAttack <= criticalAoaMax)
+//		// 1.2
+//		return 1.2f;
+//	else
+//		// At 50 degrees the efficiency is 0.2 (the minumum, for now)
+//		return std::max(1.2f - (angleOfAttack - criticalAoaMax) / 25, 0.2f);
+//}
 
-	if (angleOfAttack < divingCriticalAoa)
-		// 0.8
-		return divingEfficiency;
-	else if (angleOfAttack < 0)
-		// 0.8 ~ 1
-		return 1.0f - (1.0f - divingEfficiency) * (angleOfAttack / divingCriticalAoa);
-	else if (angleOfAttack < criticalAoaMin)
-		// 1 ~ 1.2
-		return 1 + angleOfAttack / 5 / criticalAoaMin;
-	else if (angleOfAttack <= criticalAoaMax)
-		// 1.2
-		return 1.2f;
-	else
-		// At 50 degrees the efficiency is 0.2 (the minumum, for now)
-		return std::max(1.2f - (angleOfAttack - criticalAoaMax) / 25, 0.2f);
+double wingDragCoefficient(float angleOfAttack) {
+	// https://journals.biologists.com/jeb/article/90/1/143/22971/An-Aerodynamic-Analysis-of-Bird-Wings-as-Fixed
+	// Check ref length later for calcs
+	// Note that this is using hawk data. May tweak because, PEGASUS!
+
+	// C_d can be approximated, between -15 and 15 degs, using a quadratic function.
+	// Going to use this approximation for all angles, temporarily.
+
+	return 0.0007 * pow(angleOfAttack - 1.0, 2) + 0.13;
+}
+
+double wingLiftCoefficient(float angleOfAttack) {
+	// C_l hangs out at -0.2 for a while until ~-4 degs
+	if (angleOfAttack < -4) {
+		return -0.2;
+	}
+	// Lerp to 0 at 0
+	else if (angleOfAttack <= 0) {
+		return 0.2 * angleOfAttack / 4;
+	}
+	// Quadratic approximation
+	else {
+		return 1 - pow(angleOfAttack - 30, 2) / 900;
+	}
 }
 
 glm::vec3 Player::wingLiftForce() {
 
-
+	
 
 	return glm::vec3(0.0f);
 }
@@ -593,11 +619,13 @@ void Player::Tick(GLFWwindow* window, float time) {
 		// Note that all of these will be in the birb/pegasus's reference frame.
 		// Pegasus's, Pegasus's, Pegasus's, repeat that a few times, will ya?
 
+
 		// Relative velocity to the pegasus
 		glm::vec3 relVelocity = scale(rot, -1) * velocity;
 
 		// left primary feathers debug colour
 		glm::vec3 LP_debugCol = glm::vec3(0.95f, 0.75f, 0.3f);
+		glm::vec3 LP_componentsDebugCol = glm::vec3(0.25f, 0.95f, 0.25f);
 
 		// left primary feathers center of lift
 		glm::vec3 LP_CenterOfLift = glm::vec3(
@@ -606,13 +634,27 @@ void Player::Tick(GLFWwindow* window, float time) {
 			-humurusLength - secondaryWidth - 0.5 * primaryFeatherLength
 		);
 		addDebugVector(
+			position + glm::vec3(0.0f, 0.5f, 0.0f),
+			rot * relVelocity,
+			LP_componentsDebugCol
+		);
+		addDebugVector(
 			position + glm::vec3(0.0f, 0.5f, 0.0f), 
 			rot * LP_CenterOfLift,
 			LP_debugCol
 		);
 
+		// Rotation precalc
+		glm::vec3 LP_rotInstantaneousVelocity = scale(rot, -1) * glm::cross(glm::axis(rotVelocity), rot * LP_CenterOfLift) * glm::angle(rotVelocity);
+
 		// Air enter velocity towards the left primary feathers
-		glm::vec3 LP_enterAirVelocity = -relVelocity + (rotVelocity * LP_CenterOfLift - LP_CenterOfLift);
+		glm::vec3 LP_enterAirVelocity = - relVelocity - LP_rotInstantaneousVelocity;
+		addDebugVector(
+			position + glm::vec3(0.0f, 0.5f, 0.0f) + rot * LP_CenterOfLift,
+			rot * LP_rotInstantaneousVelocity,
+			LP_componentsDebugCol
+		);
+
 		// Air enter direction
 		glm::vec3 LP_enterAirDirection = glm::normalize(LP_enterAirVelocity);
 		addDebugVector(
@@ -621,7 +663,7 @@ void Player::Tick(GLFWwindow* window, float time) {
 			LP_debugCol
 		);
 
-		float LP_wingAngle = -1 / 9 * PI; // 20 degs
+		float LP_wingAngle = 0 / 180 * PI;
 		glm::vec3 LP_wingNormal = glm::vec3(
 			sin(LP_wingAngle),
 			-cos(LP_wingAngle),
@@ -656,9 +698,10 @@ void Player::Tick(GLFWwindow* window, float time) {
 		debugTempVec1 = LP_liftForce;
 		debugTempVec2 = relVelocity;
 
-
+		
 		// Right Primary
 		glm::vec3 RP_debugCol = glm::vec3(0.3f, 0.75f, 0.95f);
+		// Right primary feathers center of lift
 		glm::vec3 RP_CenterOfLift = glm::vec3(
 			0.0f,
 			0.0f,
@@ -666,16 +709,46 @@ void Player::Tick(GLFWwindow* window, float time) {
 		);
 		addDebugVector(
 			position + glm::vec3(0.0f, 0.5f, 0.0f),
-			glm::mat3(glm::mat4_cast(rot)) * RP_CenterOfLift,
+			rot * RP_CenterOfLift,
 			RP_debugCol
 		);
 		// Air enter velocity towards the right primary feathers
-		glm::vec3 RP_enterAirVelocity = -velocity + glm::mat3(glm::mat4_cast(rotVelocity * rot)) * RP_CenterOfLift;
+		glm::vec3 RP_enterAirVelocity = -relVelocity + (rotVelocity * RP_CenterOfLift - RP_CenterOfLift);
+		// Air enter direction
+		glm::vec3 RP_enterAirDirection = glm::normalize(RP_enterAirVelocity);
 		addDebugVector(
-			position + glm::vec3(0.0f, 0.5f, 0.0f) + glm::mat3(glm::mat4_cast(rot)) * RP_CenterOfLift,
-			RP_enterAirVelocity,
+			position + glm::vec3(0.0f, 0.5f, 0.0f) + rot * (RP_CenterOfLift - RP_enterAirDirection),
+			rot * RP_enterAirDirection,
 			RP_debugCol
 		);
+		float RP_wingAngle = -1 / 9 * PI;
+		glm::vec3 RP_wingNormal = glm::vec3(
+			sin(RP_wingAngle),
+			-cos(RP_wingAngle),
+			0.0f
+		);
+		// Right primary air exit direction
+		glm::vec3 RP_exitAirDirection = glm::reflect(RP_enterAirDirection, RP_wingNormal);
+		addDebugVector(
+			position + glm::vec3(0.0f, 0.5f, 0.0f) + rot * RP_CenterOfLift,
+			rot * RP_exitAirDirection,
+			RP_debugCol
+		);
+		glm::vec3 RP_liftDirection = RP_enterAirDirection - RP_exitAirDirection;
+		addDebugVector(
+			position + glm::vec3(0.0f, 0.5f, 0.0f) + rot * RP_CenterOfLift,
+			rot * RP_liftDirection,
+			RP_debugCol
+		);
+		float RP_liftMagnitude = 0.5f * PRIMARY_LIFT_COEFFICIENT * (
+			0.66 * (wingSpan - humurusLength) * primaryFeatherLength) * \
+			air_density * glm::length(RP_enterAirDirection);
+
+		glm::vec3 RP_liftForce = RP_liftDirection * RP_liftMagnitude;
+
+
+
+
 
 		//Primary
 		glm::vec3 primaryAirDirection = -velocity;

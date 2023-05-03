@@ -18,7 +18,7 @@ public:
 	EBO skyEBO;
 	Texture sunTex, moonTex;
 
-	float time = 0;
+	float time = 1000;
 
 	std::vector<float> vertices;
 	std::vector<GLuint> indices;

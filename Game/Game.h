@@ -7,10 +7,10 @@
 #include<GLFW/glfw3.h>
 
 #include"Phys_Object.h"
-#include"Shader.h"
+#include"../Graphics/Shader.h"
 #include"Phys.h"
 #include"Player.h"
-#include"resourceManager.h"
+#include"../resourceManager.h"
 #include"Terrain.h"
 #include"Sky.h"
 #include"Cloud.h"

@@ -161,47 +161,47 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Button.cpp" />
-    <ClCompile Include="Cloud.cpp" />
-    <ClCompile Include="debugCamera.cpp" />
-    <ClCompile Include="EBO.cpp" />
-    <ClCompile Include="FBO.cpp" />
-    <ClCompile Include="Font.cpp" />
-    <ClCompile Include="Game.cpp" />
+    <ClCompile Include="UI\Button.cpp" />
+    <ClCompile Include="Game\Cloud.cpp" />
+    <ClCompile Include="Game\debugCamera.cpp" />
+    <ClCompile Include="Graphics\EBO.cpp" />
+    <ClCompile Include="Graphics\FBO.cpp" />
+    <ClCompile Include="Graphics\Font.cpp" />
+    <ClCompile Include="Game\Game.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Phys.cpp" />
-    <ClCompile Include="Phys_Object.cpp" />
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Graphics\Mesh.cpp" />
+    <ClCompile Include="Game\Phys.cpp" />
+    <ClCompile Include="Game\Phys_Object.cpp" />
+    <ClCompile Include="Game\Player.cpp" />
     <ClCompile Include="resourceManager.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Sky.cpp" />
+    <ClCompile Include="Graphics\Shader.cpp" />
+    <ClCompile Include="Game\Sky.cpp" />
     <ClCompile Include="stb.cpp" />
-    <ClCompile Include="Terrain.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="VAO.cpp" />
-    <ClCompile Include="VBO.cpp" />
+    <ClCompile Include="Game\Terrain.cpp" />
+    <ClCompile Include="Graphics\Texture.cpp" />
+    <ClCompile Include="Graphics\VAO.cpp" />
+    <ClCompile Include="Graphics\VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Button.h" />
-    <ClInclude Include="Cloud.h" />
-    <ClInclude Include="debugCamera.h" />
-    <ClInclude Include="EBO.h" />
-    <ClInclude Include="FBO.h" />
-    <ClInclude Include="Font.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Phys.h" />
-    <ClInclude Include="Phys_Object.h" />
-    <ClInclude Include="Player.h" />
+    <ClInclude Include="UI\Button.h" />
+    <ClInclude Include="Game\Cloud.h" />
+    <ClInclude Include="Game\debugCamera.h" />
+    <ClInclude Include="Graphics\EBO.h" />
+    <ClInclude Include="Graphics\FBO.h" />
+    <ClInclude Include="Graphics\Font.h" />
+    <ClInclude Include="Game\Game.h" />
+    <ClInclude Include="Graphics\Mesh.h" />
+    <ClInclude Include="Game\Phys.h" />
+    <ClInclude Include="Game\Phys_Object.h" />
+    <ClInclude Include="Game\Player.h" />
     <ClInclude Include="resourceManager.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="Sky.h" />
-    <ClInclude Include="Terrain.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="VAO.h" />
-    <ClInclude Include="VBO.h" />
+    <ClInclude Include="Graphics\Shader.h" />
+    <ClInclude Include="Game\Sky.h" />
+    <ClInclude Include="Game\Terrain.h" />
+    <ClInclude Include="Graphics\Texture.h" />
+    <ClInclude Include="Graphics\VAO.h" />
+    <ClInclude Include="Graphics\VBO.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitattributes" />

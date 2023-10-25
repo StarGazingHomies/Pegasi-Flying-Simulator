@@ -1,10 +1,10 @@
 #pragma once
 
-#include"VAO.h"
-#include"VBO.h"
-#include"EBO.h"
-#include"Texture.h"
-#include"Shader.h"
+#include"../Graphics/VAO.h"
+#include"../Graphics/VBO.h"
+#include"../Graphics/EBO.h"
+#include"../Graphics/Texture.h"
+#include"../Graphics/Shader.h"
 #include<functional>
 #include<glm/gtc/type_ptr.hpp>
 

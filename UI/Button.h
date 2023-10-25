@@ -2,11 +2,11 @@
 
 #include<functional>
 
-#include"Texture.h"
-#include"Shader.h"
-#include"VAO.h"
-#include"VBO.h"
-#include"EBO.h"
+#include"../Graphics/Texture.h"
+#include"../Graphics/Shader.h"
+#include"../Graphics/VAO.h"
+#include"../Graphics/VBO.h"
+#include"../Graphics/EBO.h"
 
 #include<glm/glm.hpp>
 #include<glm/gtc/matrix_transform.hpp>

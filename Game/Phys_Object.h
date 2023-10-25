@@ -11,7 +11,7 @@
 #include<glm/gtx/rotate_vector.hpp>
 #include<glm/gtx/vector_angle.hpp>
 
-#include"Mesh.h"
+#include"../Graphics/Mesh.h"
 
 // Base object for all physics objects
 class OBB {

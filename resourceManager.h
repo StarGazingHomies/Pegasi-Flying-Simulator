@@ -1,11 +1,11 @@
 #pragma once
 
 #include<map>
-#include"Shader.h"
-#include"Font.h"
-#include"Phys.h"
-#include"Button.h"
-#include"FBO.h"
+#include"Graphics/Shader.h"
+#include"Graphics/Font.h"
+#include"Game/Phys.h"
+#include"UI/Button.h"
+#include"Graphics/FBO.h"
 
 class resourceManager
 {

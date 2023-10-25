@@ -2,10 +2,10 @@
 
 #include<random>
 
-#include"VAO.h"
-#include"VBO.h"
-#include"Shader.h"
-#include"EBO.h"
+#include"../Graphics/VAO.h"
+#include"../Graphics/VBO.h"
+#include"../Graphics/Shader.h"
+#include"../Graphics/EBO.h"
 
 #include<glm/glm.hpp>
 #include<glm/gtc/constants.hpp>

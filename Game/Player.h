@@ -11,7 +11,7 @@
 #include<glm/gtx/vector_angle.hpp>
 
 #include"Phys_Object.h"
-#include"Font.h"
+#include"../Graphics/Font.h"
 
 enum class WingMotion {
 	IDLE,

@@ -101,7 +101,8 @@ int Game::init() {
 
 
 	Shader& buttonShader = resourceManager::loadShader("button", "shaders/button.vert", "shaders/button.frag");
-	Button& startButton = resourceManager::generateButton("startMenu_Test", 0, 0, 100, 100,
+	startButton = std::make_unique<Button>();
+	startButton->set(0, 0, 100, 100,
 		"resources/debug_buttonDefault.png",
 		"resources/debug_buttonHover.png",
 		"resources/debug_buttonPress.png");
@@ -110,7 +111,7 @@ int Game::init() {
 		this->gameState = GameState::IN_GAME; 
 		glfwSetCursorPos(this->window, (this->scrWidth / 2), (this->scrHeight / 2));
 	};
-	startButton.setPressCallBack(func);
+	startButton->setPressCallBack(func);
 
 	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");
 	
@@ -147,14 +148,13 @@ int Game::init() {
 
 void Game::startMenu_draw() {
 	Shader buttonShader = resourceManager::getShader("button");
-	resourceManager::getButton("startMenu_Test").Draw(buttonShader);
+	startButton->draw();
 }
 
 void Game::startMenu_tick(double frameTime) {
-	Button& b = resourceManager::getButton("startMenu_Test");
 	double xpos, ypos; glfwGetCursorPos(window, &xpos, &ypos);
 	int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-	b.Tick(xpos, ypos, state==GLFW_PRESS?1:0);
+	startButton->mouseEvent(xpos, ypos, state==GLFW_PRESS?1:0);
 
 	while (!keyEvents.empty()) {
 		keyEvents.pop();

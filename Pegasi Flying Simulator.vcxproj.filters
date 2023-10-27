@@ -126,6 +126,9 @@
     <ClCompile Include="Game\Terrain.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
+    <ClCompile Include="UI\UIObject.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resourceManager.h">
@@ -181,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="Game\Terrain.h">
       <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIObject.h">
+      <Filter>Header Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

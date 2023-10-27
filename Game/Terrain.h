@@ -8,8 +8,7 @@
 #include<functional>
 #include<glm/gtc/type_ptr.hpp>
 
-class Terrain
-{
+class Terrain {
 public:
 	VAO terrainVAO;
 	VBO terrainVBO;

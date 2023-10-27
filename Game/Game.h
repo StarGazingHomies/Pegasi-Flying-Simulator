@@ -14,6 +14,7 @@
 #include"Terrain.h"
 #include"Sky.h"
 #include"Cloud.h"
+#include"../UI/Button.h"
 
 enum class GameState {
 	START_MENU,
@@ -32,6 +33,7 @@ public:
 	std::unique_ptr<Terrain> terrain;
 	std::unique_ptr<Sky> tempSky;
 	std::unique_ptr<Clouds> tempClouds;
+	std::unique_ptr<Button> startButton;
 
 	GameState gameState = GameState::START_MENU;
 

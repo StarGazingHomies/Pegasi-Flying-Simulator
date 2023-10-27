@@ -2,7 +2,7 @@
 
 Button::Button() {}
 
-void Button::set(int x1, int y1, int x2, int y2, const char* defaultImg, const char* hoverImg, const char* pressedImg) {
+void Button::set(double x1, double y1, double x2, double y2, const char* defaultImg, const char* hoverImg, const char* pressedImg) {
 	// Sides
 	this->x1 = x1;
 	this->x2 = x2;
@@ -46,12 +46,14 @@ void Button::set(int x1, int y1, int x2, int y2, const char* defaultImg, const c
 		+ std::to_string(x2) + ", " + std::to_string(y2) + ">";
 	hoverFunc = [buttonRepString]() {printf((buttonRepString + " is hovered.\n").c_str()); };
 	pressFunc = [buttonRepString]() {printf((buttonRepString + " is pressed.\n").c_str()); };
-	printf("%lld\n", pressFunc);
 	releaseFunc = [buttonRepString]() {printf((buttonRepString + " is released.\n").c_str()); };
-	dragFunc = [](int x, int y) {};
-	/* Fix this later
-	dragFunc = [&](int x, int y) {
+
+	dragFunc = [&](double x, double y) {
 		printf("Dragged with delta %d, %d\n", x, y);
+		this->x1 += x;
+		this->x2 += x;
+		this->y1 += y;
+		this->y2 += y;
 		printf("New coords: %d, %d, %d, %d\n", x1, y1, x2, y2);
 		std::vector<float> vertices = {
 		(float)x1, (float)y1, 0.0f, 0.0f,
@@ -61,8 +63,8 @@ void Button::set(int x1, int y1, int x2, int y2, const char* defaultImg, const c
 		(float)x2, (float)y1, 1.0f, 0.0f,
 		(float)x1, (float)y2, 0.0f, 1.0f,
 		};
-		glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size()*sizeof(float), vertices.data());
-	};*/
+		this->buttonVBO.Data(vertices);
+	};
 }
 
 // Functions to set callbacks
@@ -75,16 +77,16 @@ void Button::setPressCallBack(const std::function<void()>& func) {
 void Button::setReleaseCallBack(std::function<void()> func) {
 	this->releaseFunc = func;
 }
-void Button::setDragCallBack(std::function<void(int, int)> func) {
+void Button::setDragCallBack(std::function<void(double, double)> func) {
 	this->dragFunc = func;
 }
 
-bool Button::isInRange(int mouseX, int mouseY) {
+bool Button::isInRange(double mouseX, double mouseY) {
 	// Square bounds checking
 	return x1 <= mouseX && mouseX <= x2 && y1 <= mouseY && mouseY <= y2;
 }
 
-void Button::Tick(int mouseX, int mouseY, int mouseButton) {
+bool Button::mouseEvent(double mouseX, double mouseY, int mouseButton) {
 	// Note that in this implementation, going out of the button's bounds
 	// while holding the button counts as releasing the button.
 	// This may be different from a lot of common implementations.
@@ -102,6 +104,7 @@ void Button::Tick(int mouseX, int mouseY, int mouseButton) {
 				pressY = mouseY;
 			}
 			buttonState = ButtonState::PRESS;
+			return true;
 		}
 		else {
 			// If the button wasn't interacted with at all
@@ -116,9 +119,21 @@ void Button::Tick(int mouseX, int mouseY, int mouseButton) {
 		if (buttonState == ButtonState::PRESS) releaseFunc();
 		buttonState = ButtonState::DEFAULT;
 	}
+	return false;
 }
 
-void Button::Draw(Shader& buttonShader) {
+bool Button::keyboardEvent(int key, int status)
+{
+	return false;
+}
+
+bool Button::textEvent(unsigned int c)
+{
+	return false;
+}
+
+void Button::draw() {
+	Shader& buttonShader = resourceManager::getShader("button");
 
 	buttonShader.Activate();
 	glm::mat4 orthoProj = glm::ortho(0.0f, 800.0f, 800.0f, 0.0f);

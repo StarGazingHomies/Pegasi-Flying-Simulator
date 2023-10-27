@@ -161,6 +161,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="UI\UIObject.cpp" />
     <ClCompile Include="UI\Button.cpp" />
     <ClCompile Include="Game\Cloud.cpp" />
     <ClCompile Include="Game\debugCamera.cpp" />
@@ -184,6 +185,7 @@
     <ClCompile Include="Graphics\VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="UI\UIObject.h" />
     <ClInclude Include="UI\Button.h" />
     <ClInclude Include="Game\Cloud.h" />
     <ClInclude Include="Game\debugCamera.h" />

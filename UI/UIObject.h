@@ -6,6 +6,7 @@
 class UIObject {
 public:
 	std::string name;
+
 	virtual void draw() = 0;
 	// buttonStatus will be 0 if not pressed and 1 if pressed
 	virtual bool mouseEvent(double mouseX, double mouseY, int buttonStatus) = 0;

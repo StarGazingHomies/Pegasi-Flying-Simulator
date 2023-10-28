@@ -1,8 +1,9 @@
 #include"Button.h"
 
-Button::Button() {}
 
-void Button::set(double x1, double y1, double x2, double y2, const char* defaultImg, const char* hoverImg, const char* pressedImg) {
+Button::Button(std::string name, double x1, double y1, double x2, double y2, const char* defaultImg, const char* hoverImg, const char* pressedImg) {
+	this->name = name;
+	
 	// Sides
 	this->x1 = x1;
 	this->x2 = x2;
@@ -41,27 +42,24 @@ void Button::set(double x1, double y1, double x2, double y2, const char* default
 	buttonEBO = EBO(indices);
 
 	// Default functions, mostly used when debugging
-	std::string buttonRepString = "Button at <" + \
-		std::to_string(x1) + ", " + std::to_string(y1) + "> to <" \
-		+ std::to_string(x2) + ", " + std::to_string(y2) + ">";
-	hoverFunc = [buttonRepString]() {printf((buttonRepString + " is hovered.\n").c_str()); };
-	pressFunc = [buttonRepString]() {printf((buttonRepString + " is pressed.\n").c_str()); };
-	releaseFunc = [buttonRepString]() {printf((buttonRepString + " is released.\n").c_str()); };
+	hoverFunc = [&]() {printf((this->name + " is hovered.\n").c_str()); };
+	pressFunc = [&]() {printf((this->name + " is pressed.\n").c_str()); };
+	releaseFunc = [&]() {printf((this->name + " is released.\n").c_str()); };
 
 	dragFunc = [&](double x, double y) {
-		printf("Dragged with delta %d, %d\n", x, y);
+		printf("Dragged with delta %lf, %lf\n", x, y);
 		this->x1 += x;
 		this->x2 += x;
 		this->y1 += y;
 		this->y2 += y;
-		printf("New coords: %d, %d, %d, %d\n", x1, y1, x2, y2);
+		printf("New coords: %lf, %lf, %lf, %lf\n", this->x1, this->y1, this->x2, this->y2);
 		std::vector<float> vertices = {
-		(float)x1, (float)y1, 0.0f, 0.0f,
-		(float)x1, (float)y2, 0.0f, 1.0f,
-		(float)x2, (float)y1, 1.0f, 0.0f,
-		(float)x2, (float)y2, 1.0f, 1.0f,
-		(float)x2, (float)y1, 1.0f, 0.0f,
-		(float)x1, (float)y2, 0.0f, 1.0f,
+			(float)this->x1, (float)this->y1, 0.0f, 1.0f,
+			(float)this->x1, (float)this->y2, 0.0f, 0.0f,
+			(float)this->x2, (float)this->y1, 1.0f, 1.0f,
+			(float)this->x2, (float)this->y2, 1.0f, 0.0f,
+			(float)this->x2, (float)this->y1, 1.0f, 1.0f,
+			(float)this->x1, (float)this->y2, 0.0f, 0.0f,
 		};
 		this->buttonVBO.Data(vertices);
 	};
@@ -136,7 +134,7 @@ void Button::draw() {
 	Shader& buttonShader = resourceManager::getShader("button");
 
 	buttonShader.Activate();
-	glm::mat4 orthoProj = glm::ortho(0.0f, 800.0f, 800.0f, 0.0f);
+	glm::mat4 orthoProj = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f);
 	glUniformMatrix4fv(glGetUniformLocation(buttonShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(orthoProj));
 
 	switch (buttonState) {

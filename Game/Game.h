@@ -3,18 +3,19 @@
 #include <queue>
 #include <random>
 
-#include<glad/glad.h>
-#include<GLFW/glfw3.h>
-
-#include"Phys_Object.h"
-#include"../Graphics/Shader.h"
-#include"Phys.h"
-#include"Player.h"
-#include"../resourceManager.h"
-#include"Terrain.h"
-#include"Sky.h"
-#include"Cloud.h"
-#include"../UI/Button.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+		 
+#include "Phys_Object.h"
+#include "../Graphics/Shader.h"
+#include "Phys.h"
+#include "Player.h"
+#include "../resourceManager.h"
+#include "Terrain.h"
+#include "Sky.h"
+#include "Cloud.h"
+#include "../UI/Button.h"
+#include "../UI/Scene.h"
 
 enum class GameState {
 	START_MENU,
@@ -33,7 +34,7 @@ public:
 	std::unique_ptr<Terrain> terrain;
 	std::unique_ptr<Sky> tempSky;
 	std::unique_ptr<Clouds> tempClouds;
-	std::unique_ptr<Button> startButton;
+	std::unique_ptr<Scene> startScene;
 
 	GameState gameState = GameState::START_MENU;
 

@@ -25,7 +25,7 @@ public:
 	std::string name = "Default Button Name";
 
 	double x1, x2, y1, y2;
-	int pressX, pressY;
+	double pressX, pressY;
 	// Callback (when the button is ticked)
 	std::function<void()> hoverFunc, pressFunc, releaseFunc;
 	// Dragging function takes to arguments, deltaX and deltaY
@@ -38,9 +38,7 @@ public:
 	ButtonState buttonState;
 
 	// Constructors
-	Button();
-
-	void set(double x1, double y1, double x2, double y2, const char* defaultImg = nullptr, const char* hoverImg = nullptr, const char* pressedImg = nullptr);
+	Button(std::string name, double x1, double y1, double x2, double y2, const char* defaultImg = nullptr, const char* hoverImg = nullptr, const char* pressedImg = nullptr);
 	
 	// Callbacks
 	void setHoverCallBack(std::function<void()> func);

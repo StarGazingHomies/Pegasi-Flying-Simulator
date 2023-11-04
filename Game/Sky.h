@@ -28,7 +28,7 @@ public:
 
 	Sky();
 	void Generate();
-	void Draw(Shader& skyShader, glm::mat4 projMatrix, glm::mat4 viewMatrix);
+	void Draw(const Shader& skyShader, glm::mat4 projMatrix, glm::mat4 viewMatrix);
 	void Tick();
 };
 

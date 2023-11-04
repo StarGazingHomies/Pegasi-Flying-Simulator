@@ -10,6 +10,7 @@ class resourceManager
 {
 public:
 	// Static resource manager for now, maybe things will be dynamically loaded later.
+	static std::string primaryFontName;
 	static std::map<std::string, Shader> shaders;
 	static std::map<std::string, FBO> framebuffers;
 	static std::map<std::string, Font> fonts;
@@ -32,6 +33,7 @@ public:
 		int scrHeight);
 
 	static Font& getFont(std::string name);
+	static Font& getPrimaryFont();
 
 	static FBO& generateFBO(
 		std::string name,

@@ -3,6 +3,7 @@
 std::map<std::string, Shader> resourceManager::shaders;
 std::map<std::string, Font> resourceManager::fonts;
 std::map<std::string, FBO> resourceManager::framebuffers;
+std::string resourceManager::primaryFontName = "celestiaRedux";
 
 
 Shader& resourceManager::loadShader(std::string name, const char* vertexFile, const char* fragmentFile, const char* geometryFile, const char* tessControlFile, const char* tessEvaluationFile)
@@ -25,12 +26,16 @@ Font& resourceManager::loadFont(
 	int fontSize,
 	int scrWidth,
 	int scrHeight) {
-	fonts[name].Load(file, fontSize, scrWidth, scrHeight);
+	fonts[name].load(file, fontSize, scrWidth, scrHeight);
 	return fonts[name];
 }
 
 Font& resourceManager::getFont(std::string name) {
 	return fonts[name];
+}
+
+Font& resourceManager::getPrimaryFont() {
+	return getFont(primaryFontName);
 }
 
 FBO& resourceManager::generateFBO(std::string name, int width, int height) {

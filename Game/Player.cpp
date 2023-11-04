@@ -381,7 +381,7 @@ glm::vec3 Player::wingAcceleration(double time) {
 
 
 
-void Player::Draw(Shader& shader) {
+void Player::Draw(const Shader& shader) {
 	// Debug graphics! (A bunch of lines)
 	shader.Activate();
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, "camMatrix"), 1, GL_FALSE, glm::value_ptr(projMatrix * viewMatrix));
@@ -432,7 +432,7 @@ void Player::Draw(Shader& shader) {
 	return;
 }
 
-void Player::debugText(Font& font, Shader& fontShader) {
+void Player::debugText(Font& font, const Shader& fontShader) {
 	font.renderLine("Control state: " + getControlStateString(), DisplayPos{Alignment::TOP_LEFT, 0, 0}, 20, glm::vec3(1.0f, 1.0f, 0.0f));
 	font.renderLine(debugVec3Str("CamPos: ", camPos), DisplayPos{ Alignment::TOP_LEFT, 0, 20 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
 	font.renderLine(debugVec3Str("Position: ", position), DisplayPos{ Alignment::TOP_LEFT, 0, 40 }, 20, glm::vec3(1.0f, 1.0f, 0.0f));
@@ -460,7 +460,7 @@ void Player::addDebugVector(glm::vec3 src, glm::vec3 dir, glm::vec3 colour) {
 	debugVecData.push_back(colour.z);
 }
 
-void Player::debugVectors(Shader& vecDebugShader) {
+void Player::debugVectors(const Shader& vecDebugShader) {
 	// Put some additional data in
 	addDebugVector(position + glm::vec3(0.0f, 0.5f, 0.0f), velocity, glm::vec3(1.0f, 0.0f, 0.0f));
 

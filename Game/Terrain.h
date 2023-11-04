@@ -35,6 +35,6 @@ public:
 	std::vector<float> getCoord(int x, int y);
 	void setCoord(int x, int y, std::vector<float> vals);
 
-	void Draw(Shader& terrainShader, glm::mat4 proj, glm::mat4 view, glm::vec3 camPos);
+	void Draw(const Shader& terrainShader, glm::mat4 proj, glm::mat4 view, glm::vec3 camPos);
 };
 

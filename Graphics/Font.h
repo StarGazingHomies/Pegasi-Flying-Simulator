@@ -24,7 +24,7 @@ struct Character {
     glm::fvec2   Advance;    // Distance between current char and next one
 };
 
-struct Font_point {
+struct FontPoint {
     // Coordinates
     GLfloat x;
     GLfloat y;
@@ -59,14 +59,13 @@ struct DisplayPos {
 };
 
 // TODO: Make text accept alpha channel in colours
-class Font
-{
+class Font {
 public:
 
     // Stores all loaded characters
     std::map<char, Character> charMap;
     std::map<char, std::vector<float>> renderPos;
-    std::vector<Font_point> charStash;
+    std::vector<FontPoint> charStash;
     // VAO and VBO for text rendering
     unsigned int VAO, VBO;
     unsigned int texture;
@@ -82,7 +81,7 @@ public:
     // Constructor
     Font();
     // Loads the font
-    void Load(const char* fontName, unsigned int height, unsigned int scrWidth, unsigned int scrHeight);
+    void load(const char* fontName, unsigned int height, unsigned int scrWidth, unsigned int scrHeight);
     // Update the projection matrix to fit the new screen size
     void updateScreenSize(unsigned int newWidth, unsigned int newHeight);
     // Prepare to render a single line of text
@@ -92,7 +91,7 @@ public:
     // Prepare to render a block of text, with automatic line splits
     void renderText(std::string text, float x, float y, float maxWidth, unsigned int fontSize, glm::vec3 color, bool centered = false, float spacing = 1.0f, bool textShadow = true, float shadowOffset = 1.0f);
     // Render all previously prepared text
-    void renderAll(Shader& textShader);
+    void renderAll(const Shader& textShader);
 
     // Determine the width and height of a particular line of text
     std::pair<float, float> getTextSize(std::string text);

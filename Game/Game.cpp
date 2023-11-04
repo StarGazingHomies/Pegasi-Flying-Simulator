@@ -16,25 +16,38 @@ void GLAPIENTRY MessageCallback(GLenum source,
 		type, severity, message);
 }
 
-std::queue<int> Game::keyEvents;
+std::queue<KeyEvent> Game::keyEvents;
+std::queue<unsigned int> Game::textEvents;
+std::queue<MouseEvent> Game::mouseEvents;
 bool Game::updateScreenSize = false;
 int Game::scrWidth = 800;
 int Game::scrHeight = 600;
+double Game::lastXPos = -1;
+double Game::lastYPos = -1;
 
 // Unfortunately these can't be instance methods
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	Game::keyEvents.push(key);
-	Game::keyEvents.push(scancode);
-	Game::keyEvents.push(action);
-	Game::keyEvents.push(mods);
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	Game::keyEvents.push(KeyEvent{ key, scancode, action, mods });
 }
 
-void windowResizeCallback(GLFWwindow* window, int scrWidth, int scrHeight)
-{
+void windowResizeCallback(GLFWwindow* window, int scrWidth, int scrHeight) {
 	Game::updateScreenSize = true;
 	Game::scrWidth = scrWidth;
 	Game::scrHeight = scrHeight;
+}
+
+void charCallback(GLFWwindow* window, unsigned int codepoint) {
+	Game::textEvents.push(codepoint);
+}
+
+void mouseMoveCallback(GLFWwindow* window, double xpos, double ypos) {
+	Game::mouseEvents.push(MouseEvent{ xpos, ypos });
+	Game::lastXPos = xpos;
+	Game::lastYPos = ypos;
+}
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+	Game::mouseEvents.push(MouseEvent{ Game::lastXPos, Game::lastYPos, button, action, mods });
 }
 
 int Game::init() {
@@ -62,6 +75,9 @@ int Game::init() {
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetWindowSizeCallback(window, windowResizeCallback);
+	glfwSetCharCallback(window, charCallback);
+	glfwSetCursorPosCallback(window, mouseMoveCallback);
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glEnable(GL_DEPTH_TEST);
@@ -101,7 +117,6 @@ int Game::init() {
 
 	Shader& buttonShader = resourceManager::loadShader("button", "shaders/button.vert", "shaders/button.frag");
 
-
 	startScene = std::make_unique<Scene>("Start Menu");
 	
 	for (int i = 0; i < 8; i++) {
@@ -115,10 +130,16 @@ int Game::init() {
 			this->gameState = GameState::IN_GAME;
 			glfwSetCursorPos(this->window, (this->scrWidth / 2), (this->scrHeight / 2));
 			};
-		//startButton->setPressCallBack(func);
+		startButton->setPressCallBack(func);
 
-		startScene->addObject(move(startButton));
+		startScene->addObject(startButton);
 	}
+
+	std::shared_ptr<StaticText> text = std::make_shared<StaticText>("Hello World", 0, 0, 60, glm::vec3(1.0f, 1.0f, 1.0f));
+	startScene->addObject(text);
+
+	std::shared_ptr<TextBox> textBox = std::make_shared<TextBox>("TextBox", "Enter text here", 0, 100, 200, 200, glm::vec3(1.0f), glm::vec3(0.5f), 12, true);
+	startScene->addObject(textBox);
 
 	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");
 	
@@ -150,6 +171,12 @@ int Game::init() {
 
 	Shader& debugVecShader = resourceManager::loadShader("debugVec", "shaders/debug_vector.vert", "shaders/debug_vector.frag");
 
+	// Init "last" xPos and yPos
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos);
+	lastXPos = xpos;
+	lastYPos = ypos;
+
 	return 0;
 }
 
@@ -158,12 +185,18 @@ void Game::startMenu_draw() {
 }
 
 void Game::startMenu_tick(double frameTime) {
-	double xpos, ypos; glfwGetCursorPos(window, &xpos, &ypos);
-	int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-	startScene->mouseEvent(xpos, ypos, state==GLFW_PRESS?1:0);
+	while (!mouseEvents.empty()) {
+		MouseEvent m = mouseEvents.front(); mouseEvents.pop();
+		startScene->mouseEvent(m);
+	}
 
 	while (!keyEvents.empty()) {
-		keyEvents.pop();
+		KeyEvent k = keyEvents.front(); keyEvents.pop();
+		startScene->keyboardEvent(k);
+	}
+	while (!textEvents.empty()) {
+		unsigned int c = textEvents.front(); textEvents.pop();
+		startScene->textEvent(c);
 	}
 	if (updateScreenSize) {
 		glViewport(0, 0, scrWidth, scrHeight);
@@ -217,11 +250,8 @@ void Game::inGame_tick(double frameTime) {
 	physEngine->Tick(frameTime);
 
 	if (!keyEvents.empty()) {
-		int key = keyEvents.front(); keyEvents.pop();
-		int scancode = keyEvents.front(); keyEvents.pop();
-		int action = keyEvents.front(); keyEvents.pop();
-		int mods = keyEvents.front(); keyEvents.pop();
-		p->keyCallback(window, key, scancode, action, mods);
+		KeyEvent event = keyEvents.front(); keyEvents.pop();
+		p->keyCallback(window, event.key, event.scancode, event.action, event.mods);
 	}
 
 	if (updateScreenSize) {

@@ -88,7 +88,7 @@ void Terrain::setCoord(int x, int y, std::vector<float> vals) {
 }
 
 
-void Terrain::Draw(Shader& terrainShader, glm::mat4 proj, glm::mat4 view, glm::vec3 camPos) {
+void Terrain::Draw(const Shader& terrainShader, glm::mat4 proj, glm::mat4 view, glm::vec3 camPos) {
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
 	terrainShader.Activate();
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(proj));

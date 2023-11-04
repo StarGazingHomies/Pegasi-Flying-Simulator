@@ -21,13 +21,13 @@ public:
 	void Compile(const char* vertexFile, const char* fragmentFile, const char* geometryFile = nullptr, const char* tessControlFile = nullptr, const char* tessEvaluationFile = nullptr);
 
 	// Activates the shader
-	void Activate();
+	void Activate() const;
 	// Deactivates the shader
-	void Delete();
+	void Delete() const;
 
 private:
 	// Check if shaders have compiled correctly
-	void compileErrors(unsigned int shader, const char* type);
+	void compileErrors(unsigned int shader, const char* type) const;
 };
 
 #endif

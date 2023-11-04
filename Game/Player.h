@@ -221,9 +221,9 @@ public:
 	glm::vec3 wingAngularAcceleration(double time);
 
 	// Main functions
-	void Draw(Shader& shader);
-	void debugText(Font& font, Shader& fontShader);
-	void debugVectors(Shader& vecDebugShader);
+	void Draw(const Shader& shader);
+	void debugText(Font& font, const Shader& fontShader);
+	void debugVectors(const Shader& vecDebugShader);
 	void addDebugVector(glm::vec3 src, glm::vec3 dir, glm::vec3 colour);
 	void Tick(GLFWwindow* window, float time);
 };

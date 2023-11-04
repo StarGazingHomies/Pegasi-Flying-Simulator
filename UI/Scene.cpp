@@ -14,9 +14,10 @@ void Scene::draw() {
 	}
 }
 
-bool Scene::mouseEvent(double mouseX, double mouseY, int buttonStatus) {
+bool Scene::mouseEvent(MouseEvent mouseEvent) {
 	for (auto& obj : objects) {
-		if (obj->mouseEvent(mouseX, mouseY, buttonStatus)) {
+		if (obj->mouseEvent(mouseEvent)) {
+			// Move to front
 			objects.splice(objects.begin(), objects, std::find(objects.begin(), objects.end(), obj));
 			return true;
 		}
@@ -24,10 +25,24 @@ bool Scene::mouseEvent(double mouseX, double mouseY, int buttonStatus) {
 	return false;
 }
 
-bool Scene::keyboardEvent(int key, int status) {
+bool Scene::keyboardEvent(KeyEvent keyEvent) {
+	for (auto& obj : objects) {
+		if (obj->keyboardEvent(keyEvent)) {
+			// Move to front
+			objects.splice(objects.begin(), objects, std::find(objects.begin(), objects.end(), obj));
+			return true;
+		}
+	}
 	return false;
 }
 
 bool Scene::textEvent(unsigned int c) {
+	for (auto& obj : objects) {
+		if (obj->textEvent(c)) {
+			// Move to front
+			objects.splice(objects.begin(), objects, std::find(objects.begin(), objects.end(), obj));
+			return true;
+		}
+	}
 	return false;
 }

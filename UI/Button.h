@@ -1,6 +1,13 @@
 #pragma once
 
 #include <functional>
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 		 
 #include "../Graphics/Texture.h"
 #include "../Graphics/Shader.h"
@@ -10,9 +17,6 @@
 #include "../resourceManager.h"
 #include "UIObject.h"
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 enum class ButtonState {
 	DEFAULT,
@@ -49,10 +53,10 @@ public:
 	bool isInRange(double mouseX, double mouseY);
 
 	// Callbacks
-	void draw();
-	bool mouseEvent(double mouseX, double mouseY, int buttonStatus);
-	bool keyboardEvent(int key, int status);
-	bool textEvent(unsigned int c);
+	void draw() override;
+	bool mouseEvent(MouseEvent mouseEvent) override;
+	bool keyboardEvent(KeyEvent keyEvent) override;
+	bool textEvent(unsigned int c) override;
 
 	// Deconstructors... not used right now
 	void Delete();

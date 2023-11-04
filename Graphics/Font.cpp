@@ -54,7 +54,7 @@ std::pair<float, float> Font::absolutePos(std::string text, int fontSize, Displa
 
 Font::Font() {}
 
-void Font::Load(const char* fontName, unsigned int height, unsigned int scrWidth, unsigned int scrHeight)
+void Font::load(const char* fontName, unsigned int height, unsigned int scrWidth, unsigned int scrHeight)
 {
     // Store the width and height of the window
     Font::scrWidth = scrWidth;
@@ -189,53 +189,53 @@ void Font::renderLine(std::string text, float x, float y, unsigned int fontSize,
 
         // If textshadow is on, put it into the stash first
         if (textShadow) {
-            charStash.push_back(Font_point {
+            charStash.push_back(FontPoint {
                 xpos + shadowOffset, ypos + h - shadowOffset,
                     p.texLocation, 0, 0.0f, 0.0f, 0.0f
             });
-            charStash.push_back(Font_point{
+            charStash.push_back(FontPoint{
                 xpos + w + shadowOffset, ypos - shadowOffset,
                     p.texLocation + p.Size.x / atlas_width, p.Size.y / atlas_height, 0.0f, 0.0f, 0.0f
             });
-            charStash.push_back(Font_point{
+            charStash.push_back(FontPoint{
                 xpos + shadowOffset, ypos - shadowOffset,
                     p.texLocation, p.Size.y / atlas_height, 0.0f, 0.0f, 0.0f
             });
-            charStash.push_back(Font_point{
+            charStash.push_back(FontPoint{
                 xpos + w + shadowOffset, ypos + h - shadowOffset,
                     p.texLocation + p.Size.x / atlas_width, 0, 0.0f, 0.0f, 0.0f
             });
-            charStash.push_back(Font_point{
+            charStash.push_back(FontPoint{
                 xpos + w + shadowOffset, ypos - shadowOffset,
                     p.texLocation + p.Size.x / atlas_width, p.Size.y / atlas_height, 0.0f, 0.0f, 0.0f
             });
-            charStash.push_back(Font_point{
+            charStash.push_back(FontPoint{
                 xpos + shadowOffset, ypos + h - shadowOffset,
                     p.texLocation, 0, 0.0f, 0.0f, 0.0f
             });
         }
         // Put it into the stash, which is rendered by the renderAll() method.
-        charStash.push_back(Font_point{
+        charStash.push_back(FontPoint{
             xpos, ypos + h, p.texLocation, 0,
                 color.x, color.y, color.z
         });
-        charStash.push_back(Font_point{
+        charStash.push_back(FontPoint{
             xpos + w, ypos, p.texLocation + p.Size.x / atlas_width, p.Size.y / atlas_height,
                 color.x, color.y, color.z
         });
-        charStash.push_back(Font_point{
+        charStash.push_back(FontPoint{
             xpos, ypos, p.texLocation, p.Size.y / atlas_height,
                 color.x, color.y, color.z
         });
-        charStash.push_back(Font_point{
+        charStash.push_back(FontPoint{
             xpos + w, ypos + h, p.texLocation + p.Size.x / atlas_width, 0,
                 color.x, color.y, color.z
         });
-        charStash.push_back(Font_point{
+        charStash.push_back(FontPoint{
             xpos + w, ypos, p.texLocation + p.Size.x / atlas_width, p.Size.y / atlas_height,
                 color.x, color.y, color.z
         });
-        charStash.push_back(Font_point{
+        charStash.push_back(FontPoint{
             xpos, ypos + h, p.texLocation, 0,
                 color.x, color.y, color.z
         });
@@ -249,7 +249,7 @@ void Font::renderLine(std::string text, DisplayPos pos, unsigned int fontSize, g
 }
 
 
-void Font::renderAll(Shader& textShader) {
+void Font::renderAll(const Shader& textShader) {
     // Enable blend so alpha is considered when overlaying
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -271,11 +271,11 @@ void Font::renderAll(Shader& textShader) {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     // If the current buffer is larger, use the current one
-    if (charStash.size() * sizeof(Font_point) < max_size) glBufferSubData(GL_ARRAY_BUFFER, 0, charStash.size() * sizeof(Font_point), charStash.data());
+    if (charStash.size() * sizeof(FontPoint) < max_size) glBufferSubData(GL_ARRAY_BUFFER, 0, charStash.size() * sizeof(FontPoint), charStash.data());
     // Otherwise, make a larger buffer so everything can fit
     else {
-        glBufferData(GL_ARRAY_BUFFER, charStash.size() * sizeof(Font_point), charStash.data(), GL_DYNAMIC_DRAW);
-        max_size = charStash.size() * sizeof(Font_point);
+        glBufferData(GL_ARRAY_BUFFER, charStash.size() * sizeof(FontPoint), charStash.data(), GL_DYNAMIC_DRAW);
+        max_size = charStash.size() * sizeof(FontPoint);
     }
 
     // Draw!

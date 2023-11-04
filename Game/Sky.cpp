@@ -115,7 +115,7 @@ void Sky::Generate() {
 	moonTex = Texture("resources/moon.png", "moonTex", 1);
 }
 
-void Sky::Draw(Shader& skyShader, glm::mat4 projMatrix, glm::mat4 viewMatrix) {
+void Sky::Draw(const Shader& skyShader, glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 	glDepthFunc(GL_LEQUAL);
 
 	skyShader.Activate();
@@ -125,9 +125,9 @@ void Sky::Draw(Shader& skyShader, glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 
 	glm::vec3 skyColor = skyColourFromTime();
 	glUniform3f(glGetUniformLocation(skyShader.ID, "baseColor"), skyColor.x, skyColor.y, skyColor.z);
-	glm::vec3 sunPos = sunPosFromTime();
+	glm::vec3 sunPos = sunPosFromTime();	  
 	glUniform3f(glGetUniformLocation(skyShader.ID, "sunPos"), sunPos.x, sunPos.y, sunPos.z);
-	glm::vec3 moonPos = -sunPos;
+	glm::vec3 moonPos = -sunPos;			  
 	glUniform3f(glGetUniformLocation(skyShader.ID, "moonPos"), moonPos.x, moonPos.y, moonPos.z);
 	glUniform1i(glGetUniformLocation(skyShader.ID, "sunTex"), 0);	
 	glUniform1i(glGetUniformLocation(skyShader.ID, "moonTex"), 1);

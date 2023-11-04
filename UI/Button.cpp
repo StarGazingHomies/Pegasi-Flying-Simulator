@@ -20,7 +20,6 @@ Button::Button(std::string name, double x1, double y1, double x2, double y2, con
 		pressedTex = Texture(pressedImg, "diffuse", 0);
 	}
 
-
 	std::vector<float> vertices = {
 		(float)x1, (float)y1, 0.0f, 1.0f,
 		(float)x1, (float)y2, 0.0f, 0.0f,
@@ -47,12 +46,12 @@ Button::Button(std::string name, double x1, double y1, double x2, double y2, con
 	releaseFunc = [&]() {printf((this->name + " is released.\n").c_str()); };
 
 	dragFunc = [&](double x, double y) {
-		printf("Dragged with delta %lf, %lf\n", x, y);
+		//printf("Dragged with delta %lf, %lf\n", x, y);
 		this->x1 += x;
 		this->x2 += x;
 		this->y1 += y;
 		this->y2 += y;
-		printf("New coords: %lf, %lf, %lf, %lf\n", this->x1, this->y1, this->x2, this->y2);
+		//printf("New coords: %lf, %lf, %lf, %lf\n", this->x1, this->y1, this->x2, this->y2);
 		std::vector<float> vertices = {
 			(float)this->x1, (float)this->y1, 0.0f, 1.0f,
 			(float)this->x1, (float)this->y2, 0.0f, 0.0f,
@@ -63,6 +62,8 @@ Button::Button(std::string name, double x1, double y1, double x2, double y2, con
 		};
 		this->buttonVBO.Data(vertices);
 	};
+
+	this->buttonState = ButtonState::DEFAULT;
 }
 
 // Functions to set callbacks
@@ -84,49 +85,66 @@ bool Button::isInRange(double mouseX, double mouseY) {
 	return x1 <= mouseX && mouseX <= x2 && y1 <= mouseY && mouseY <= y2;
 }
 
-bool Button::mouseEvent(double mouseX, double mouseY, int mouseButton) {
-	// Note that in this implementation, going out of the button's bounds
-	// while holding the button counts as releasing the button.
-	// This may be different from a lot of common implementations.
-	if (isInRange(mouseX, mouseY)) {
-		if (mouseButton) {
-			// Functions only execute once when it changes state
-			if (buttonState != ButtonState::PRESS) {
+bool Button::mouseEvent(MouseEvent mouseEvent) {
+	double mouseX = mouseEvent.xPos;
+	double mouseY = mouseEvent.yPos;
+	int button = mouseEvent.button;
+	int action = mouseEvent.action;
+	int mods = mouseEvent.mods;
+
+	if (mouseEvent.type) { // Button press event.
+		// The mouseX and mouseY are the same as the last mouse move event.
+
+		if (button != GLFW_MOUSE_BUTTON_LEFT) {
+			return false;
+		}
+
+		if (action == GLFW_PRESS) {
+			if (buttonState == ButtonState::HOVER) {
+				// Convert to press if already hovering
 				this->pressFunc();
 				pressX = mouseX;
 				pressY = mouseY;
+				buttonState = ButtonState::PRESS;
+				return true;
 			}
-			else {
-				dragFunc(mouseX - pressX, mouseY - pressY);
-				pressX = mouseX;
-				pressY = mouseY;
+		}
+		else if (action == GLFW_RELEASE) {
+			if (buttonState == ButtonState::PRESS) {
+				releaseFunc();
+				buttonState = ButtonState::DEFAULT;
 			}
-			buttonState = ButtonState::PRESS;
+		}
+		return false;
+	}
+	else { // Mouse move event
+		if (buttonState == ButtonState::PRESS) {
+			// No matter where u drag, if ur pressing the button, it's going to continue to be pressed
+			dragFunc(mouseX - pressX, mouseY - pressY);
+			pressX = mouseX;
+			pressY = mouseY;
 			return true;
 		}
-		else {
-			// If the button wasn't interacted with at all
-			if (buttonState == ButtonState::DEFAULT) hoverFunc();
-			// If the button was just pressed
-			else if (buttonState == ButtonState::PRESS) releaseFunc();
-			buttonState = ButtonState::HOVER;
+
+		if (isInRange(mouseX, mouseY)) {
+			if (buttonState == ButtonState::DEFAULT) {
+				hoverFunc();
+				buttonState = ButtonState::HOVER;
+			}
+		}
+		else if (buttonState == ButtonState::HOVER) {
+			releaseFunc();
+			buttonState = ButtonState::DEFAULT;
 		}
 	}
-	else {
-		// Just pressed the button
-		if (buttonState == ButtonState::PRESS) releaseFunc();
-		buttonState = ButtonState::DEFAULT;
-	}
 	return false;
 }
 
-bool Button::keyboardEvent(int key, int status)
-{
+bool Button::keyboardEvent(KeyEvent keyEvent) {
 	return false;
 }
 
-bool Button::textEvent(unsigned int c)
-{
+bool Button::textEvent(unsigned int c) {
 	return false;
 }
 

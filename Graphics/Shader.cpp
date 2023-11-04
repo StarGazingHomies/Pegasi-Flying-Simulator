@@ -116,19 +116,19 @@ void Shader::Compile(const char* vertexFile, const char* fragmentFile, const cha
 		glDeleteShader(tessControlShader);
 }
 
-void Shader::Activate()
+void Shader::Activate() const
 {
 	// Activate shaders
 	glUseProgram(ID);
 }
 
-void Shader::Delete()
+void Shader::Delete() const
 {
 	// Delete Shader program
 	glDeleteProgram(ID);
 }
 
-void Shader::compileErrors(unsigned int shader, const char* type)
+void Shader::compileErrors(unsigned int shader, const char* type) const
 {
 	// Stores status of compilation
 	GLint hasCompiled;

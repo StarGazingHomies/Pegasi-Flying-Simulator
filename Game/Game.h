@@ -15,6 +15,7 @@
 #include "Sky.h"
 #include "Cloud.h"
 #include "../UI/Button.h"
+#include "../UI/Text.h"
 #include "../UI/Scene.h"
 
 enum class GameState {
@@ -38,7 +39,10 @@ public:
 
 	GameState gameState = GameState::START_MENU;
 
-	static std::queue<int> keyEvents;
+	static std::queue<KeyEvent> keyEvents;
+	static std::queue<unsigned int> textEvents;
+	static std::queue<MouseEvent> mouseEvents;
+	static double lastXPos, lastYPos;
 
 	static bool updateScreenSize;
 	static int scrWidth, scrHeight;

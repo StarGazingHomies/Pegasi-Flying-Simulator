@@ -28,9 +28,6 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{2f5754e4-075d-4395-ab9b-c0ebccc9b46c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders\button">
-      <UniqueIdentifier>{621e3fd2-910e-48b1-91f9-ec453338afc9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\git">
       <UniqueIdentifier>{d7ad4714-01cf-4747-80ea-25559bd2d425}</UniqueIdentifier>
     </Filter>
@@ -60,6 +57,15 @@
     </Filter>
     <Filter Include="Header Files\UI">
       <UniqueIdentifier>{0881210e-34ce-40de-b07a-13250b8bc924}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\2D">
+      <UniqueIdentifier>{d0358dc4-4542-4abb-9f3b-fa66b1b4c5a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\2D\color">
+      <UniqueIdentifier>{42ef6a58-fd38-4abd-8ada-f7791949934a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\2D\button">
+      <UniqueIdentifier>{621e3fd2-910e-48b1-91f9-ec453338afc9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -232,11 +238,11 @@
     <None Include="shaders\text.vert">
       <Filter>Resource Files\Shaders\text</Filter>
     </None>
-    <None Include="shaders\button.frag">
-      <Filter>Resource Files\Shaders\button</Filter>
+    <None Include="shaders\2D\button.frag">
+      <Filter>Resource Files\Shaders\2D\button</Filter>
     </None>
-    <None Include="shaders\button.vert">
-      <Filter>Resource Files\Shaders\button</Filter>
+    <None Include="shaders\2D\button.vert">
+      <Filter>Resource Files\Shaders\2D\button</Filter>
     </None>
     <None Include=".gitattributes">
       <Filter>Resource Files\git</Filter>
@@ -269,6 +275,12 @@
       <Filter>Resource Files\Shaders\debug_vector</Filter>
     </None>
     <None Include="README.md" />
+    <None Include="shaders\2D\color.frag">
+      <Filter>Resource Files\Shaders\2D\color</Filter>
+    </None>
+    <None Include="shaders\2D\color.vert">
+      <Filter>Resource Files\Shaders\2D\color</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\debug_buttonDefault.png">

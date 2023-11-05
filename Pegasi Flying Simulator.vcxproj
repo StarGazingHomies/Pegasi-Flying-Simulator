@@ -213,8 +213,9 @@
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
     <None Include="README.md" />
-    <None Include="shaders\button.frag" />
-    <None Include="shaders\button.vert" />
+    <None Include="shaders\2D\color.frag" />
+    <None Include="shaders\2D\button.frag" />
+    <None Include="shaders\2D\button.vert" />
     <None Include="shaders\debug_grid.frag" />
     <None Include="shaders\debug_grid.geom" />
     <None Include="shaders\debug_grid.tesc" />
@@ -225,6 +226,7 @@
     <None Include="shaders\default.frag" />
     <None Include="shaders\default.geom" />
     <None Include="shaders\default.vert" />
+    <None Include="shaders\2D\color.vert" />
     <None Include="shaders\skydome.frag" />
     <None Include="shaders\skydome.geom" />
     <None Include="shaders\skydome.vert" />

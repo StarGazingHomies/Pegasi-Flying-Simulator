@@ -115,7 +115,8 @@ int Game::init() {
 	terrain->Generate(-64, -64, 128, 128, 10, 10,
 		[](float a, float b) { return 0;  (a * a - b * b) / 512; });
 
-	Shader& buttonShader = resourceManager::loadShader("button", "shaders/button.vert", "shaders/button.frag");
+	Shader& buttonShader = resourceManager::loadShader("button", "shaders/2D/button.vert", "shaders/2D/button.frag");
+	Shader& colorShader = resourceManager::loadShader("color", "shaders/2D/color.vert", "shaders/2D/color.frag");
 
 	startScene = std::make_unique<Scene>("Start Menu");
 
@@ -139,11 +140,7 @@ int Game::init() {
 	std::shared_ptr<TextBox> textBox = std::make_shared<TextBox>(
 		"TextBox", 
 		"Enter text here", 
-		0, 200, 200, 230,
-		nullptr, 
-		glm::vec3(0.0f), 
-		glm::vec3(0.5f), 
-		30, true);
+		0, 200, 200, 230);
 	startScene->addObject(textBox);
 
 	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");
@@ -280,22 +277,19 @@ int Game::run() {
 		frameTime = glfwGetTime() - curTime;
 		curTime = glfwGetTime();
 		frameCounter++;
+
 		if (lastFPSUpdate + 1 < curTime) {
 			framesPerSecond = frameCounter;
 			frameCounter = 0;
 			lastFPSUpdate = curTime;
 		}
-
-		Font& font = resourceManager::getFont("celestiaRedux");
-		font.renderLine("FPS:" + std::to_string(framesPerSecond), DisplayPos{Alignment::TOP_RIGHT, 2, 2}, 20, glm::vec3(1.0f, 0.0f, 1.0f));
-
 		switch (gameState) {
 		case (GameState::START_MENU): 
 			startMenu_tick(frameTime);
 			startMenu_draw();
 			break;
 		case (GameState::PAUSE_MENU):
-			break; 
+			break;
 		case (GameState::SETTINGS):
 			break; 
 		case (GameState::IN_GAME):
@@ -303,6 +297,11 @@ int Game::run() {
 			inGame_draw();
 			break;
 		}
+
+		// Draw overlayed stuff last
+		Font& font = resourceManager::getFont("celestiaRedux");
+		font.renderLine("FPS:" + std::to_string(framesPerSecond), DisplayPos{ Alignment::TOP_LEFT, 2, 2 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+		font.renderAll(resourceManager::getShader("text"));
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

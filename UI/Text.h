@@ -22,7 +22,7 @@ public:
 	bool textEvent(unsigned int c) override;
 };
 
-class DynamicText: virtual public UIObject{
+class DynamicText: virtual public UIObject {
 public:
 	std::string name;
 	std::function<std::string()> text;
@@ -48,17 +48,27 @@ public:
 	glm::vec3 emptyColor;
 	bool allowNewlines;
 	bool active;
-	float maxFontSize = 12;
+	float maxFontSize;
 	int startPos = 0, endPos = 0;
 	float border;
 	bool fitBox = true;
+	float cursorThickness;
 
 	Texture backgroundTex;
-	VAO textVAO;
-	VBO textVBO;
-	EBO textEBO;
+	VAO backgroundVAO, cursorVAO;
+	VBO backgroundVBO, cursorVBO;
+	EBO backgroundEBO, cursorEBO;
 
-	TextBox(std::string name, std::string emptyText, float x1, float y1, float x2, float y2, const char* backgroundImg = nullptr, glm::vec3 color = glm::vec3(1.0f), glm::vec3 emptyColor = glm::vec3(0.5f), float maxFontSize = 12, bool allowNewlines = false, float border = 5);
+	TextBox(std::string name, 
+		std::string emptyText, 
+		float x1, float y1, float x2, float y2, 
+		const char* backgroundImg = nullptr, 
+		glm::vec3 color = glm::vec3(0.0f), 
+		glm::vec3 emptyColor = glm::vec3(0.5f), 
+		float maxFontSize = 30, 
+		bool allowNewlines = false, 
+		float border = 2,
+		float cursorThickness = 2);
 
 	bool isInRange(float mouseX, float mouseY);
 	bool isValidAction(KeyEvent keyEvent);

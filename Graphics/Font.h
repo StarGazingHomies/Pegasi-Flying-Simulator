@@ -58,6 +58,10 @@ struct DisplayPos {
     float x, y;
 };
 
+struct CharLinePos {
+    float x1, x2;
+};
+
 // TODO: Make text accept alpha channel in colours
 class Font {
 public:
@@ -98,6 +102,11 @@ public:
 
     // Get the absolute position of aligned text based on window size and the position
     std::pair<float, float> absolutePos(std::string text, int fontSize, DisplayPos position);
+
+    // Get the position of each character in a line (no newlines allowed)
+    // Note that the stored position is the central x position of the character
+    std::vector<CharLinePos> getLinePos(std::string text, DisplayPos pos, float fontSize);
+    std::vector<CharLinePos> getLinePos(std::string text, float x, float y, float fontSize);
 
     // Delete the object
     void Delete();

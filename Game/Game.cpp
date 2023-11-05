@@ -8,8 +8,7 @@ void GLAPIENTRY MessageCallback(GLenum source,
 	GLenum severity,
 	GLsizei length,
 	const GLchar* message,
-	const void* userParam)
-{
+	const void* userParam) {
 	if (type == 0x8251) return;
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
 		(type == GL_DEBUG_TYPE_ERROR ? "* GL ERROR *" : ""),
@@ -82,6 +81,7 @@ int Game::init() {
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_MULTISAMPLE);
 	glfwSwapInterval(1);
 
@@ -118,27 +118,32 @@ int Game::init() {
 	Shader& buttonShader = resourceManager::loadShader("button", "shaders/button.vert", "shaders/button.frag");
 
 	startScene = std::make_unique<Scene>("Start Menu");
-	
-	for (int i = 0; i < 8; i++) {
-		std::shared_ptr<Button> startButton = std::make_shared<Button>("Button " + std::to_string(i),
-		    i*100, 0, i*100+100, 100,
-			"resources/debug_buttonDefault.png",
-			"resources/debug_buttonHover.png",
-			"resources/debug_buttonPress.png");
 
-		std::function<void()> func = [this]() {
-			this->gameState = GameState::IN_GAME;
-			glfwSetCursorPos(this->window, (this->scrWidth / 2), (this->scrHeight / 2));
-			};
-		startButton->setPressCallBack(func);
+	std::shared_ptr<Button> startButton = std::make_shared<Button>("Start Button",
+		0, 0, 100, 100,
+		"resources/debug_buttonDefault.png",
+		"resources/debug_buttonHover.png",
+		"resources/debug_buttonPress.png");
 
-		startScene->addObject(startButton);
-	}
+	std::function<void()> func = [this]() {
+		this->gameState = GameState::IN_GAME;
+		glfwSetCursorPos(this->window, (this->scrWidth / 2), (this->scrHeight / 2));
+		};
+	startButton->setPressCallBack(func);
 
-	std::shared_ptr<StaticText> text = std::make_shared<StaticText>("Hello World", 0, 0, 60, glm::vec3(1.0f, 1.0f, 1.0f));
-	startScene->addObject(text);
+	startScene->addObject(startButton);
 
-	std::shared_ptr<TextBox> textBox = std::make_shared<TextBox>("TextBox", "Enter text here", 0, 100, 200, 200, glm::vec3(1.0f), glm::vec3(0.5f), 12, true);
+	//std::shared_ptr<StaticText> text = std::make_shared<StaticText>("Hello World", 0, 0, 60, glm::vec3(1.0f, 1.0f, 1.0f));
+	//startScene->addObject(text);
+
+	std::shared_ptr<TextBox> textBox = std::make_shared<TextBox>(
+		"TextBox", 
+		"Enter text here", 
+		0, 200, 200, 230,
+		nullptr, 
+		glm::vec3(0.0f), 
+		glm::vec3(0.5f), 
+		30, true);
 	startScene->addObject(textBox);
 
 	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");

@@ -18,9 +18,10 @@ void FONT_printErrorString(std::string location) {
 }
 
 std::pair<float, float> Font::absolutePos(std::string text, int fontSize, DisplayPos position) {
-    std::pair<float, float> textSize = getTextSize(text);
-    float sizeX = textSize.first * fontSize / size;
+    std::pair<float, float> textSize = getTextSize(text, fontSize);
+    float sizeX = textSize.first;
     float sizeY = fontSize;
+
     switch (position.alignment) {
     case (Alignment::BOTTOM_LEFT):   return std::pair<float, float>(
         position.x,                 
@@ -167,8 +168,8 @@ void Font::updateScreenSize(unsigned int newWidth, unsigned int newHeight)
     scrHeight = newHeight;
 }
 
-void Font::renderLine(std::string text, float x, float y, unsigned int fontSize, glm::vec3 color, bool textShadow, float shadowOffset) {
-    float scale = (float)fontSize / size;
+void Font::renderLine(std::string text, float x, float y, float fontSize, glm::vec3 color, bool textShadow, float shadowOffset) {
+    float scale = fontSize / size;
     // Calculate position for each glyph
     for (char c : text) {
         Character p = charMap[c];
@@ -243,7 +244,7 @@ void Font::renderLine(std::string text, float x, float y, unsigned int fontSize,
     }
 }
 
-void Font::renderLine(std::string text, DisplayPos pos, unsigned int fontSize, glm::vec3 color, bool textShadow, float shadowOffset) {
+void Font::renderLine(std::string text, DisplayPos pos, float fontSize, glm::vec3 color, bool textShadow, float shadowOffset) {
     std::pair<float, float> p = Font::absolutePos(text, fontSize, pos);
     renderLine(text, p.first, p.second, fontSize, color, textShadow, shadowOffset);
 }
@@ -333,7 +334,7 @@ void Font::renderText(std::string text, float x, float y, float maxWidth, unsign
     else renderLine(drawStr, x, (y - line * scale * spacing * size), fontSize, color, textShadow, shadowOffset);
 }
 
-std::pair<float, float> Font::getTextSize(std::string text) {
+std::pair<float, float> Font::getTextSize(std::string text, float fontSize) {
     float x = 0, y = 0;
     for (char c : text) {
         Character p = charMap[c];
@@ -341,7 +342,8 @@ std::pair<float, float> Font::getTextSize(std::string text) {
         x += p.Advance.x;
         y = std::max(y, p.Size.y);
     }
-    return std::pair<float, float>(x, y);
+    float scale = fontSize / size;
+    return std::pair<float, float>(x * scale, y * scale);
 }
 
 void Font::Delete()

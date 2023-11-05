@@ -85,16 +85,16 @@ public:
     // Update the projection matrix to fit the new screen size
     void updateScreenSize(unsigned int newWidth, unsigned int newHeight);
     // Prepare to render a single line of text
-    void renderLine(std::string text, float x, float y, unsigned int fontSize, glm::vec3 color, bool textShadow = true, float shadowOffset = 1.0f);
+    void renderLine(std::string text, float x, float y, float fontSize, glm::vec3 color, bool textShadow = true, float shadowOffset = 1.0f);
     // Prepare to render while aligning the text to some corner/center
-    void renderLine(std::string text, DisplayPos pos, unsigned int fontSize, glm::vec3 color, bool textShadow = true, float shadowOffset = 1.0f);
+    void renderLine(std::string text, DisplayPos pos, float fontSize, glm::vec3 color, bool textShadow = true, float shadowOffset = 1.0f);
     // Prepare to render a block of text, with automatic line splits
     void renderText(std::string text, float x, float y, float maxWidth, unsigned int fontSize, glm::vec3 color, bool centered = false, float spacing = 1.0f, bool textShadow = true, float shadowOffset = 1.0f);
     // Render all previously prepared text
     void renderAll(const Shader& textShader);
 
     // Determine the width and height of a particular line of text
-    std::pair<float, float> getTextSize(std::string text);
+    std::pair<float, float> getTextSize(std::string text, float fontSize);
 
     // Get the absolute position of aligned text based on window size and the position
     std::pair<float, float> absolutePos(std::string text, int fontSize, DisplayPos position);

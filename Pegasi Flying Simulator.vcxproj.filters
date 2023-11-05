@@ -268,6 +268,7 @@
     <None Include="shaders\debug_vector.vert">
       <Filter>Resource Files\Shaders\debug_vector</Filter>
     </None>
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\debug_buttonDefault.png">
@@ -283,6 +284,9 @@
       <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="resources\moon.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="resources\white.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>

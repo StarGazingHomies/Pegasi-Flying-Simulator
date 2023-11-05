@@ -56,9 +56,7 @@ Button::Button(std::string name, double x1, double y1, double x2, double y2, con
 			(float)this->x1, (float)this->y1, 0.0f, 1.0f,
 			(float)this->x1, (float)this->y2, 0.0f, 0.0f,
 			(float)this->x2, (float)this->y1, 1.0f, 1.0f,
-			(float)this->x2, (float)this->y2, 1.0f, 0.0f,
-			(float)this->x2, (float)this->y1, 1.0f, 1.0f,
-			(float)this->x1, (float)this->y2, 0.0f, 0.0f,
+			(float)this->x2, (float)this->y2, 1.0f, 0.0f
 		};
 		this->buttonVBO.Data(vertices);
 	};
@@ -171,11 +169,9 @@ void Button::draw() {
 	}
 
 	buttonVAO.Bind();
-	buttonVBO.Bind();
 	buttonEBO.Bind();
 
-	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, (void*)0);
 }
 
 void Button::Delete() {

@@ -212,6 +212,7 @@
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
+    <None Include="README.md" />
     <None Include="shaders\button.frag" />
     <None Include="shaders\button.vert" />
     <None Include="shaders\debug_grid.frag" />
@@ -239,6 +240,7 @@
     <Image Include="resources\debug_buttonPress.png" />
     <Image Include="resources\moon.png" />
     <Image Include="resources\sun.png" />
+    <Image Include="resources\white.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

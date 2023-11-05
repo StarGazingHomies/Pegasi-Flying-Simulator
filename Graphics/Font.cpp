@@ -18,37 +18,43 @@ void FONT_printErrorString(std::string location) {
 }
 
 std::pair<float, float> Font::absolutePos(std::string text, int fontSize, DisplayPos position) {
-    std::pair<float, float> textSize = getTextSize(text);
-    float sizeX = textSize.first * fontSize / size;
-    float sizeY = fontSize;
+    std::pair<float, float> textSize = getTextSize(text, fontSize);
+    float sizeX = textSize.first;
+    float sizeY = textSize.second;
+
+    float x = position.x;
+    // Flip the y coordinate because OpenGL is weird
+    float y = scrHeight - position.y;
+
+
     switch (position.alignment) {
     case (Alignment::BOTTOM_LEFT):   return std::pair<float, float>(
-        position.x,                 
-        position.y);
+        x,                 
+        y);
     case (Alignment::TOP_LEFT):      return std::pair<float, float>(                
-        position.x,     
-        scrHeight - sizeY - position.y);
+        x,
+        y - sizeY);
     case (Alignment::BOTTOM_RIGHT):  return std::pair<float, float>(     
-        scrWidth - sizeX - position.x,                 
-        position.y);
+        x - sizeX,                 
+        y);
     case (Alignment::TOP_RIGHT):     return std::pair<float, float>(
-        scrWidth - sizeX - position.x,
-        scrHeight - sizeY - position.y);
+        x - sizeX,
+        y - sizeY);
     case (Alignment::CENTER_LEFT):   return std::pair<float, float>(
-        position.x, 
-        scrHeight / 2 + sizeY / 2 + position.y);
+        x, 
+        y - sizeY / 2);
     case (Alignment::CENTER_RIGHT):  return std::pair<float, float>(     
-        scrWidth - sizeX - position.x, 
-        scrHeight / 2 + sizeY / 2 + position.y);
+        x - sizeX,
+        y - sizeY / 2);
     case (Alignment::CENTER_TOP):    return std::pair<float, float>( 
-        scrWidth / 2 - sizeX / 2 + position.x,
-        position.y);
+        x - sizeX / 2,
+        y);
     case (Alignment::CENTER_BOTTOM): return std::pair<float, float>( 
-        scrWidth / 2 - sizeX / 2 + position.x,
-        scrHeight - sizeY - position.y);
+        x - sizeX / 2,
+        y - sizeY);
     case (Alignment::CENTER):        return std::pair<float, float>(
-        scrWidth / 2 - sizeX / 2 + position.x,
-        scrHeight / 2 + sizeY / 2 + position.y);
+        x - sizeX / 2,
+        y - sizeY / 2);
     }
 }
 
@@ -161,14 +167,13 @@ void Font::load(const char* fontName, unsigned int height, unsigned int scrWidth
     glBindVertexArray(0);
 }
 
-void Font::updateScreenSize(unsigned int newWidth, unsigned int newHeight)
-{
+void Font::updateScreenSize(unsigned int newWidth, unsigned int newHeight) {
     scrWidth = newWidth;
     scrHeight = newHeight;
 }
 
-void Font::renderLine(std::string text, float x, float y, unsigned int fontSize, glm::vec3 color, bool textShadow, float shadowOffset) {
-    float scale = (float)fontSize / size;
+void Font::renderLine(std::string text, float x, float y, float fontSize, glm::vec3 color, bool textShadow, float shadowOffset) {
+    float scale = fontSize / size;
     // Calculate position for each glyph
     for (char c : text) {
         Character p = charMap[c];
@@ -243,7 +248,7 @@ void Font::renderLine(std::string text, float x, float y, unsigned int fontSize,
     }
 }
 
-void Font::renderLine(std::string text, DisplayPos pos, unsigned int fontSize, glm::vec3 color, bool textShadow, float shadowOffset) {
+void Font::renderLine(std::string text, DisplayPos pos, float fontSize, glm::vec3 color, bool textShadow, float shadowOffset) {
     std::pair<float, float> p = Font::absolutePos(text, fontSize, pos);
     renderLine(text, p.first, p.second, fontSize, color, textShadow, shadowOffset);
 }
@@ -333,15 +338,50 @@ void Font::renderText(std::string text, float x, float y, float maxWidth, unsign
     else renderLine(drawStr, x, (y - line * scale * spacing * size), fontSize, color, textShadow, shadowOffset);
 }
 
-std::pair<float, float> Font::getTextSize(std::string text) {
-    float x = 0, y = 0;
+std::pair<float, float> Font::getTextSize(std::string text, float fontSize) {
+    float x = 0, minY = 0, maxY = 0;
     for (char c : text) {
         Character p = charMap[c];
 
         x += p.Advance.x;
-        y = std::max(y, p.Size.y);
+        minY = std::min(minY, p.Bearing.y - p.Size.y);
+        maxY = std::max(maxY, p.Bearing.y);
     }
-    return std::pair<float, float>(x, y);
+    float scale = fontSize / size;
+    
+    return std::pair<float, float>(x * scale, (minY + maxY) * scale);
+}
+
+std::vector<CharLinePos> Font::getLinePos(std::string text, DisplayPos pos, float fontSize) {
+    std::pair<float, float> p = Font::absolutePos(text, fontSize, pos);
+	return getLinePos(text, p.first, p.second, fontSize);
+}
+
+std::vector<CharLinePos> Font::getLinePos(std::string text, float x, float y, float fontSize) {
+    std::vector<CharLinePos> pos;
+    float scale = fontSize / size;
+    for (char c : text) {
+		Character p = charMap[c];
+
+		// Extract position from the character
+		//float xpos = x + p.Bearing.x * scale;
+		//float ypos = y - (p.Size.y - p.Bearing.y) * scale;
+
+		float w = p.Size.x * scale;
+		float h = p.Size.y * scale;
+
+        // For now (simple), just use advance
+        pos.push_back(CharLinePos{ x, x + p.Advance.x * scale });
+
+		// Advance the cursor to the start of the next character
+		x += p.Advance.x * scale;
+		y += p.Advance.y * scale;
+
+		// Skip glyphs that have no pixels
+		if (!w || !h) continue;
+
+	}
+    return pos;
 }
 
 void Font::Delete()

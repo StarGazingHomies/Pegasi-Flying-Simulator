@@ -161,6 +161,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Game\SurfaceNet.cpp" />
     <ClCompile Include="UI\Text.cpp" />
     <ClCompile Include="UI\Scene.cpp" />
     <ClCompile Include="UI\Button.cpp" />
@@ -186,6 +187,8 @@
     <ClCompile Include="Graphics\VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Game\Perlin.h" />
+    <ClInclude Include="Game\SurfaceNet.h" />
     <ClInclude Include="UI\Events.h" />
     <ClInclude Include="UI\Text.h" />
     <ClInclude Include="UI\Scene.h" />

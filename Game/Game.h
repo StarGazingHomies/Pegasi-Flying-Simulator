@@ -17,6 +17,7 @@
 #include "../UI/Button.h"
 #include "../UI/Text.h"
 #include "../UI/Scene.h"
+#include "SurfaceNet.h"
 
 enum class GameState {
 	START_MENU,
@@ -25,8 +26,7 @@ enum class GameState {
 	IN_GAME
 };
 
-class Game
-{
+class Game {
 public:
 	GLFWwindow* window;
 
@@ -36,6 +36,7 @@ public:
 	std::unique_ptr<Sky> tempSky;
 	std::unique_ptr<Clouds> tempClouds;
 	std::unique_ptr<Scene> startScene;
+	std::unique_ptr<SurfaceNet> debugSurfaceNet;
 
 	GameState gameState = GameState::START_MENU;
 

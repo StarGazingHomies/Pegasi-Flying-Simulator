@@ -94,6 +94,8 @@ int Game::init() {
 	physEngine->objects.push_back(*e);
 	physEngine->objects.push_back(*f);
 
+	debugSurfaceNet = std::make_unique<SurfaceNet>();
+
 	Shader& default_shader = resourceManager::loadShader("default", "shaders/default.vert", "shaders/default.frag", "shaders/default.geom");
 
 	Shader& debugGridShader = resourceManager::loadShader(
@@ -142,7 +144,11 @@ int Game::init() {
 	startScene->addObject(textBox);
 
 	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");
-	
+
+
+	resourceManager::loadShader("clouds", "shaders/sphere.vert", "shaders/sphere.frag", "shaders/sphere.geom");
+	resourceManager::loadShader("debugVec", "shaders/debug_vector.vert", "shaders/debug_vector.frag");
+
 	GLfloat stars[300];
 	std::random_device rd;
 	std::mt19937 gen(rd());
@@ -165,11 +171,9 @@ int Game::init() {
 
 	tempSky->Generate();
 
-	Shader& cloudShader = resourceManager::loadShader("clouds", "shaders/sphere.vert", "shaders/sphere.frag", "shaders/sphere.geom");
 	tempClouds = std::make_unique<Clouds>();
 	tempClouds->Generate();
 
-	Shader& debugVecShader = resourceManager::loadShader("debugVec", "shaders/debug_vector.vert", "shaders/debug_vector.frag");
 
 	// Init "last" xPos and yPos
 	double xpos, ypos;
@@ -236,6 +240,8 @@ void Game::inGame_draw() {
 	// Render the sky
 	tempSky->Tick();
 	tempSky->Draw(skyShader, proj, view);
+
+	debugSurfaceNet->draw(proj, view);
 
 	//tempClouds->Draw(cloudShader, proj, view);
 	

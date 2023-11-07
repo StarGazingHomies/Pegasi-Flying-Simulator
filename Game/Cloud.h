@@ -6,6 +6,7 @@
 #include"../Graphics/VBO.h"
 #include"../Graphics/Shader.h"
 #include"../Graphics/EBO.h"
+#include "Perlin.h"
 
 #include<glm/glm.hpp>
 #include<glm/gtc/constants.hpp>
@@ -16,8 +17,7 @@ struct CloudNode {
 	float radius;
 };
 
-class Cloud
-{
+class Cloud {
 public:
 	// The spheres that make up a cloud
 	std::vector<CloudNode> nodes;

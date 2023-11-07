@@ -2,13 +2,29 @@
 
 SurfaceNet::SurfaceNet() {
 	arr = Arr3D<double>{ CHUNKSIZE+1, CHUNKSIZE+1, CHUNKSIZE+1 };
-	// Simple sphere, for testing
+
+
+	// Seed stuffs? Maybe?
+	unsigned int seed = 384729571;
+	std::mt19937_64 gen(seed);
+	std::uniform_real_distribution<double> dist(0.0, 1.0);
+	double xOffset = dist(gen) * 1000;
+	double yOffset = dist(gen) * 1000;
+	double zOffset = dist(gen) * 1000;
+	double scale = 1.0 / 100.0;
+
 	for (int x = 0; x < CHUNKSIZE+1; x++) {
 		for (int y = 0; y < CHUNKSIZE+1; y++) {
 			for (int z = 0; z < CHUNKSIZE+1; z++) {
 
+
+				double a = x * scale + xOffset, b = y * scale + yOffset, c = z * scale + zOffset;
+
 				int mid = 8, size = 6;
-				arr.set(x, y, z, sqrt((x - mid) * (x - mid) + (y - mid) * (y - mid) + (z - mid) * (z - mid)) - size);
+				double dist = sqrt((x - mid) * (x - mid) + (y - mid) * (y - mid) + (z - mid) * (z - mid)) - size;
+				double noise = octavePerlin(a, b, c, 5, 0.7);
+				arr.set(x, y, z, noise);
+
 			}
 		}
 	}
@@ -118,7 +134,7 @@ void SurfaceNet::generate() {
 				vertexData.push_back(1.0f);
 
 				// Debug print
-				printf("Vertex %d: (%f, %f, %f)\n", vertexCount, vertex.x, vertex.y, vertex.z);
+				// printf("Vertex %d: (%f, %f, %f)\n", vertexCount, vertex.x, vertex.y, vertex.z);
 			}
 		}
 	}

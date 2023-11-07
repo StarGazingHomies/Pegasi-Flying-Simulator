@@ -39,32 +39,52 @@ inline const double fade(double t) {
 	return t * t * t * (t * (t * 6 - 15) + 10);
 }
 
-inline const double noise(double x, double y, double z) {
-	int X = (int(x)) & 255;
-	int Y = (int(x)) & 255;
-	int Z = (int(x)) & 255;
+inline const double perlinNoise(double x, double y, double z) {
+	int X = int(floor(x)) & 255;
+	int Y = int(floor(y)) & 255;
+	int Z = int(floor(z)) & 255;
 
-	x -= int(x);
-	y -= int(y);
-	z -= int(z);
+	x -= int(floor(x));
+	y -= int(floor(y));
+	z -= int(floor(z));
 
 	double u = fade(x);
 	double v = fade(y);
 	double w = fade(z);
 
-	int A = perm(X) + Y;
-	int AA = perm(A) + Z;
-	int AB = perm(A + 1) + Z;
-	int B = perm(X + 1) + Y;
-	int BA = perm(B) + Z;
-	int BB = perm(B + 1) + Z;
+	int AAA = perm(perm(perm(X  ) + Y  ) + Z  );
+	int ABA = perm(perm(perm(X  ) + Y+1) + Z  );
+	int AAB = perm(perm(perm(X  ) + Y  ) + Z+1);
+	int ABB = perm(perm(perm(X  ) + Y+1) + Z+1);
+	int BAA = perm(perm(perm(X+1) + Y  ) + Z  );
+	int BBA = perm(perm(perm(X+1) + Y+1) + Z  );
+	int BAB = perm(perm(perm(X+1) + Y  ) + Z+1);
+	int BBB = perm(perm(perm(X+1) + Y+1) + Z+1);
 
-	return lerp(w, lerp(v, lerp(u, grad(perm(AA), x, y, z),
-		grad(perm(BA), x - 1, y, z)),
-		lerp(u, grad(perm(AB), x, y - 1, z),
-			grad(perm(BB), x - 1, y - 1, z))),
-		lerp(v, lerp(u, grad(perm(AA + 1), x, y, z - 1),
-			grad(perm(BA + 1), x - 1, y, z - 1)),
-			lerp(u, grad(perm(AB + 1), x, y - 1, z - 1),
-				grad(perm(BB + 1), x - 1, y - 1, z - 1))));
+	double x1, x2, y1, y2;
+	x1 = lerp(u, grad(AAA, x, y, z), grad(BAA, x-1, y, z));
+	x2 = lerp(u, grad(ABA, x, y-1, z), grad(BBA, x-1, y-1, z));
+	y1 = lerp(v, x1, x2);
+
+	x1 = lerp(u, grad(AAB, x, y, z-1), grad(BAB, x-1, y, z-1));
+	x2 = lerp(u, grad(ABB, x, y-1, z-1), grad(BBB, x-1, y-1, z-1));
+	y2 = lerp(v, x1, x2);
+
+	return lerp(w, y1, y2);
+}
+
+inline const double octavePerlin(double x, double y, double z, int octaves, double persistence) {
+	double total = 0;
+	double frequency = 1;
+	double amplitude = 1;
+	double maxValue = 0;
+	for (int i = 0; i < octaves; i++) {
+		total += perlinNoise(x * frequency, y * frequency, z * frequency) * amplitude;
+
+		maxValue += amplitude;
+
+		amplitude *= persistence;
+		frequency *= 2;
+	}
+	return total / maxValue;
 }

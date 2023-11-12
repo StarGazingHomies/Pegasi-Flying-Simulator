@@ -13,8 +13,7 @@ struct Vertex
 	glm::vec2 texUV;
 };
 
-class VBO
-{
+class VBO {
 public:
 	GLuint ID;
 	unsigned int size;

@@ -58,14 +58,8 @@
     <Filter Include="Header Files\UI">
       <UniqueIdentifier>{0881210e-34ce-40de-b07a-13250b8bc924}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders\2D">
-      <UniqueIdentifier>{d0358dc4-4542-4abb-9f3b-fa66b1b4c5a3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Shaders\2D\color">
-      <UniqueIdentifier>{42ef6a58-fd38-4abd-8ada-f7791949934a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Shaders\2D\button">
-      <UniqueIdentifier>{621e3fd2-910e-48b1-91f9-ec453338afc9}</UniqueIdentifier>
+    <Filter Include="Resource Files\Shaders\default_color">
+      <UniqueIdentifier>{21f873de-bd28-4ca1-b9f5-e49fb205af6d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +132,9 @@
     <ClCompile Include="UI\Text.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Game\SurfaceNet.cpp">
+      <Filter>Source Files\Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resourceManager.h">
@@ -205,6 +202,12 @@
     </ClInclude>
     <ClInclude Include="UI\Events.h">
       <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\SurfaceNet.h">
+      <Filter>Header Files\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Noise.h">
+      <Filter>Header Files\Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -274,12 +277,11 @@
     <None Include="shaders\debug_vector.vert">
       <Filter>Resource Files\Shaders\debug_vector</Filter>
     </None>
-    <None Include="README.md" />
-    <None Include="shaders\2D\color.frag">
-      <Filter>Resource Files\Shaders\2D\color</Filter>
+    <None Include="shaders\default_color.frag">
+      <Filter>Resource Files\Shaders\default_color</Filter>
     </None>
-    <None Include="shaders\2D\color.vert">
-      <Filter>Resource Files\Shaders\2D\color</Filter>
+    <None Include="shaders\default_color.vert">
+      <Filter>Resource Files\Shaders\default_color</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -4,7 +4,7 @@ out vec4 FragColor;
 // Import the current position
 in vec3 crntPos;
 // Import normal
-in vec3 Normal;
+in vec3 normal;
 // Inputs the color from the vertex shader
 in vec3 color;
 // Inputs the texture coordinates
@@ -41,7 +41,7 @@ vec4 pointLight()
 	float ambient = 0.20f;
 
 	// diffuse lighting
-	vec3 normal = normalize(Normal);
+	vec3 normal = normalize(normal);
 	vec3 lightDirection = normalize(lightVec);
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
@@ -61,7 +61,7 @@ vec4 direcLight()
 	float ambient = 0.20f;
 
 	// diffuse lighting
-	vec3 normal = normalize(Normal);
+	vec3 normal = normalize(normal);
 	vec3 lightDirection = normalize(vec3(1.0f, 1.0f, 0.0f));
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
@@ -85,7 +85,7 @@ vec4 spotLight()
 	float ambient = 0.20f;
 
 	// diffuse lighting
-	vec3 normal = normalize(Normal);
+	vec3 normal = normalize(normal);
 	vec3 lightDirection = normalize(lightPos - crntPos);
 	float diffuse = max(dot(normal, lightDirection), 0.0f);
 
@@ -136,4 +136,6 @@ void main()
 	// For now, this is good
 	FragColor = vec4(debug_tmpvar, 1.0f, 1.0f, 1.0f);
 
+	// Plain colour
+//	FragColor = vec4(color, 1.0f);
 }

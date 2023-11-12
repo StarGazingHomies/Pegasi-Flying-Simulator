@@ -112,7 +112,7 @@ int Game::init() {
 	Font& font = resourceManager::loadFont("celestiaRedux", "fonts/CelestiaRedux.ttf", 72, 800, 600);
 	Shader& textShader = resourceManager::loadShader("text", "shaders/text.vert", "shaders/text.frag");
 
-	terrain = std::make_unique<Terrain>();
+	terrain = std::make_unique<HeightmapTerrain>();
 	terrain->Generate(-64, -64, 128, 128, 10, 10,
 		[](float a, float b) { return 0;  (a * a - b * b) / 512; });
 
@@ -169,24 +169,18 @@ int Game::init() {
 	glUniform3fv(glGetUniformLocation(skyShader.ID, "stars"), 300, stars);
 
 	tempSky = std::make_unique<Sky>();
-
 	tempSky->Generate();
 
-	//tempClouds = std::make_unique<Clouds>();
-	//tempClouds->Generate();
-
-
-	//debugSurfaceNet = std::make_unique<SurfaceNet>(glm::vec3(0.0f), glm::vec3(10.0f), 40, 40, 40);
-
-	terrain2 = std::make_unique<Terrain2>();
-	int size = 0;
-	for (int x = size; x <= size; x++) {
-		for (int y = -1; y <= -1; y++) {
-			for (int z = size; z <= size; z++) {
+	int tempSeed = 1478293847;
+	terrain2 = std::make_unique<SurfaceNetTerrain>(tempSeed);
+	int size = 6;
+	for (int x = -size; x <= size; x++) {
+		for (int y = -1; y <= 1; y++) {
+			for (int z = -size; z <= size; z++) {
 				printf("Generating chunk %d %d %d\n", x, y, z);
 				terrain2->generateChunk(x, y, z);
 				std::shared_ptr<Chunk> c = terrain2->getChunk(x, y, z);
-				printf("Chunk has %d vertices and %d quads.\n", c->surfaceNet.vertexCount, c->surfaceNet.quadCount);
+				//printf("Chunk has %d vertices and %d quads.\n", c->surfaceNet.vertexCount, c->surfaceNet.quadCount);
 			}
 		}
 	}

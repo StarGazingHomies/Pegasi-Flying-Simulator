@@ -33,6 +33,7 @@ public:
 	std::unique_ptr<Physics> physEngine;
 	std::unique_ptr<Player> p;
 	std::unique_ptr<Terrain> terrain;
+	std::unique_ptr<Terrain2> terrain2;
 	std::unique_ptr<Sky> tempSky;
 	std::unique_ptr<Clouds> tempClouds;
 	std::unique_ptr<Scene> startScene;

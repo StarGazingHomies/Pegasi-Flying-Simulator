@@ -94,8 +94,6 @@ int Game::init() {
 	physEngine->objects.push_back(*e);
 	physEngine->objects.push_back(*f);
 
-	debugSurfaceNet = std::make_unique<SurfaceNet>();
-
 	Shader& default_shader = resourceManager::loadShader("default", "shaders/default.vert", "shaders/default.frag", "shaders/default.geom");
 
 	Shader& debugGridShader = resourceManager::loadShader(
@@ -106,6 +104,7 @@ int Game::init() {
 		"shaders/debug_grid.tesc",
 		"shaders/debug_grid.tese");
 
+	Shader& defaultColorShader = resourceManager::loadShader("defaultColor", "shaders/default_color.vert", "shaders/default_color.frag");
 
 	p = std::make_unique<Player>();
 	p->windowResizeCallback(800, 600);
@@ -171,9 +170,24 @@ int Game::init() {
 
 	tempSky->Generate();
 
-	tempClouds = std::make_unique<Clouds>();
-	tempClouds->Generate();
+	//tempClouds = std::make_unique<Clouds>();
+	//tempClouds->Generate();
 
+
+	//debugSurfaceNet = std::make_unique<SurfaceNet>(glm::vec3(0.0f), glm::vec3(10.0f), 40, 40, 40);
+
+	terrain2 = std::make_unique<Terrain2>();
+	int size = 0;
+	for (int x = size; x <= size; x++) {
+		for (int y = -1; y <= -1; y++) {
+			for (int z = size; z <= size; z++) {
+				printf("Generating chunk %d %d %d\n", x, y, z);
+				terrain2->generateChunk(x, y, z);
+				std::shared_ptr<Chunk> c = terrain2->getChunk(x, y, z);
+				printf("Chunk has %d vertices and %d quads.\n", c->surfaceNet.vertexCount, c->surfaceNet.quadCount);
+			}
+		}
+	}
 
 	// Init "last" xPos and yPos
 	double xpos, ypos;
@@ -236,12 +250,13 @@ void Game::inGame_draw() {
 
 	// Render the grid
 	terrain->Draw(debugGridShader, proj, view, p->camPos);
+	terrain2->draw(proj, view);
 
 	// Render the sky
 	tempSky->Tick();
 	tempSky->Draw(skyShader, proj, view);
 
-	debugSurfaceNet->draw(proj, view);
+	//debugSurfaceNet->draw(proj, view);
 
 	//tempClouds->Draw(cloudShader, proj, view);
 	

@@ -73,7 +73,7 @@ inline const double perlinNoise(double x, double y, double z) {
 	return lerp(w, y1, y2);
 }
 
-inline const double octavePerlin(double x, double y, double z, int octaves, double persistence) {
+inline const double octavePerlin(double x, double y, double z, int octaves, double persistence, double scaling = 2) {
 	double total = 0;
 	double frequency = 1;
 	double amplitude = 1;
@@ -84,7 +84,46 @@ inline const double octavePerlin(double x, double y, double z, int octaves, doub
 		maxValue += amplitude;
 
 		amplitude *= persistence;
-		frequency *= 2;
+		frequency *= scaling;
 	}
 	return total / maxValue;
 }
+
+const int offsetMax = 10000;
+
+class PerlinNoiseGenerator {
+public:
+	int seed;
+	int octaves;
+	double persistence;
+	double scaling;
+	std::vector<glm::vec3> offsets;
+
+	PerlinNoiseGenerator(int seed, int octaves, double persistence = 0.7, double scaling = 2) {
+		this->seed = seed;
+		this->octaves = octaves;
+		this->persistence = persistence;
+		this->scaling = scaling;
+		// Generate offsets based on seed
+		std::mt19937_64 gen(seed);
+		std::uniform_real_distribution<double> dist(-offsetMax, offsetMax);
+		for (int i = 0; i < octaves; i++) {
+			offsets.push_back(glm::vec3(dist(gen), dist(gen), dist(gen)));
+		}
+	}
+	double generate(double x, double y, double z) {
+		double total = 0;
+		double frequency = 1;
+		double amplitude = 1;
+		double maxValue = 0;
+		for (int i = 0; i < octaves; i++) {
+			total += perlinNoise((x + offsets[i].x) * frequency, (y + offsets[i].y) * frequency, (z + offsets[i].z) * frequency) * amplitude;
+
+			maxValue += amplitude;
+
+			amplitude *= persistence;
+			frequency *= scaling;
+		}
+		return total / maxValue;
+	}
+};

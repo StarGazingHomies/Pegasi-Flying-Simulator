@@ -5,14 +5,13 @@
 
 #include "../Graphics/Mesh.h"
 #include "../resourceManager.h"
-#include "Perlin.h"
-
-const int CHUNKSIZE = 16;
+#include "Noise.h"
 
 template <typename T>
 class Arr3D {
 private:
 	std::vector<T> data;
+	// Consider using std::map if data is sparse instead?
 public:
 	int width, height, depth;
 
@@ -50,14 +49,20 @@ struct SurfaceNetVertex {
 class SurfaceNet {
 public:
 	int width, height, depth;
-	Arr3D<double> arr;
+	// For scaling the vertices
+	glm::vec3 pos1, pos2;
+	Arr3D<double> arr; // Should be of size (width+1) * (height+1) * (depth+1)
+	Arr3D<SurfaceNetVertex> vertices;
+	std::vector<float> vertexData;
+	std::vector<unsigned int> indices;
 	int vertexCount, quadCount;
 
 	VAO vao;
 	VBO vbo;
 	EBO ebo;
 	
-	SurfaceNet();
+	SurfaceNet(glm::vec3, glm::vec3, Arr3D<double>);
+	SurfaceNet(glm::vec3 pos1, glm::vec3 pos2, int width, int height, int depth);
 	void generate();
 	void draw(glm::mat4 projMatrix, glm::mat4 viewMatrix);
 };

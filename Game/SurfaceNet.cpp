@@ -1,30 +1,65 @@
 #include "SurfaceNet.h"
 
-SurfaceNet::SurfaceNet() {
-	arr = Arr3D<double>{ CHUNKSIZE+1, CHUNKSIZE+1, CHUNKSIZE+1 };
+SurfaceNet::SurfaceNet(glm::vec3 pos1, glm::vec3 pos2, Arr3D<double> arr) {
+	this->pos1 = pos1;
+	this->pos2 = pos2;
+	this->arr = arr;
 
+	this->width  = arr.width  - 1;
+	this->height = arr.height - 1;
+	this->depth  = arr.depth  - 1;
+	printf("Width: %d, Height: %d, Depth: %d\n", width, height, depth);
+
+	vao.Bind();
+
+	generate();
+
+	vbo.Bind();
+	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 9 * sizeof(float), 0);
+	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+	vao.LinkAttrib(vbo, 2, 3, GL_FLOAT, 9 * sizeof(float), (void*)(6 * sizeof(float)));
+
+	vbo.Unbind();
+	vao.Unbind();
+}
+
+SurfaceNet::SurfaceNet(glm::vec3 pos1, glm::vec3 pos2, int width, int height, int depth) {
+
+	this->pos1 = pos1;
+	this->pos2 = pos2;
+	this->width = width;
+	this->height = height;
+	this->depth = depth;
+
+	// Not proper chunking
+	arr = Arr3D<double>{ width + 1, height + 1, depth + 1 };
 
 	// Seed stuffs? Maybe?
-	unsigned int seed = 384729571;
-	std::mt19937_64 gen(seed);
-	std::uniform_real_distribution<double> dist(0.0, 1.0);
-	double xOffset = dist(gen) * 1000;
-	double yOffset = dist(gen) * 1000;
-	double zOffset = dist(gen) * 1000;
+	PerlinNoiseGenerator perlinGen{ 743821948, 5, 0.7, 2 };
 	double scale = 1.0 / 100.0;
 
-	for (int x = 0; x < CHUNKSIZE+1; x++) {
-		for (int y = 0; y < CHUNKSIZE+1; y++) {
-			for (int z = 0; z < CHUNKSIZE+1; z++) {
+	// Code for debugging and testing various formulas while generating the surfacenet
+	for (int x = 0; x <= width; x++) {
+		for (int y = 0; y <= height; y++) {
+			for (int z = 0; z <= depth; z++) {
 
+				if (y == 0) {
+					// To make sure the cloud doesn't pierce through the ground...
+					// For unchunked surface nets, should probably do this for all sides
+					arr.set(x, y, z, 0);
+					continue;
+				}
 
-				double a = x * scale + xOffset, b = y * scale + yOffset, c = z * scale + zOffset;
+				// Base as an oval / stretched sphere?
+				double a = x * scale / 2, b = y * scale, c = z * scale / 2;
 
-				int mid = 8, size = 6;
-				double dist = sqrt((x - mid) * (x - mid) + (y - mid) * (y - mid) + (z - mid) * (z - mid)) - size;
-				double noise = octavePerlin(a, b, c, 5, 0.7);
-				arr.set(x, y, z, noise);
-
+				double distSphere = sqrt(a * a + b * b + c * c) - 5;
+				double distYMinimum = height * scale / 2 - b;
+				double dist = std::max(distSphere, distYMinimum);
+				dist = 0;
+				
+				double noise = perlinGen.generate(a, b, c);
+				arr.set(x, y, z, dist + noise * (2 + (double)y/height * 15));
 			}
 		}
 	}
@@ -59,23 +94,23 @@ glm::i32vec3 edgeVertices[12][2] = {
 
 void SurfaceNet::generate() {
 
-	Arr3D<SurfaceNetVertex> vertices{ CHUNKSIZE, CHUNKSIZE, CHUNKSIZE };
-	std::vector<float> vertexData;
+	vertices = Arr3D<SurfaceNetVertex>{ width, height, depth };
+	vertexData = std::vector<float>{};
 
 	vertexCount = 0;
 	quadCount = 0;
 
 	// Iterate through each cell
-	for (int x = 0; x < CHUNKSIZE; x++) {
-		for (int y = 0; y < CHUNKSIZE; y++) {
-			for (int z = 0; z < CHUNKSIZE; z++) {
+	for (int x = 0; x < width; x++) {
+		for (int y = 0; y < height; y++) {
+			for (int z = 0; z < depth; z++) {
 				// Iterate through each edge and check for sign changes
 				// If there is a sign change, then there is an intersection point
-				
 
 				std::vector<glm::vec3> intersections;
 				for (int i = 0; i < 12; i++) {
 					// Get the two vertices that make up the edge
+
 					glm::i32vec3 v1 = glm::i32vec3(x, y, z) + edgeVertices[i][0];
 					glm::i32vec3 v2 = glm::i32vec3(x, y, z) + edgeVertices[i][1];
 
@@ -84,10 +119,11 @@ void SurfaceNet::generate() {
 					double v2Val = arr.get(v2.x, v2.y, v2.z);
 
 					// Check if there is a sign change
-					if ((v1Val < 0 && v2Val > 0) || (v1Val > 0 && v2Val < 0)) {
+					if ((v1Val <= 0 && v2Val > 0) || (v1Val > 0 && v2Val <= 0)) {
 						// Calculate the intersection point
 						float t = v1Val / (v1Val - v2Val);
 						glm::vec3 intersection = glm::vec3(v1) + t * glm::vec3(v2 - v1);
+
 
 						// Add the intersection point to the list
 						intersections.push_back(intersection);
@@ -121,6 +157,10 @@ void SurfaceNet::generate() {
 				}
 				normal = glm::normalize(normal);
 
+				// Transform the vertex based on the surfacenet's location
+				vertex /= glm::vec3(width, height, depth);
+				vertex = pos1 + (pos2 - pos1) * vertex;
+
 				// Add the vertex to the list
 				vertices.set(x, y, z, SurfaceNetVertex{ vertex, normal, glm::vec3(1.0f), vertexCount++ });
 				vertexData.push_back(vertex.x);
@@ -134,24 +174,25 @@ void SurfaceNet::generate() {
 				vertexData.push_back(1.0f);
 
 				// Debug print
-				// printf("Vertex %d: (%f, %f, %f)\n", vertexCount, vertex.x, vertex.y, vertex.z);
+				//printf("Vertex %d: (%f, %f, %f)\n", vertexCount, vertex.x, vertex.y, vertex.z);
 			}
 		}
 	}
 	vbo = VBO{ vertexData };
 
 	// Generate indices
-	std::vector<unsigned int> indices;
-	for (int x = 1; x < CHUNKSIZE; x++) {
-		for (int y = 1; y < CHUNKSIZE; y++) {
-			for (int z = 1; z < CHUNKSIZE; z++) {
+	indices = std::vector<unsigned int>{};
+	for (int x = 1; x < width; x++) {
+		for (int y = 1; y < height; y++) {
+			for (int z = 1; z < depth; z++) {
 				if (vertices.get(x, y, z).index == -1) continue;
 
 				// +X direction - look at edge 0
 				glm::i32vec3 v1 = glm::i32vec3(x, y, z) + edgeVertices[0][0];
 				glm::i32vec3 v2 = glm::i32vec3(x, y, z) + edgeVertices[0][1];
 				// Check that the edge has diff signs
-				if (arr.get(v1.x, v1.y, v1.z) * arr.get(v2.x, v2.y, v2.z) < 0) {
+				if ((arr.get(v1.x, v1.y, v1.z) >  0 && arr.get(v2.x, v2.y, v2.z) <=  0) ||
+					(arr.get(v1.x, v1.y, v1.z) <= 0 && arr.get(v2.x, v2.y, v2.z) >  0)) {
 					// Add quad
 					indices.push_back(vertices.get(x, y  , z  ).index);
 					indices.push_back(vertices.get(x, y-1, z  ).index);
@@ -166,7 +207,8 @@ void SurfaceNet::generate() {
 				v1 = glm::i32vec3(x, y, z) + edgeVertices[4][0];
 				v2 = glm::i32vec3(x, y, z) + edgeVertices[4][1];
 				// Check that the edge has diff signs
-				if (arr.get(v1.x, v1.y, v1.z) * arr.get(v2.x, v2.y, v2.z) < 0) {
+				if ((arr.get(v1.x, v1.y, v1.z) > 0 && arr.get(v2.x, v2.y, v2.z) <= 0) ||
+					(arr.get(v1.x, v1.y, v1.z) <= 0 && arr.get(v2.x, v2.y, v2.z) > 0)) {
 					// Add quad
 					indices.push_back(vertices.get(x  , y, z  ).index);
 					indices.push_back(vertices.get(x-1, y, z  ).index);
@@ -181,7 +223,8 @@ void SurfaceNet::generate() {
 				v1 = glm::i32vec3(x, y, z) + edgeVertices[8][0];
 				v2 = glm::i32vec3(x, y, z) + edgeVertices[8][1];
 				// Check that the edge has diff signs
-				if (arr.get(v1.x, v1.y, v1.z) * arr.get(v2.x, v2.y, v2.z) < 0) {
+				if ((arr.get(v1.x, v1.y, v1.z) > 0 && arr.get(v2.x, v2.y, v2.z) <= 0) ||
+					(arr.get(v1.x, v1.y, v1.z) <= 0 && arr.get(v2.x, v2.y, v2.z) > 0)) {
 					// Add quad
 					indices.push_back(vertices.get(x  , y  , z).index);
 					indices.push_back(vertices.get(x-1, y  , z).index);
@@ -198,10 +241,10 @@ void SurfaceNet::generate() {
 }
 
 void SurfaceNet::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
-	Shader& defaultShader = resourceManager::getShader("default");
+	Shader& defaultShader = resourceManager::getShader("defaultColor");
 	defaultShader.Activate();
 
-	glUniformMatrix4fv(glGetUniformLocation(defaultShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(projMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(defaultShader.ID, "proj"), 1, GL_FALSE, glm::value_ptr(projMatrix));
 	glUniformMatrix4fv(glGetUniformLocation(defaultShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
 	vao.Bind();

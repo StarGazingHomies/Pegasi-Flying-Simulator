@@ -103,3 +103,54 @@ void Terrain::Draw(const Shader& terrainShader, glm::mat4 proj, glm::mat4 view, 
 	//glDrawArrays(GL_PATCHES, 0, 4);
 
 }
+
+Chunk::Chunk(int x, int y, int z, Arr3D<double> data) :
+	surfaceNet(
+		glm::vec3(chunkSize)*glm::vec3(x, y, z),
+		glm::vec3(chunkSize)*(glm::vec3(x, y, z) + glm::vec3(1 + 1.0/chunkPrecision)),
+		data) {
+	chunkX = x; chunkY = y; chunkZ = z;
+}
+
+void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
+	surfaceNet.draw(projMatrix, viewMatrix);
+}
+
+std::shared_ptr<Chunk> Terrain2::getChunk(int x, int y, int z) {
+	return getChunk(glm::ivec3(x, y, z));
+}
+
+std::shared_ptr<Chunk> Terrain2::getChunk(glm::i32vec3 pos) {
+	if (chunks.find(pos) == chunks.end()) {
+		// Generate and/or load the chunk.
+		// Loading from file not implemented yet, so it's generate for now
+		generateChunk(pos.x, pos.y, pos.z);
+	}
+	return chunks[pos];
+}
+
+void Terrain2::generateChunk(int x, int y, int z) {
+	// Generate the chunk data
+	glm::vec3 pos1 = glm::vec3(chunkSize) * glm::vec3(x, y, z);
+	glm::vec3 pos2 = pos1 + glm::vec3(chunkSize) * (float)(1.0 + 1.0 / chunkPrecision);
+	printf("Generating chunk from (%f, %f, %f) to (%f, %f, %f)\n", pos1.x, pos1.y, pos1.z, pos2.x, pos2.y, pos2.z);
+
+	Arr3D<double> data = Arr3D<double>(chunkPrecision + 2, chunkPrecision + 2, chunkPrecision + 2);
+	for (int i = 0; i < chunkPrecision + 2; i++) {
+		for (int j = 0; j < chunkPrecision + 2; j++) {
+			for (int k = 0; k < chunkPrecision + 2; k++) {
+				glm::vec3 pos = pos1 + glm::vec3(i, j, k) / (float)(chunkPrecision + 1) * (pos2 - pos1);
+				data.set(i, j, k, pos.y + 1);
+			}
+		}
+	}
+
+	chunks[glm::ivec3(x, y, z)] = std::make_shared<Chunk>( x, y, z, data );
+}
+
+void Terrain2::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
+	for (auto& [pos, chunk] : chunks) {
+		if (chunk.get() == nullptr) continue;
+		chunk->draw(projMatrix, viewMatrix);
+	}
+}

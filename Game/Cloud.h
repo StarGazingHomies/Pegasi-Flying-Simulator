@@ -6,7 +6,7 @@
 #include"../Graphics/VBO.h"
 #include"../Graphics/Shader.h"
 #include"../Graphics/EBO.h"
-#include "Perlin.h"
+#include "Noise.h"
 
 #include<glm/glm.hpp>
 #include<glm/gtc/constants.hpp>

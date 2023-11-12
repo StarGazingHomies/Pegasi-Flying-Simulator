@@ -187,7 +187,7 @@
     <ClCompile Include="Graphics\VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Game\Perlin.h" />
+    <ClInclude Include="Game\Noise.h" />
     <ClInclude Include="Game\SurfaceNet.h" />
     <ClInclude Include="UI\Events.h" />
     <ClInclude Include="UI\Text.h" />
@@ -227,6 +227,8 @@
     <None Include="shaders\default.frag" />
     <None Include="shaders\default.geom" />
     <None Include="shaders\default.vert" />
+    <None Include="shaders\default_color.frag" />
+    <None Include="shaders\default_color.vert" />
     <None Include="shaders\skydome.frag" />
     <None Include="shaders\skydome.geom" />
     <None Include="shaders\skydome.vert" />

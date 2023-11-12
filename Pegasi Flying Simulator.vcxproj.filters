@@ -61,6 +61,9 @@
     <Filter Include="Header Files\UI">
       <UniqueIdentifier>{0881210e-34ce-40de-b07a-13250b8bc924}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\default_color">
+      <UniqueIdentifier>{21f873de-bd28-4ca1-b9f5-e49fb205af6d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -206,7 +209,7 @@
     <ClInclude Include="Game\SurfaceNet.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Perlin.h">
+    <ClInclude Include="Game\Noise.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
   </ItemGroup>
@@ -276,6 +279,12 @@
     </None>
     <None Include="shaders\debug_vector.vert">
       <Filter>Resource Files\Shaders\debug_vector</Filter>
+    </None>
+    <None Include="shaders\default_color.frag">
+      <Filter>Resource Files\Shaders\default_color</Filter>
+    </None>
+    <None Include="shaders\default_color.vert">
+      <Filter>Resource Files\Shaders\default_color</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

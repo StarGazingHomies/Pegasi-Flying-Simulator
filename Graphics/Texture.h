@@ -25,7 +25,7 @@ public:
 	static Texture hmapTexture(std::vector<float> data, int w, int h);
 
 	// Assigns a texture unit to a texture
-	void texUnit(Shader& shader, const char* uniform, GLuint unit);
+	void texUnit(const Shader& shader, const char* uniform, GLuint unit);
 	// Binds a texture
 	void Bind();
 	// Unbinds a texture

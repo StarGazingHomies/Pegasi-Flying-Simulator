@@ -28,9 +28,6 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{2f5754e4-075d-4395-ab9b-c0ebccc9b46c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders\button">
-      <UniqueIdentifier>{621e3fd2-910e-48b1-91f9-ec453338afc9}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\git">
       <UniqueIdentifier>{d7ad4714-01cf-4747-80ea-25559bd2d425}</UniqueIdentifier>
     </Filter>
@@ -244,11 +241,11 @@
     <None Include="shaders\text.vert">
       <Filter>Resource Files\Shaders\text</Filter>
     </None>
-    <None Include="shaders\button.frag">
-      <Filter>Resource Files\Shaders\button</Filter>
+    <None Include="shaders\2D\button.frag">
+      <Filter>Resource Files\Shaders\2D\button</Filter>
     </None>
-    <None Include="shaders\button.vert">
-      <Filter>Resource Files\Shaders\button</Filter>
+    <None Include="shaders\2D\button.vert">
+      <Filter>Resource Files\Shaders\2D\button</Filter>
     </None>
     <None Include=".gitattributes">
       <Filter>Resource Files\git</Filter>
@@ -301,6 +298,9 @@
       <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="resources\moon.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="resources\white.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>

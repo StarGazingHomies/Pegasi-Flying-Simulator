@@ -8,7 +8,7 @@ SurfaceNet::SurfaceNet(glm::vec3 pos1, glm::vec3 pos2, Arr3D<double> arr) {
 	this->width  = arr.width  - 1;
 	this->height = arr.height - 1;
 	this->depth  = arr.depth  - 1;
-	printf("Width: %d, Height: %d, Depth: %d\n", width, height, depth);
+	//printf("Width: %d, Height: %d, Depth: %d\n", width, height, depth);
 
 	vao.Bind();
 

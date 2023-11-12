@@ -97,13 +97,18 @@ public:
 	int octaves;
 	double persistence;
 	double scaling;
+	double baseFreq;
 	std::vector<glm::vec3> offsets;
 
-	PerlinNoiseGenerator(int seed, int octaves, double persistence = 0.7, double scaling = 2) {
+	PerlinNoiseGenerator(int seed, 
+		int octaves, 
+		double persistence = 0.7, 
+		double freqScaling = 2, double baseFreq = 1) {
 		this->seed = seed;
 		this->octaves = octaves;
 		this->persistence = persistence;
-		this->scaling = scaling;
+		this->scaling = freqScaling;
+		this->baseFreq = baseFreq;
 		// Generate offsets based on seed
 		std::mt19937_64 gen(seed);
 		std::uniform_real_distribution<double> dist(-offsetMax, offsetMax);
@@ -113,7 +118,7 @@ public:
 	}
 	double generate(double x, double y, double z) {
 		double total = 0;
-		double frequency = 1;
+		double frequency = baseFreq;
 		double amplitude = 1;
 		double maxValue = 0;
 		for (int i = 0; i < octaves; i++) {

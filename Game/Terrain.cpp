@@ -119,10 +119,34 @@ Chunk::Chunk(int x, int y, int z, Arr3D<double> data) :
 		glm::vec3(chunkSize)*(glm::vec3(x, y, z) + glm::vec3(1 + 1.0/chunkPrecision)),
 		data) {
 	chunkX = x; chunkY = y; chunkZ = z;
+
+	// Random texture data
+	std::vector<float> texture = std::vector<float>(grassTextureSize * grassTextureSize);
+	srand(x * 73856093 ^ y * 19349663 ^ z * 83492791);
+	for (int i = 0; i < grassTextureSize; i++) {
+		for (int j = 0; j < grassTextureSize; j++) {
+			texture[i * grassTextureSize + j] = (float)rand() / RAND_MAX;
+		}
+	}
+	grass = Texture{ texture, grassTextureSize, grassTextureSize, 1, "grass", 0 };
 }
 
 void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
-	surfaceNet.draw(projMatrix, viewMatrix);
+	Shader& terrainShader = resourceManager::getShader("terrain");
+	terrainShader.Activate();
+
+	glUniformMatrix4fv(glGetUniformLocation(terrainShader.ID, "proj"), 1, GL_FALSE, glm::value_ptr(projMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(terrainShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+	glUniform1i(glGetUniformLocation(terrainShader.ID, "grass"), 0);
+	grass.Bind();
+
+	surfaceNet.vao.Bind();
+	surfaceNet.ebo.Bind();
+
+	glDrawElements(GL_TRIANGLES, surfaceNet.quadCount * 6, GL_UNSIGNED_INT, 0);
+	surfaceNet.ebo.Unbind();
+	surfaceNet.vao.Unbind();
 }
 
 double Chunk::getValue(int x, int y, int z) {
@@ -158,7 +182,7 @@ void SurfaceNetTerrain::generateChunk(int x, int y, int z) {
 			for (int k = 0; k < chunkPrecision + 2; k++) {
 				glm::vec3 pos = pos1 + glm::vec3(i, j, k) / (float)(chunkPrecision + 1) * (pos2 - pos1);
 
-				double val = - pos.y + 50 * perlin.generate(pos.x, pos.y, pos.z);
+				double val = pos.y - 50 * perlin.generate(pos.x, pos.y, pos.z);
 
 				data.set(i, j, k, val);
 			}

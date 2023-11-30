@@ -119,6 +119,13 @@ int Game::init() {
 	Shader& buttonShader = resourceManager::loadShader("button", "shaders/2D/button.vert", "shaders/2D/button.frag");
 	Shader& colorShader = resourceManager::loadShader("color", "shaders/2D/color.vert", "shaders/2D/color.frag");
 
+	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");
+
+	resourceManager::loadShader("clouds", "shaders/sphere.vert", "shaders/sphere.frag", "shaders/sphere.geom");
+	resourceManager::loadShader("debugVec", "shaders/debug_vector.vert", "shaders/debug_vector.frag");
+	resourceManager::loadShader("terrain", "shaders/Terrain/default.vert", "shaders/Terrain/default.frag", "shaders/Terrain/default.geom");
+
+
 	startScene = std::make_unique<Scene>("Start Menu");
 
 	std::shared_ptr<Button> startButton = std::make_shared<Button>("Start Button",
@@ -144,12 +151,6 @@ int Game::init() {
 		0, 200, 200, 230);
 	startScene->addObject(textBox);
 
-	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");
-
-
-	resourceManager::loadShader("clouds", "shaders/sphere.vert", "shaders/sphere.frag", "shaders/sphere.geom");
-	resourceManager::loadShader("debugVec", "shaders/debug_vector.vert", "shaders/debug_vector.frag");
-
 	GLfloat stars[300];
 	std::random_device rd;
 	std::mt19937 gen(rd());
@@ -173,7 +174,7 @@ int Game::init() {
 
 	int tempSeed = 1478293847;
 	terrain2 = std::make_unique<SurfaceNetTerrain>(tempSeed);
-	int size = 6;
+	int size = 3;
 	for (int x = -size; x <= size; x++) {
 		for (int y = -1; y <= 1; y++) {
 			for (int z = -size; z <= size; z++) {

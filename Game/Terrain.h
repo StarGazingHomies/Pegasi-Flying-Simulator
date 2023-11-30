@@ -6,14 +6,13 @@
 #include "../Graphics/EBO.h"
 #include "../Graphics/Texture.h"
 #include "../Graphics/Shader.h"
-		 
-#include "SurfaceNet.h"
+
+#include "../config.h"
+
+#include "SurfaceNet.h"		 
 		 
 #include <functional>
 #include <glm/gtc/type_ptr.hpp>
-
-const double chunkSize = 8.0;
-const int chunkPrecision = 16;
 
 
 class Chunk {
@@ -22,6 +21,8 @@ private:
 
 public:
 	SurfaceNet surfaceNet;
+	Texture grass;
+
 	int chunkX, chunkY, chunkZ;
 	Chunk(int x, int y, int z, Arr3D<double> data);
 

@@ -96,7 +96,6 @@ void HeightmapTerrain::setCoord(int x, int y, std::vector<float> vals) {
 
 }
 
-
 void HeightmapTerrain::Draw(const Shader& terrainShader, glm::mat4 proj, glm::mat4 view, glm::vec3 camPos) {
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
 	terrainShader.Activate();
@@ -119,10 +118,56 @@ Chunk::Chunk(int x, int y, int z, Arr3D<double> data) :
 		glm::vec3(chunkSize)*(glm::vec3(x, y, z) + glm::vec3(1 + 1.0/chunkPrecision)),
 		data) {
 	chunkX = x; chunkY = y; chunkZ = z;
+
+	// Random texture data, generated here for now
+	std::vector<float> texture = std::vector<float>();
+	srand(x * 73856093 ^ y * 19349663 ^ z * 83492791);
+	PerlinNoiseGenerator perlin = PerlinNoiseGenerator(rand(), 6, 0.7, 2.0, 0.002);
+	for (int i = 0; i < grassTextureSize; i++) {
+		for (int j = 0; j < grassTextureSize; j++) {
+			// Random colour between yellow and green
+			glm::vec3 yellow = glm::vec3(1.0, 1.0, 0.0);
+			glm::vec3 green = glm::vec3(0.0, 1.0, 0.0);
+			float val = perlin.generate(i, j, 0.0);
+			glm::vec3 colour = yellow * val + green * (1 - val);
+			texture.push_back(colour.x);
+			texture.push_back(colour.y);
+			texture.push_back(colour.z);
+			texture.push_back((float)rand() / RAND_MAX);
+		}
+	}
+	grass = Texture{ texture, grassTextureSize, grassTextureSize, 4, "grass", 0, false };
+	grassOffsets = std::vector<glm::vec3>(grassNumShells + 1, glm::vec3(0.0f));
 }
 
 void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
-	surfaceNet.draw(projMatrix, viewMatrix);
+	Shader& terrainShader = resourceManager::getShader("terrain");
+	terrainShader.Activate();
+
+	glUniformMatrix4fv(glGetUniformLocation(terrainShader.ID, "proj"), 1, GL_FALSE, glm::value_ptr(projMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(terrainShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+	glUniform1i(glGetUniformLocation(terrainShader.ID, "grass"), 0);
+	grass.Bind();
+
+	surfaceNet.vao.Bind();
+	surfaceNet.ebo.Bind();
+
+	glDrawElements(GL_TRIANGLES, surfaceNet.quadCount * 6, GL_UNSIGNED_INT, 0);
+	surfaceNet.ebo.Unbind();
+	surfaceNet.vao.Unbind();
+}
+
+void Chunk::tick(double deltaTime) {
+	glm::vec3 wind = glm::vec3(0.0, 0.0, 1.0); // Const for now
+	for (int i = grassNumShells - 1; i >= 1; i--) {
+		// Grass tries to pull itself upright
+		glm::vec3 pull = grassOffsets[i - 1] - grassOffsets[i];
+		// Wind pushes it over
+		glm::vec3 push = wind * (float)i / (float)grassNumShells;
+		// Do the actual movement
+		grassOffsets[i] += (pull + push) * (float)deltaTime;
+	}
 }
 
 double Chunk::getValue(int x, int y, int z) {
@@ -158,7 +203,7 @@ void SurfaceNetTerrain::generateChunk(int x, int y, int z) {
 			for (int k = 0; k < chunkPrecision + 2; k++) {
 				glm::vec3 pos = pos1 + glm::vec3(i, j, k) / (float)(chunkPrecision + 1) * (pos2 - pos1);
 
-				double val = - pos.y + 50 * perlin.generate(pos.x, pos.y, pos.z);
+				double val = pos.y - 50 * perlin.generate(pos.x, pos.y, pos.z);
 
 				data.set(i, j, k, val);
 			}
@@ -169,8 +214,18 @@ void SurfaceNetTerrain::generateChunk(int x, int y, int z) {
 }
 
 void SurfaceNetTerrain::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	for (auto& [pos, chunk] : chunks) {
 		if (chunk.get() == nullptr) continue;
 		chunk->draw(projMatrix, viewMatrix);
+	}
+}
+
+void SurfaceNetTerrain::tick(double deltaTime) {
+	for (auto& [pos, chunk] : chunks) {
+		if (chunk.get() == nullptr) continue;
+		chunk->tick(deltaTime);
 	}
 }

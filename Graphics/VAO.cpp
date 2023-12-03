@@ -24,17 +24,14 @@ void VAO::LinkAttribInstanced(VBO& VBO, GLuint divisor, GLuint layout, GLuint nu
 	VBO.Unbind();
 }
 
-void VAO::Bind()
-{
+void VAO::Bind() {
 	glBindVertexArray(ID);
 }
 
-void VAO::Unbind()
-{
+void VAO::Unbind() {
 	glBindVertexArray(0);
 }
 
-void VAO::Delete()
-{
+void VAO::Delete() {
 	glDeleteVertexArrays(1, &ID);
 }

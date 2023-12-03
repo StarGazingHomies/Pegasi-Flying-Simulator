@@ -20,6 +20,7 @@ public:
 	Texture(const char* image, const char* texType, GLuint slot);
 	// Constructor with bytes
 	Texture(unsigned char* bytes, int width, int height, int numColCh, const char* texType, GLuint slot);
+	Texture(std::vector<float> data, int width, int height, int numColCh, const char* texType, GLuint slot, bool genMipmaps = false);
 
 	// Some other constructors for specific purposes
 	static Texture hmapTexture(std::vector<float> data, int w, int h);

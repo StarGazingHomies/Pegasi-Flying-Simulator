@@ -61,6 +61,12 @@
     <Filter Include="Resource Files\Shaders\default_color">
       <UniqueIdentifier>{21f873de-bd28-4ca1-b9f5-e49fb205af6d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Shaders\Terrain">
+      <UniqueIdentifier>{e4565f06-595a-4ce8-b1b5-12cbc6b4305b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\Button">
+      <UniqueIdentifier>{6044c388-b833-48ae-b774-e252af713f09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -209,6 +215,9 @@
     <ClInclude Include="Game\Noise.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\debug_grid.frag">
@@ -240,12 +249,6 @@
     </None>
     <None Include="shaders\text.vert">
       <Filter>Resource Files\Shaders\text</Filter>
-    </None>
-    <None Include="shaders\2D\button.frag">
-      <Filter>Resource Files\Shaders\2D\button</Filter>
-    </None>
-    <None Include="shaders\2D\button.vert">
-      <Filter>Resource Files\Shaders\2D\button</Filter>
     </None>
     <None Include=".gitattributes">
       <Filter>Resource Files\git</Filter>
@@ -282,6 +285,28 @@
     </None>
     <None Include="shaders\default_color.vert">
       <Filter>Resource Files\Shaders\default_color</Filter>
+    </None>
+    <None Include="README.md" />
+    <None Include="shaders\2D\color.frag">
+      <Filter>Resource Files\Shaders\default_color</Filter>
+    </None>
+    <None Include="shaders\2D\color.vert">
+      <Filter>Resource Files\Shaders\default_color</Filter>
+    </None>
+    <None Include="shaders\Terrain\default.frag">
+      <Filter>Resource Files\Shaders\Terrain</Filter>
+    </None>
+    <None Include="shaders\Terrain\default.vert">
+      <Filter>Resource Files\Shaders\Terrain</Filter>
+    </None>
+    <None Include="shaders\2D\button.vert">
+      <Filter>Resource Files\Shaders\Button</Filter>
+    </None>
+    <None Include="shaders\2D\button.frag">
+      <Filter>Resource Files\Shaders\Button</Filter>
+    </None>
+    <None Include="shaders\Terrain\default.geom">
+      <Filter>Resource Files\Shaders\Terrain</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

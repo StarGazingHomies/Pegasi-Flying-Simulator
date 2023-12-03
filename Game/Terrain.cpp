@@ -120,15 +120,24 @@ Chunk::Chunk(int x, int y, int z, Arr3D<double> data) :
 		data) {
 	chunkX = x; chunkY = y; chunkZ = z;
 
-	// Random texture data
-	std::vector<float> texture = std::vector<float>(grassTextureSize * grassTextureSize);
+	// Random texture data, generated here for now
+	std::vector<float> texture = std::vector<float>();
 	srand(x * 73856093 ^ y * 19349663 ^ z * 83492791);
+	PerlinNoiseGenerator perlin = PerlinNoiseGenerator(rand(), 6, 0.7, 2.0, 0.002);
 	for (int i = 0; i < grassTextureSize; i++) {
 		for (int j = 0; j < grassTextureSize; j++) {
-			texture[i * grassTextureSize + j] = (float)rand() / RAND_MAX;
+			// Random colour between yellow and green
+			glm::vec3 yellow = glm::vec3(1.0, 1.0, 0.0);
+			glm::vec3 green = glm::vec3(0.0, 1.0, 0.0);
+			float val = perlin.generate(i, j, 0.0);
+			glm::vec3 colour = yellow * val + green * (1 - val);
+			texture.push_back(colour.x);
+			texture.push_back(colour.y);
+			texture.push_back(colour.z);
+			texture.push_back((float)rand() / RAND_MAX);
 		}
 	}
-	grass = Texture{ texture, grassTextureSize, grassTextureSize, 1, "grass", 0 };
+	grass = Texture{ texture, grassTextureSize, grassTextureSize, 4, "grass", 0, false };
 }
 
 void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
@@ -193,6 +202,9 @@ void SurfaceNetTerrain::generateChunk(int x, int y, int z) {
 }
 
 void SurfaceNetTerrain::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	for (auto& [pos, chunk] : chunks) {
 		if (chunk.get() == nullptr) continue;
 		chunk->draw(projMatrix, viewMatrix);

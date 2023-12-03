@@ -174,7 +174,7 @@ int Game::init() {
 
 	int tempSeed = 1478293847;
 	terrain2 = std::make_unique<SurfaceNetTerrain>(tempSeed);
-	int size = 3;
+	int size = 1;
 	for (int x = -size; x <= size; x++) {
 		for (int y = -1; y <= 1; y++) {
 			for (int z = -size; z <= size; z++) {

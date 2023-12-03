@@ -17,6 +17,7 @@ out float height;
 
 uniform int shells = 64;
 uniform float maxLength = 0.3;
+uniform sampler1D grassOffsets;
 
 // 3D transformation uniforms
 uniform mat4 proj;

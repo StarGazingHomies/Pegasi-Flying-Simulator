@@ -18,7 +18,7 @@
 class Chunk {
 	// Will contain more stuff than just terrain in the future
 private:
-
+	std::vector<glm::vec3> grassOffsets;
 public:
 	SurfaceNet surfaceNet;
 	Texture grass;
@@ -27,6 +27,7 @@ public:
 	Chunk(int x, int y, int z, Arr3D<double> data);
 
 	void draw(glm::mat4 projMatrix, glm::mat4 viewMatrix);
+	void tick(double deltaTime);
 	// Note that this is in chunk coordinates
 	double getValue(int x, int y, int z);
 };
@@ -49,6 +50,7 @@ public:
 
 	void generateChunk(int x, int y, int z);
 	void draw(glm::mat4 projMatrix, glm::mat4 viewMatrix);
+	void tick(double deltaTime);
 };
 
 class HeightmapTerrain {

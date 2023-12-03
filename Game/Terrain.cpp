@@ -96,7 +96,6 @@ void HeightmapTerrain::setCoord(int x, int y, std::vector<float> vals) {
 
 }
 
-
 void HeightmapTerrain::Draw(const Shader& terrainShader, glm::mat4 proj, glm::mat4 view, glm::vec3 camPos) {
 	glPatchParameteri(GL_PATCH_VERTICES, 4);
 	terrainShader.Activate();
@@ -138,6 +137,7 @@ Chunk::Chunk(int x, int y, int z, Arr3D<double> data) :
 		}
 	}
 	grass = Texture{ texture, grassTextureSize, grassTextureSize, 4, "grass", 0, false };
+	grassOffsets = std::vector<glm::vec3>(grassNumShells + 1, glm::vec3(0.0f));
 }
 
 void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
@@ -156,6 +156,18 @@ void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 	glDrawElements(GL_TRIANGLES, surfaceNet.quadCount * 6, GL_UNSIGNED_INT, 0);
 	surfaceNet.ebo.Unbind();
 	surfaceNet.vao.Unbind();
+}
+
+void Chunk::tick(double deltaTime) {
+	glm::vec3 wind = glm::vec3(0.0, 0.0, 1.0); // Const for now
+	for (int i = grassNumShells - 1; i >= 1; i--) {
+		// Grass tries to pull itself upright
+		glm::vec3 pull = grassOffsets[i - 1] - grassOffsets[i];
+		// Wind pushes it over
+		glm::vec3 push = wind * (float)i / (float)grassNumShells;
+		// Do the actual movement
+		grassOffsets[i] += (pull + push) * (float)deltaTime;
+	}
 }
 
 double Chunk::getValue(int x, int y, int z) {
@@ -208,5 +220,12 @@ void SurfaceNetTerrain::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 	for (auto& [pos, chunk] : chunks) {
 		if (chunk.get() == nullptr) continue;
 		chunk->draw(projMatrix, viewMatrix);
+	}
+}
+
+void SurfaceNetTerrain::tick(double deltaTime) {
+	for (auto& [pos, chunk] : chunks) {
+		if (chunk.get() == nullptr) continue;
+		chunk->tick(deltaTime);
 	}
 }

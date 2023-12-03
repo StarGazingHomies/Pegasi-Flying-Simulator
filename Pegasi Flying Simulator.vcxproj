@@ -216,6 +216,7 @@
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
+    <None Include="freetype.dll" />
     <None Include="README.md" />
     <None Include="shaders\2D\color.frag" />
     <None Include="shaders\2D\button.frag" />

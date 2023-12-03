@@ -72,16 +72,16 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\OpenGL\Pegasi Flying Simulator\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\OpenGL\Pegasi Flying Simulator\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\OpenGL\Pegasi Flying Simulator\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\OpenGL\Pegasi Flying Simulator\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -187,6 +187,7 @@
     <ClCompile Include="Graphics\VBO.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="config.h" />
     <ClInclude Include="Game\Noise.h" />
     <ClInclude Include="Game\SurfaceNet.h" />
     <ClInclude Include="UI\Events.h" />
@@ -215,10 +216,12 @@
   <ItemGroup>
     <None Include=".gitattributes" />
     <None Include=".gitignore" />
+    <None Include="freetype.dll" />
     <None Include="README.md" />
     <None Include="shaders\2D\color.frag" />
     <None Include="shaders\2D\button.frag" />
     <None Include="shaders\2D\button.vert" />
+    <None Include="shaders\2D\color.vert" />
     <None Include="shaders\debug_grid.frag" />
     <None Include="shaders\debug_grid.geom" />
     <None Include="shaders\debug_grid.tesc" />
@@ -237,6 +240,9 @@
     <None Include="shaders\sphere.frag" />
     <None Include="shaders\sphere.geom" />
     <None Include="shaders\sphere.vert" />
+    <None Include="shaders\Terrain\default.frag" />
+    <None Include="shaders\Terrain\default.geom" />
+    <None Include="shaders\Terrain\default.vert" />
     <None Include="shaders\text.frag" />
     <None Include="shaders\text.vert" />
   </ItemGroup>

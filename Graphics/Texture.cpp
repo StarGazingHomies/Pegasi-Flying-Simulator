@@ -166,6 +166,82 @@ Texture::Texture(unsigned char* bytes, int width, int height, int numColCh, cons
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+Texture::Texture(std::vector<float> data, int width, int height, int numColCh, const char* texType, GLuint slot, bool genMipmaps) {
+	// Checks if the data has the right size
+	if (data.size() != width * height * numColCh)
+		throw std::invalid_argument("Data size does not match width, height, and number of color channels");
+
+	// Assigns the type of the texture ot the texture object
+	type = texType;
+
+	// Generates an OpenGL texture object
+	glGenTextures(1, &ID);
+	// Assigns the texture to a Texture Unit
+	glActiveTexture(GL_TEXTURE0 + slot);
+	unit = slot;
+	glBindTexture(GL_TEXTURE_2D, ID);
+
+	// Configures the type of algorithm that is used to make the image smaller or bigger
+	if (genMipmaps) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
+	else {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	}
+
+	// Configures the way the texture repeats (if it does at all)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	if (numColCh == 4) {
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA,
+			width,
+			height,
+			0,
+			GL_RGBA,
+			GL_FLOAT,
+			data.data());
+	}
+	else if (numColCh == 3) {
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA,
+			width,
+			height,
+			0,
+			GL_RGB,
+			GL_FLOAT,
+			data.data());
+	}
+	else if (numColCh == 1) {
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA,
+			width,
+			height,
+			0,
+			GL_RED,
+			GL_FLOAT,
+			data.data());
+	}
+	else {
+		throw std::invalid_argument("Automatic Texutre type recognition failed");
+	}
+
+	// Generates MipMaps
+	if (genMipmaps) {
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 Texture Texture::hmapTexture(std::vector<float> data, int w, int h) {
 	Texture t = Texture();
 	t.type = "height";

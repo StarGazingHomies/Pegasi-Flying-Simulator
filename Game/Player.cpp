@@ -1036,6 +1036,11 @@ void Player::keyCallback(GLFWwindow* window, int key, int scancode, int action, 
 	double time = glfwGetTime();
 	if (action == GLFW_PRESS)
 	{
+		if (key < 0 || key >= 1024) {
+			//printf("Key %d is out of range!\n", key);
+			// Ignore out of range keys
+			return;
+		}
 		keymap[key].status = true;
 		if (time - keymap[key].lastPress < doubleClickTime) {
 			keymap[key].consecutiveClicks++;

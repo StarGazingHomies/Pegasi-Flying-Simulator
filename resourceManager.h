@@ -6,14 +6,14 @@
 #include"Game/Phys.h"
 #include"Graphics/FBO.h"
 
-class resourceManager
-{
+class resourceManager {
 public:
 	// Static resource manager for now, maybe things will be dynamically loaded later.
 	static std::string primaryFontName;
 	static std::map<std::string, Shader> shaders;
 	static std::map<std::string, FBO> framebuffers;
 	static std::map<std::string, Font> fonts;
+	static std::map<std::string, Texture> textures;
 
 	static Shader& loadShader(
 		std::string name,
@@ -41,6 +41,9 @@ public:
 		int height);
 
 	static FBO& getFBO(std::string name);
+
+	static Texture& loadTexture(std::string name, const char* file, const char* texType, GLuint slot);
+	static Texture& getTexture(std::string name);
 
 	static void updateScreenSize(int newWidth, int newHeight);
 };

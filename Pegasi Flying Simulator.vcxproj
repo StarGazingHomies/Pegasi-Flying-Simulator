@@ -162,6 +162,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game\SurfaceNet.cpp" />
+    <ClCompile Include="UI\Slider.cpp" />
+    <ClCompile Include="UI\Shapes.cpp" />
     <ClCompile Include="UI\Text.cpp" />
     <ClCompile Include="UI\Scene.cpp" />
     <ClCompile Include="UI\Button.cpp" />
@@ -190,6 +192,8 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="Game\Noise.h" />
     <ClInclude Include="Game\SurfaceNet.h" />
+    <ClInclude Include="UI\Slider.h" />
+    <ClInclude Include="UI\Shapes.h" />
     <ClInclude Include="UI\Events.h" />
     <ClInclude Include="UI\Text.h" />
     <ClInclude Include="UI\Scene.h" />
@@ -219,8 +223,8 @@
     <None Include="freetype.dll" />
     <None Include="README.md" />
     <None Include="shaders\2D\color.frag" />
-    <None Include="shaders\2D\button.frag" />
-    <None Include="shaders\2D\button.vert" />
+    <None Include="shaders\2D\texture.frag" />
+    <None Include="shaders\2D\texture.vert" />
     <None Include="shaders\2D\color.vert" />
     <None Include="shaders\debug_grid.frag" />
     <None Include="shaders\debug_grid.geom" />

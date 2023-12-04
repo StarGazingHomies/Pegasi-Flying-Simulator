@@ -165,7 +165,7 @@ void TextBox::backspace() {
 
 void TextBox::draw() {
 	// Drawing box around text
-	Shader& buttonShader = resourceManager::getShader("button");
+	Shader& buttonShader = resourceManager::getShader("texture");
 	buttonShader.Activate();
 	glm::mat4 orthoProj = glm::ortho(0.0f, scrWidth, scrHeight, 0.0f);
 	glUniformMatrix4fv(glGetUniformLocation(buttonShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(orthoProj));

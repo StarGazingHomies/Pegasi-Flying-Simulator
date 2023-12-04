@@ -22,6 +22,8 @@ public:
 	Texture(unsigned char* bytes, int width, int height, int numColCh, const char* texType, GLuint slot);
 	Texture(std::vector<float> data, int width, int height, int numColCh, const char* texType, GLuint slot, bool genMipmaps = false);
 
+	// Loads texture from image
+	void loadFromFile(const char* imageFile, const char* texType, GLuint slot);
 	// Some other constructors for specific purposes
 	static Texture hmapTexture(std::vector<float> data, int w, int h);
 

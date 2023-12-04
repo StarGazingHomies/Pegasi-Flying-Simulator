@@ -13,6 +13,7 @@ void GLAPIENTRY MessageCallback(GLenum source,
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
 		(type == GL_DEBUG_TYPE_ERROR ? "* GL ERROR *" : ""),
 		type, severity, message);
+	// *(char*)0 = 0; trap on error
 }
 
 std::queue<KeyEvent> Game::keyEvents;
@@ -116,8 +117,8 @@ int Game::init() {
 	terrain->Generate(-64, -64, 128, 128, 10, 10,
 		[](float a, float b) { return 0;  (a * a - b * b) / 512; });
 
-	Shader& buttonShader = resourceManager::loadShader("button", "shaders/2D/button.vert", "shaders/2D/button.frag");
-	Shader& colorShader = resourceManager::loadShader("color", "shaders/2D/color.vert", "shaders/2D/color.frag");
+	Shader& buttonShader = resourceManager::loadShader("texture", "shaders/2D/texture.vert", "shaders/2D/texture.frag");
+	Shader& colorShader = resourceManager::loadShader("2DColor", "shaders/2D/color.vert", "shaders/2D/color.frag");
 
 	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");
 
@@ -139,8 +140,10 @@ int Game::init() {
 		glfwSetCursorPos(this->window, (this->scrWidth / 2), (this->scrHeight / 2));
 		};
 	startButton->setPressCallBack(func);
-
 	startScene->addObject(startButton);
+
+	std::shared_ptr<Slider> slider = std::make_shared<Slider>("Slider", 0, 400, 500, 450);
+	startScene->addObject(slider);
 
 	//std::shared_ptr<StaticText> text = std::make_shared<StaticText>("Hello World", 0, 0, 60, glm::vec3(1.0f, 1.0f, 1.0f));
 	//startScene->addObject(text);
@@ -173,18 +176,18 @@ int Game::init() {
 	tempSky->Generate();
 
 	int tempSeed = 1478293847;
-	terrain2 = std::make_unique<SurfaceNetTerrain>(tempSeed);
-	int size = 1;
-	for (int x = -size; x <= size; x++) {
-		for (int y = -1; y <= 1; y++) {
-			for (int z = -size; z <= size; z++) {
-				printf("Generating chunk %d %d %d\n", x, y, z);
-				terrain2->generateChunk(x, y, z);
-				std::shared_ptr<Chunk> c = terrain2->getChunk(x, y, z);
-				//printf("Chunk has %d vertices and %d quads.\n", c->surfaceNet.vertexCount, c->surfaceNet.quadCount);
-			}
-		}
-	}
+	//terrain2 = std::make_unique<SurfaceNetTerrain>(tempSeed);
+	//int size = 1;
+	//for (int x = -size; x <= size; x++) {
+	//	for (int y = -1; y <= 1; y++) {
+	//		for (int z = -size; z <= size; z++) {
+	//			printf("Generating chunk %d %d %d\n", x, y, z);
+	//			terrain2->generateChunk(x, y, z);
+	//			std::shared_ptr<Chunk> c = terrain2->getChunk(x, y, z);
+	//			//printf("Chunk has %d vertices and %d quads.\n", c->surfaceNet.vertexCount, c->surfaceNet.quadCount);
+	//		}
+	//	}
+	//}
 
 	// Init "last" xPos and yPos
 	double xpos, ypos;
@@ -247,7 +250,7 @@ void Game::inGame_draw() {
 
 	// Render the grid
 	terrain->Draw(debugGridShader, proj, view, p->camPos);
-	terrain2->draw(proj, view);
+	//terrain2->draw(proj, view);
 
 	// Render the sky
 	tempSky->Tick();

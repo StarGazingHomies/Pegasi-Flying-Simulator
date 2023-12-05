@@ -29,4 +29,3 @@ public:
 	bool keyboardEvent(KeyEvent keyEvent);
 	bool textEvent(unsigned int c);
 };
-

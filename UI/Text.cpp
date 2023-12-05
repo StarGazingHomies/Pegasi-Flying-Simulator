@@ -4,18 +4,18 @@
 const float scrWidth = 800;
 const float scrHeight = 600;
 
-StaticText::StaticText(std::string text, double x, double y, double size, glm::vec3 color) {
+StaticText::StaticText(std::string name, std::string text, double x, double y, double size, glm::vec3 color) {
+	this->name = name;
 	this->text = text;
 	this->x = x;
 	this->y = y;
 	this->fontSize = size;
 	this->color = color;
-	this->name = "Static Text: " + text;
 }
 
 void StaticText::draw() {
 	Font& f = resourceManager::getPrimaryFont();
-	f.renderLine(text, DisplayPos{ Alignment::TOP_LEFT, (float)x, (float)y }, fontSize, color);
+	f.renderLine(text, RectAlignment::singleton(glm::vec2(x, y)), fontSize, color);
 	f.renderAll(resourceManager::getShader("text"));
 }
 
@@ -42,7 +42,7 @@ DynamicText::DynamicText(std::function<std::string()> text, double x, double y, 
 
 void DynamicText::draw() {
 	Font& f = resourceManager::getPrimaryFont();
-	f.renderLine(text(), DisplayPos{Alignment::TOP_LEFT, (float)x, (float)y}, fontSize, color);
+	f.renderLine(text(), RectAlignment::singleton(glm::vec2(x, y)), fontSize, color);
 }
 
 bool DynamicText::mouseEvent(MouseEvent mouseEvent) {
@@ -187,79 +187,87 @@ void TextBox::draw() {
 	if (fitBox) {
 		float xSize = x2 - x1;
 		float ySize = y2 - y1;
-		std::pair<float, float> textSize = f.getTextSize(text, maxFontSize);
-
-		float xScale = xSize / textSize.first;
-		float yScale = ySize / textSize.second;
+		RectAlignment textSize = f.getTextBoundingBox(text, maxFontSize);
+		
+		float xScale = xSize / textSize.getTopRight().x;
+		float yScale = ySize / textSize.getTopRight().y;
 		fontSize = std::min(std::min(xScale, yScale), 1.0f) * maxFontSize;
 	}
 	else {
 		fontSize = maxFontSize;
 	}
 
-	float xCenter = (x1 + x2) / 2;
-	float yCenter = (y1 + y2) / 2;
+	//float xCenter = (x1 + x2) / 2;
+	//float yCenter = (y1 + y2) / 2;
 
+	//if (text != "") {
+	//	f.renderLine(text, RectAlignment::singleton(glm::vec2(xCenter, yCenter)), fontSize, color);
+	//}
+	//else {
+	//	f.renderLine(emptyText, RectAlignment::singleton(glm::vec2(xCenter, yCenter)), fontSize, emptyColor);
+	//}
+
+	glm::vec2 alignment = glm::vec2(-x1 / 2, 0);
 	if (text != "") {
-		f.renderLine(text, DisplayPos{ Alignment::CENTER, xCenter, yCenter }, fontSize, color);
+		f.renderLine(text, RectAlignment::fromPositions(glm::vec2(x1, y1), glm::vec2(x2, y2), alignment), fontSize, color);
 	}
 	else {
-		f.renderLine(emptyText, DisplayPos{ Alignment::CENTER, xCenter, yCenter }, fontSize, emptyColor);
+		f.renderLine(emptyText, RectAlignment::fromPositions(glm::vec2(x1, y1), glm::vec2(x2, y2), alignment), fontSize, emptyColor);
 	}
 	f.renderAll(resourceManager::getShader("text"));
 
-	std::vector<CharLinePos> positions = f.getLinePos(text, DisplayPos{ Alignment::CENTER, xCenter, yCenter }, fontSize);
-	// Draw cursor / selection
-	if (active) {
-		// For now, only draw when cursor is one thing
-		// Also included is blinking cursor
-		if (startPos == endPos && (int)(glfwGetTime() * 2) % 2 == 0) {
-			float cursorx1{}, cursorx2{}, cursory1 = y1, cursory2 = y2;
-			if (positions.size() == 0) {
-				// Draw at center (need to depend on alignment)
-				cursorx1 = cursorx2 = (x2 - x1) / 2;
-			}
-			else if (positions.size() <= endPos) {
-				// Draw cursor at end of text
-				cursorx1 = cursorx2 = positions[positions.size() - 1].x2;
-			}
-			else {
-				// Draw cursor at end of character
-				cursorx1 = cursorx2 = positions[endPos].x2;
-			}
-			cursorx1 += x1;
-			cursorx2 += x1 + cursorThickness;
+	//std::vector<CharLinePos> positions = f.getLinePos(text, DisplayPos{ AlignmentDirection::CENTER, xCenter, yCenter }, fontSize);
+	//// Draw cursor / selection
+	//if (active) {
+	//	// For now, only draw when cursor is one thing
+	//	// Also included is blinking cursor
+	//	if (startPos == endPos && (int)(glfwGetTime() * 2) % 2 == 0) {
+	//		float cursorx1{}, cursorx2{}, cursory1 = y1, cursory2 = y2;
+	//		if (positions.size() == 0) {
+	//			// Draw at center (need to depend on alignment)
+	//			cursorx1 = cursorx2 = (x2 - x1) / 2;
+	//		}
+	//		else if (positions.size() <= endPos) {
+	//			// Draw cursor at end of text
+	//			cursorx1 = cursorx2 = positions[positions.size() - 1].x2;
+	//		}
+	//		else {
+	//			// Draw cursor at end of character
+	//			cursorx1 = cursorx2 = positions[endPos].x2;
+	//		}
+	//		cursorx1 += x1;
+	//		cursorx2 += x1 + cursorThickness;
 
-			std::vector<float> cursorVertices = {
-				cursorx1, cursory1, 0.0f, 0.0f, 0.0f,
-				cursorx1, cursory2, 0.0f, 0.0f, 0.0f,
-				cursorx2, cursory1, 0.0f, 0.0f, 0.0f,
-				cursorx2, cursory2, 0.0f, 0.0f, 0.0f,
-			};
+	//		std::vector<float> cursorVertices = {
+	//			cursorx1, cursory1, 0.0f, 0.0f, 0.0f,
+	//			cursorx1, cursory2, 0.0f, 0.0f, 0.0f,
+	//			cursorx2, cursory1, 0.0f, 0.0f, 0.0f,
+	//			cursorx2, cursory2, 0.0f, 0.0f, 0.0f,
+	//		};
 
-			// print vertices for debug
-			//for (int i = 0; i < cursorVertices.size(); i++) {
-			//	printf("%f ", cursorVertices[i]);
-			//	if ((i + 1) % 5 == 0) printf("\n");
-			//}
+	//		// print vertices for debug
+	//		//for (int i = 0; i < cursorVertices.size(); i++) {
+	//		//	printf("%f ", cursorVertices[i]);
+	//		//	if ((i + 1) % 5 == 0) printf("\n");
+	//		//}
 
-			// Draw cursor
-			glDepthFunc(GL_ALWAYS);
-			Shader& colorShader = resourceManager::getShader("color");
-			colorShader.Activate();
-			glUniformMatrix4fv(glGetUniformLocation(colorShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(orthoProj));
+	//		// Draw cursor
+	//		glDepthFunc(GL_ALWAYS);
+	//		Shader& colorShader = resourceManager::getShader("color");
+	//		colorShader.Activate();
+	//		glUniformMatrix4fv(glGetUniformLocation(colorShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(orthoProj));
 
-			cursorVBO.Data(cursorVertices);
+	//		cursorVBO.Data(cursorVertices);
 
-			cursorVAO.Bind();
-			cursorEBO.Bind();
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		}
-		else {
-			// TODO: Draw selection
-		}
+	//		cursorVAO.Bind();
+	//		cursorEBO.Bind();
+	//		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	//	}
+	//	else {
+	//		// TODO: Draw selection
+	//	}
 
-	}
+	//}
 }
 
 bool TextBox::mouseEvent(MouseEvent mouseEvent) {

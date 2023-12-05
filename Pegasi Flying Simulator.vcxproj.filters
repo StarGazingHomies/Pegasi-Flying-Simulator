@@ -73,6 +73,12 @@
     <Filter Include="Resource Files\Shaders\2D\Color">
       <UniqueIdentifier>{7f31e91d-d600-4ba6-adbb-77f56b4f4d4b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Util">
+      <UniqueIdentifier>{9f764ecc-83e8-4cee-8ad7-00cc72b02dff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Util">
+      <UniqueIdentifier>{079eb907-8db5-4a20-bf12-94a328e46648}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -235,6 +241,9 @@
     </ClInclude>
     <ClInclude Include="UI\Slider.h">
       <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Alignment.h">
+      <Filter>Header Files\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

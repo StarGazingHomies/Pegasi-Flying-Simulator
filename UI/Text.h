@@ -14,7 +14,7 @@ public:
 	double fontSize;
 	glm::vec3 color;
 
-	StaticText(std::string text, double x, double y, double size, glm::vec3 color);
+	StaticText(std::string name, std::string text, double x, double y, double size, glm::vec3 color);
 
 	void draw() override;
 	bool mouseEvent(MouseEvent mouseEvent) override;

@@ -150,9 +150,16 @@ int Game::init() {
 
 	std::shared_ptr<TextBox> textBox = std::make_shared<TextBox>(
 		"TextBox", 
-		"Enter text here", 
+		"Enter text here",
 		0, 200, 200, 230);
 	startScene->addObject(textBox);
+
+	std::shared_ptr<StaticText> staticText = std::make_shared<StaticText>(
+		"StaticTextTest",
+		"Hello World",
+		200, 230, 20,
+		glm::vec3(0.0, 1.0, 0.0));
+	startScene->addObject(staticText);
 
 	GLfloat stars[300];
 	std::random_device rd;
@@ -319,7 +326,8 @@ int Game::run() {
 
 		// Draw overlayed stuff last
 		Font& font = resourceManager::getFont("celestiaRedux");
-		font.renderLine("FPS:" + std::to_string(framesPerSecond), DisplayPos{ Alignment::TOP_LEFT, 2, 2 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+		font.renderLine("FPS:" + std::to_string(framesPerSecond), 
+			RectAlignment::fromPositions(glm::vec2(0.0f), glm::vec2(800.0f, 600.0f), glm::vec2(0.0f)), 20, glm::vec3(1.0f, 0.0f, 1.0f));
 		font.renderAll(resourceManager::getShader("text"));
 
 		glfwSwapBuffers(window);

@@ -433,15 +433,24 @@ void Player::Draw(const Shader& shader) {
 }
 
 void Player::debugText(Font& font, const Shader& fontShader) {
-	font.renderLine("Control state: " + getControlStateString(), RectAlignment::singleton(glm::vec2(0, 0)), 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("CamPos: ", camPos), RectAlignment::singleton(glm::vec2(0, 20)), 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Position: ", position), RectAlignment::singleton(glm::vec2(0, 40)), 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Velocity: ", velocity), RectAlignment::singleton(glm::vec2(0, 60)), 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Rot: ", glm::eulerAngles(rot)), RectAlignment::singleton(glm::vec2(0, 80)), 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("RotVelocity: ", glm::eulerAngles(rotVelocity)), RectAlignment::singleton(glm::vec2(0, 100)), 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Temp Debug Field 1: ", debugTempVec1), RectAlignment::singleton(glm::vec2(0, 120)), 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(debugVec3Str("Temp Debug Field 2: ", debugTempVec2), RectAlignment::singleton(glm::vec2(0, 140)), 20, glm::vec3(1.0f, 1.0f, 0.0f));
-	font.renderLine(std::format("Stamina: {:.2f} / {:.2f}", stamina, maxStamina), RectAlignment::singleton(glm::vec2(0, 160)), 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine("Control state: " + getControlStateString(), 
+		RectAlignment::singleton(glm::vec2(0, 0)), TextAlignment::LEFT, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("CamPos: ", camPos), 
+		RectAlignment::singleton(glm::vec2(0, 20)), TextAlignment::LEFT, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Position: ", position), 
+		RectAlignment::singleton(glm::vec2(0, 40)), TextAlignment::LEFT, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Velocity: ", velocity), 
+		RectAlignment::singleton(glm::vec2(0, 60)), TextAlignment::LEFT, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Rot: ", glm::eulerAngles(rot)), 
+		RectAlignment::singleton(glm::vec2(0, 80)), TextAlignment::LEFT, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("RotVelocity: ", glm::eulerAngles(rotVelocity)), 
+		RectAlignment::singleton(glm::vec2(0, 100)), TextAlignment::LEFT, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Temp Debug Field 1: ", debugTempVec1), 
+		RectAlignment::singleton(glm::vec2(0, 120)), TextAlignment::LEFT, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(debugVec3Str("Temp Debug Field 2: ", debugTempVec2), 
+		RectAlignment::singleton(glm::vec2(0, 140)), TextAlignment::LEFT, 20, glm::vec3(1.0f, 1.0f, 0.0f));
+	font.renderLine(std::format("Stamina: {:.2f} / {:.2f}", stamina, maxStamina),
+		RectAlignment::singleton(glm::vec2(0, 160)), TextAlignment::LEFT, 20, glm::vec3(1.0f, 1.0f, 0.0f));
 	//font.renderAll(fontShader);
 }
 

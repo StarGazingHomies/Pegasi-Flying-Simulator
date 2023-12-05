@@ -191,9 +191,8 @@ void Font::renderLine(std::string text, float x, float y, float fontSize,
 	}
 }
 
-void Font::renderLine(std::string text, RectAlignment pos, float fontSize,
-	glm::vec3 color, bool textShadow, float shadowOffset) {
-	RectAlignment p = Font::absolutePos(text, fontSize, pos);
+void Font::renderLine(std::string text, RectAlignment pos, TextAlignment textAlignment, float fontSize, glm::vec3 color, bool textShadow, float shadowOffset) {
+	RectAlignment p = Font::absolutePos(text, fontSize, pos, textAlignment);
 	glm::vec2 topRightPos = p.getTopRight();
 	renderLine(text, topRightPos.x, topRightPos.y, fontSize, color, textShadow, shadowOffset);
 }
@@ -297,7 +296,7 @@ void Font::renderText(std::string text, float x, float y, float maxWidth,
 			textShadow, shadowOffset);
 }
 
-RectAlignment Font::getTextBoundingBox(std::string text, float fontSize, TextAlignment fontAlignment) {
+RectAlignment Font::getTextBoundingBox(std::string text, float fontSize, TextAlignment textAlignment) {
 	float x = 0, minY = 0, maxY = 0;
 	for (char c : text) {
 		Character p = charMap[c];
@@ -311,7 +310,7 @@ RectAlignment Font::getTextBoundingBox(std::string text, float fontSize, TextAli
 	float finalHeight = (minY + maxY) * scale;
 	float finalWidth = x * scale;
 	float yOffset = 0;
-	switch (fontAlignment) {
+	switch (textAlignment) {
 	case (TextAlignment::LEFT):
 		return RectAlignment::fromPositions(glm::vec2(0.0f), glm::vec2(finalWidth, finalHeight), glm::vec2(0, yOffset));
 	case (TextAlignment::CENTER):
@@ -321,15 +320,14 @@ RectAlignment Font::getTextBoundingBox(std::string text, float fontSize, TextAli
 	}
 }
 
-RectAlignment Font::absolutePos(std::string text, int fontSize, RectAlignment targetPos) {
-	RectAlignment textPos = getTextBoundingBox(text, fontSize);
+RectAlignment Font::absolutePos(std::string text, int fontSize, RectAlignment targetPos, TextAlignment textAlignment) {
+	RectAlignment textPos = getTextBoundingBox(text, fontSize, textAlignment);
 	targetPos.flipVertical(scrHeight);
 	textPos.align(targetPos);
 	return textPos;
 }
 
-std::vector<CharLinePos> Font::getLinePos(std::string text, RectAlignment pos,
-	float fontSize) {
+std::vector<CharLinePos> Font::getLinePos(std::string text, RectAlignment pos, float fontSize) {
 	RectAlignment p = Font::absolutePos(text, fontSize, pos);
 	return getLinePos(text, p.getTopRight().x, p.getTopRight().y, fontSize);
 }

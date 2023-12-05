@@ -15,7 +15,7 @@ StaticText::StaticText(std::string name, std::string text, double x, double y, d
 
 void StaticText::draw() {
 	Font& f = resourceManager::getPrimaryFont();
-	f.renderLine(text, RectAlignment::singleton(glm::vec2(x, y)), fontSize, color);
+	f.renderLine(text, RectAlignment::singleton(glm::vec2(x, y)), TextAlignment::LEFT, fontSize, color);
 	f.renderAll(resourceManager::getShader("text"));
 }
 
@@ -42,7 +42,7 @@ DynamicText::DynamicText(std::function<std::string()> text, double x, double y, 
 
 void DynamicText::draw() {
 	Font& f = resourceManager::getPrimaryFont();
-	f.renderLine(text(), RectAlignment::singleton(glm::vec2(x, y)), fontSize, color);
+	f.renderLine(text(), RectAlignment::singleton(glm::vec2(x, y)), TextAlignment::LEFT, fontSize, color);
 }
 
 bool DynamicText::mouseEvent(MouseEvent mouseEvent) {
@@ -207,12 +207,13 @@ void TextBox::draw() {
 	//	f.renderLine(emptyText, RectAlignment::singleton(glm::vec2(xCenter, yCenter)), fontSize, emptyColor);
 	//}
 
-	glm::vec2 alignment = glm::vec2(-x1 / 2, 0);
+	glm::vec2 pos1{x1, y1}, pos2{x2, y2};
+	glm::vec2 alignment{ (x2 - x1) / 2, 0.0f };
 	if (text != "") {
-		f.renderLine(text, RectAlignment::fromPositions(glm::vec2(x1, y1), glm::vec2(x2, y2), alignment), fontSize, color);
+		f.renderLine(text, RectAlignment::fromPositions(glm::vec2(x1, y1), glm::vec2(x2, y2), alignment), TextAlignment::CENTER, fontSize, color);
 	}
 	else {
-		f.renderLine(emptyText, RectAlignment::fromPositions(glm::vec2(x1, y1), glm::vec2(x2, y2), alignment), fontSize, emptyColor);
+		f.renderLine(emptyText, RectAlignment::fromPositions(glm::vec2(x1, y1), glm::vec2(x2, y2), alignment), TextAlignment::CENTER, fontSize, emptyColor);
 	}
 	f.renderAll(resourceManager::getShader("text"));
 

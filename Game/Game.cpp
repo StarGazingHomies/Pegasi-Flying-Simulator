@@ -327,7 +327,8 @@ int Game::run() {
 		// Draw overlayed stuff last
 		Font& font = resourceManager::getFont("celestiaRedux");
 		font.renderLine("FPS:" + std::to_string(framesPerSecond), 
-			RectAlignment::fromPositions(glm::vec2(0.0f), glm::vec2(800.0f, 600.0f), glm::vec2(0.0f)), 20, glm::vec3(1.0f, 0.0f, 1.0f));
+			RectAlignment::fromPositions(glm::vec2(0.0f), glm::vec2(800.0f, 600.0f), glm::vec2(0.0f)), TextAlignment::LEFT, 
+			20, glm::vec3(1.0f, 0.0f, 1.0f));
 		font.renderAll(resourceManager::getShader("text"));
 
 		glfwSwapBuffers(window);

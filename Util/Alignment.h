@@ -28,7 +28,7 @@ struct RectAlignment {
 		this->alignment = alignment;
 	}
 
-	// Convert from pos1/pos2/alignment to center/halfSize/alignment.
+	// Convert from pos1/pos2/alignment_p1 to center/halfSize/alignment_center.
 	static RectAlignment fromPositions(glm::vec2 pos1, glm::vec2 pos2, glm::vec2 alignment) {
 		glm::vec2 center = (pos1 + pos2) / 2.0f;
 		glm::vec2 halfSize = glm::abs(pos1 - pos2) / 2.0f;

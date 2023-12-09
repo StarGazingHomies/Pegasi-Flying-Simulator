@@ -169,9 +169,47 @@ void TextBox::backspace() {
 	endPos = startPos;
 }
 
+int TextBox::clamp(int pos) {
+	return std::min(std::max(pos, 0), (int)text.length());
+}
+
+int TextBox::nextWord(int direction) {
+	int curPos = direction > 0 ? endPos : startPos;
+	int tempPos = curPos;
+	while (clamp(tempPos) == tempPos) {
+		if (direction > 0) {
+			tempPos++;
+		}
+		else {
+			tempPos--;
+		}
+		if (text[tempPos] == ' ') {
+			return tempPos - curPos;
+		}
+	}
+	return clamp(tempPos) - curPos;
+}
+
+void TextBox::move(int amount) {
+	if (amount == 0) return;
+	if (startPos == endPos) {
+		startPos = clamp(startPos + amount);
+		endPos = startPos;
+	}
+	else {
+		if (amount > 0) {
+			startPos = endPos;
+		}
+		else {
+			endPos = startPos;
+		}
+	}
+}
+
 void TextBox::moveSelection(int amount) {
-	int notBase = basis ? endPos : startPos;
+	int notBase = basis ? startPos : endPos;
 	int newPos = notBase + amount;
+	printf("Moving selection: %d -> %d\n", notBase, newPos);
 	moveSelectionAbs(newPos);
 }
 
@@ -180,7 +218,7 @@ void TextBox::moveSelectionAbs(int position) {
 	if (position < 0) position = 0;
 	if (position > text.length()) position = text.length();
 
-	int base = basis ? startPos : endPos;
+	int base = basis ? endPos : startPos;
 	if (position < base) {
 		startPos = position;
 		endPos = base;
@@ -253,8 +291,9 @@ void TextBox::draw() {
 	if (active && (int)(glfwGetTime() * 2) % 2 == 0) {
 		// For now, only draw when cursor is one thing
 		// Also included is blinking cursor
+		float cursorx1{}, cursorx2{}, cursory1 = y1, cursory2 = y2;
+		glm::vec3 color;
 		if (startPos == endPos) {
-			float cursorx1{}, cursorx2{}, cursory1 = y1, cursory2 = y2;
 			if (charPositions.size() == 0) {
 				// Draw at center (need to depend on alignment)
 				cursorx1 = cursorx2 = (x2 - x1) / 2;
@@ -273,35 +312,40 @@ void TextBox::draw() {
 			}
 			cursorx1 += x1;
 			cursorx2 += x1 + cursorThickness;
-
-			std::vector<float> cursorVertices = {
-				cursorx1, cursory1, 0.0f, 0.0f, 0.0f,
-				cursorx1, cursory2, 0.0f, 0.0f, 0.0f,
-				cursorx2, cursory1, 0.0f, 0.0f, 0.0f,
-				cursorx2, cursory2, 0.0f, 0.0f, 0.0f,
-			};
-
-			// print vertices for debug
-			//for (int i = 0; i < cursorVertices.size(); i++) {
-			//	printf("%f ", cursorVertices[i]);
-			//	if ((i + 1) % 5 == 0) printf("\n");
-			//}
-
-			// Draw cursor
-			glDepthFunc(GL_ALWAYS);
-			Shader& colorShader = resourceManager::getShader("2DColor");
-			colorShader.Activate();
-			glUniformMatrix4fv(glGetUniformLocation(colorShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(orthoProj));
-
-			cursorVBO.Data(cursorVertices);
-
-			cursorVAO.Bind();
-			cursorEBO.Bind();
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			color = glm::vec3(0.0f);
 		}
 		else {
-			// TODO: Draw selection
+			// Draw selection
+			cursorx1 = charPositions[startPos].x1 + x1;
+			cursorx2 = charPositions[endPos - 1].x2 + x1 + cursorThickness;
+			color = glm::vec3(0.0f, 0.0f, 1.0f); // Blue selection
+			// TODO: Invert character colors in selection
 		}
+
+		std::vector<float> cursorVertices = {
+			cursorx1, cursory1, color.r, color.g, color.b,
+			cursorx1, cursory2, color.r, color.g, color.b,
+			cursorx2, cursory1, color.r, color.g, color.b,
+			cursorx2, cursory2, color.r, color.g, color.b,
+		};
+
+		// print vertices for debug
+		//for (int i = 0; i < cursorVertices.size(); i++) {
+		//	printf("%f ", cursorVertices[i]);
+		//	if ((i + 1) % 5 == 0) printf("\n");
+		//}
+
+		// Draw cursor
+		glDepthFunc(GL_ALWAYS);
+		Shader& colorShader = resourceManager::getShader("2DColor");
+		colorShader.Activate();
+		glUniformMatrix4fv(glGetUniformLocation(colorShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(orthoProj));
+
+		cursorVBO.Data(cursorVertices);
+
+		cursorVAO.Bind();
+		cursorEBO.Bind();
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	}
 }
@@ -312,16 +356,29 @@ bool TextBox::mouseEvent(MouseEvent mouseEvent) {
 	double mouseY = mouseEvent.yPos;
 	int action = mouseEvent.action;
 	int button = mouseEvent.button;
-	if (active) {
+	if (selectionActive) {
 		// Dragging
-		// TODO: implement selection w/ dragging
+		bool canFindPos = false;
+		int pos;
+		for (int i = 0; i < charPositions.size(); i++) {
+			CharLinePos position = charPositions[i];
+			printf("Checking %d: %f - %f\n", i, position.x1, position.x2);
+			if (mouseX <= position.x2) {
+				pos = i;
+				printf("New pos: %d\n", startPos);
+				canFindPos = true;
+				break;
+			}
+		}
+		if (canFindPos) moveSelectionAbs(pos);
 	}
 	// Ignore all pure movement events ?
-	if (action == GLFW_PRESS) {
-		if (button == GLFW_MOUSE_BUTTON_LEFT && isInRange(mouseX, mouseY)) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT) {
+		if (action == GLFW_PRESS && isInRange(mouseX, mouseY)) {
 			// Pressing text box w/ left click
 			// Don't know if right clicking should bring up menu or not... this is a game, not text editor
 			active = true;
+			selectionActive = true;
 
 			// Find position of cursor
 			bool canFindPos = false;
@@ -337,6 +394,9 @@ bool TextBox::mouseEvent(MouseEvent mouseEvent) {
 			}
 			if (!canFindPos) startPos = endPos = text.length();
 			return true;
+		}
+		else if (action == GLFW_RELEASE) {
+			selectionActive = false;
 		}
 		else {
 			active = false;
@@ -363,21 +423,29 @@ bool TextBox::keyboardEvent(KeyEvent keyEvent) {
 		// TODO: Modifiers (ctrl/shift), etc.
 		else if (keyEvent.key == GLFW_KEY_RIGHT) {
 			if (keyEvent.action == GLFW_PRESS || keyEvent.action == GLFW_REPEAT) {
-				if (startPos != endPos) {
-					startPos = endPos;
+				int amount = 1;
+				//if (keyEvent.mods & GLFW_MOD_CONTROL) {
+				//	amount = nextWord(1);
+				//}
+				if (keyEvent.mods & GLFW_MOD_SHIFT) {
+					moveSelection(amount);
 				}
-				else if (endPos < text.length()) {
-					startPos = ++endPos;
+				else {
+					move(amount);
 				}
 			}
 		}
 		else if (keyEvent.key == GLFW_KEY_LEFT) {
 			if (keyEvent.action == GLFW_PRESS || keyEvent.action == GLFW_REPEAT) {
-				if (startPos != endPos) {
-					endPos = startPos;
+				int amount = -1;
+				//if (keyEvent.mods & GLFW_MOD_CONTROL) {
+				//	amount = nextWord(-1);
+				//}
+				if (keyEvent.mods & GLFW_MOD_SHIFT) {
+					moveSelection(amount);
 				}
-				else if (startPos > 0) {
-					endPos = --startPos;
+				else {
+					move(amount);
 				}
 			}
 		}

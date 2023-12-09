@@ -47,7 +47,7 @@ public:
 	glm::vec3 color;
 	glm::vec3 emptyColor;
 	bool allowNewlines;
-	bool active;
+	bool active, selectionActive;
 	float maxFontSize;
 	int startPos = 0, endPos = 0;
 	bool basis = false; // False for start, true for end
@@ -77,6 +77,9 @@ public:
 	bool isValidAction(KeyEvent keyEvent);
 	void write(std::string s);
 	void backspace();
+	int clamp(int pos);
+	int nextWord(int direction);
+	void move(int amount);
 	void moveSelection(int amount);
 	void moveSelectionAbs(int position);
 

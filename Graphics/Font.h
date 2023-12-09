@@ -96,7 +96,7 @@ public:
 
 	// Get the position of each character in a line (no newlines allowed)
 	// Note that the stored position is the central x position of the character
-	std::vector<CharLinePos> getLinePos(std::string text, RectAlignment pos, float fontSize);
+	std::vector<CharLinePos> getLinePos(std::string text, RectAlignment pos, TextAlignment textAlignment, float fontSize);
 	std::vector<CharLinePos> getLinePos(std::string text, float x, float y, float fontSize);
 
 	// Delete the object

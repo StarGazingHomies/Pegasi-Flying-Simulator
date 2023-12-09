@@ -327,9 +327,10 @@ RectAlignment Font::absolutePos(std::string text, int fontSize, RectAlignment ta
 	return textPos;
 }
 
-std::vector<CharLinePos> Font::getLinePos(std::string text, RectAlignment pos, float fontSize) {
-	RectAlignment p = Font::absolutePos(text, fontSize, pos);
-	return getLinePos(text, p.getTopRight().x, p.getTopRight().y, fontSize);
+std::vector<CharLinePos> Font::getLinePos(std::string text, RectAlignment pos, TextAlignment textAlignment, float fontSize) {
+	RectAlignment p = Font::absolutePos(text, fontSize, pos, textAlignment);
+	glm::vec2 topRightPos = p.getTopRight(); 
+	return getLinePos(text, topRightPos.x, topRightPos.y, fontSize);
 }
 
 std::vector<CharLinePos> Font::getLinePos(std::string text, float x, float y,

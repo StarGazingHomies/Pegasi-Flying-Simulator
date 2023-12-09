@@ -27,6 +27,7 @@ double Game::lastYPos = -1;
 
 // Unfortunately these can't be instance methods
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	printf("Key event: %d %d %d %d\n", key, scancode, action, mods);
 	Game::keyEvents.push(KeyEvent{ key, scancode, action, mods });
 }
 
@@ -326,8 +327,8 @@ int Game::run() {
 
 		// Draw overlayed stuff last
 		Font& font = resourceManager::getFont("celestiaRedux");
-		font.renderLine("FPS:" + std::to_string(framesPerSecond), 
-			RectAlignment::fromPositions(glm::vec2(0.0f), glm::vec2(800.0f, 600.0f), glm::vec2(0.0f)), TextAlignment::LEFT, 
+		font.renderLine("FPS:" + std::to_string(framesPerSecond),
+			RectAlignment::singleton(glm::vec2(600.0f, 0.0f)), TextAlignment::RIGHT,
 			20, glm::vec3(1.0f, 0.0f, 1.0f));
 		font.renderAll(resourceManager::getShader("text"));
 

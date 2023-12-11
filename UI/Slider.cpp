@@ -40,11 +40,20 @@ Slider::Slider(std::string name, int x1, int y1, int x2, int y2) {
 	this->sliderVAO.Unbind();
 }
 
-float Slider::getMouseValue(float mousePos) {
-	float val = (mousePos - x1) / (x2 - x1);
+float Slider::posToValue(float mousePos) {
+	float truex1 = x1 + halfThickness;
+	float truex2 = x2 - halfThickness;
+	float val = (mousePos - truex1) / (truex2 - truex1);
 	if (val < 0) val = 0;
 	if (val > 1) val = 1;
 	return val;
+}
+
+float Slider::valueToPos(float value) {
+	float truex1 = x1 + halfThickness;
+	float truex2 = x2 - halfThickness;
+	float pos = truex1 + value * (truex2 - truex1);
+	return pos;
 }
 
 void Slider::draw() {
@@ -71,7 +80,7 @@ bool Slider::mouseEvent(MouseEvent mouseEvent) {
 	if (mouseEvent.type) {
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 			if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
-				relativeValue = getMouseValue(x);
+				relativeValue = posToValue(x);
 				float currentX = x1 + relativeValue * (x2 - x1);
 
 				std::vector<float> vertices = {
@@ -97,7 +106,7 @@ bool Slider::mouseEvent(MouseEvent mouseEvent) {
 	}
 	else {
 		if (!pressed) return false;
-		relativeValue = getMouseValue(x);
+		relativeValue = posToValue(x);
 		float currentX = x1 + relativeValue * (x2 - x1);
 
 		std::vector<float> vertices = {

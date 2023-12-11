@@ -35,7 +35,7 @@ Font& resourceManager::loadFont(
 Font& resourceManager::getFont(std::string name) {
 	if (fonts.find(name) == fonts.end()) {
 		std::cout << "Font " << name << " does not exist!" << std::endl;
-		throw std::exception();
+		return getPrimaryFont();
 	}
 	return fonts[name];
 }
@@ -58,14 +58,14 @@ FBO& resourceManager::getFBO(std::string name) {
 }
 
 Texture& resourceManager::loadTexture(std::string name, const char* file, const char* texType, GLuint slot) {
-	textures[name].loadFromFile(file, texType, slot);
+	textures[name] = Texture{ file, texType, slot };
 	return textures[name];
 }
 
 Texture& resourceManager::getTexture(std::string name) {
 	if (textures.find(name) == textures.end()) {
 		std::cout << "Texture " << name << " does not exist!" << std::endl;
-		throw std::exception();
+		return textures["null"];
 	}
 	return textures[name];
 }

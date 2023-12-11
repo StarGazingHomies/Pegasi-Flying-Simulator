@@ -18,11 +18,12 @@ public:
 	VBO sliderVBO;
 	EBO sliderEBO;
 	std::string name;
-	bool pressed;
+	bool pressed = false;
 	
 	Slider(std::string name, int x1, int y1, int x2, int y2);
 
-	float getMouseValue(float mousePos);
+	float posToValue(float mousePos);
+	float valueToPos(float value);
 
 	void draw();
 	bool mouseEvent(MouseEvent mouseEvent);

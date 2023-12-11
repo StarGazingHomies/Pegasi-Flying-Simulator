@@ -83,6 +83,7 @@ public:
 	void moveSelection(int amount);
 	void moveSelectionAbs(int position);
 
+	// Overrides
 	void draw() override;
 	bool mouseEvent(MouseEvent mouseEvent) override;
 	bool keyboardEvent(KeyEvent keyEvent) override;

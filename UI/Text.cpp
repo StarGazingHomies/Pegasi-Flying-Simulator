@@ -143,7 +143,7 @@ bool TextBox::isValidAction(KeyEvent keyEvent) {
 }
 
 void TextBox::write(std::string s) {
-	printf("Writing: %s to [%d, %d]\n", s.c_str(), startPos, endPos);
+	//printf("Writing: %s to [%d, %d]\n", s.c_str(), startPos, endPos);
 	if (endPos != startPos) {
 		text.replace(startPos, endPos - startPos, s);
 	}
@@ -151,7 +151,7 @@ void TextBox::write(std::string s) {
 		text.insert(startPos, s);
 	}
 	endPos = ++startPos;
-	printf("new pos: %d\n", startPos);
+	//printf("new pos: %d\n", startPos);
 }
 
 void TextBox::backspace() {
@@ -209,7 +209,7 @@ void TextBox::move(int amount) {
 void TextBox::moveSelection(int amount) {
 	int notBase = basis ? startPos : endPos;
 	int newPos = notBase + amount;
-	printf("Moving selection: %d -> %d\n", notBase, newPos);
+	//printf("Moving selection: %d -> %d\n", notBase, newPos);
 	moveSelectionAbs(newPos);
 }
 
@@ -234,7 +234,7 @@ void TextBox::moveSelectionAbs(int position) {
 
 void TextBox::draw() {
 	// Drawing box around text
-	Shader& buttonShader = resourceManager::getShader("texture");
+	Shader& buttonShader = resourceManager::getShader("2DTexture");
 	buttonShader.Activate();
 	glm::mat4 orthoProj = glm::ortho(0.0f, scrWidth, scrHeight, 0.0f);
 	glUniformMatrix4fv(glGetUniformLocation(buttonShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(orthoProj));
@@ -362,10 +362,10 @@ bool TextBox::mouseEvent(MouseEvent mouseEvent) {
 		int pos;
 		for (int i = 0; i < charPositions.size(); i++) {
 			CharLinePos position = charPositions[i];
-			printf("Checking %d: %f - %f\n", i, position.x1, position.x2);
+			//printf("Checking %d: %f - %f\n", i, position.x1, position.x2);
 			if (mouseX <= position.x2) {
 				pos = i;
-				printf("New pos: %d\n", startPos);
+				//printf("New pos: %d\n", startPos);
 				canFindPos = true;
 				break;
 			}
@@ -384,10 +384,10 @@ bool TextBox::mouseEvent(MouseEvent mouseEvent) {
 			bool canFindPos = false;
 			for (int i = 0; i < charPositions.size(); i++) {
 				CharLinePos position = charPositions[i];
-				printf("Checking %d: %f - %f\n", i, position.x1, position.x2);
+				//printf("Checking %d: %f - %f\n", i, position.x1, position.x2);
 				if (mouseX <= position.x2) {
 					startPos = endPos = i;
-					printf("New pos: %d\n", startPos);
+					//printf("New pos: %d\n", startPos);
 					canFindPos = true;
 					break;
 				}
@@ -410,7 +410,7 @@ bool TextBox::mouseEvent(MouseEvent mouseEvent) {
 bool TextBox::keyboardEvent(KeyEvent keyEvent) {
 	// If active, handle keyboard events
 	if (active) {
-		printf("KEYBOARD EVENT\nKey: %d, Action: %d\n", keyEvent.key, keyEvent.action);
+		//printf("KEYBOARD EVENT\nKey: %d, Action: %d\n", keyEvent.key, keyEvent.action);
 		// Enter, if it's enabled
 		if (keyEvent.key == GLFW_KEY_ENTER && isValidAction(keyEvent)) {
 			if (allowNewlines) write("\n");
@@ -459,7 +459,7 @@ bool TextBox::textEvent(unsigned int c) {
 		if (c >= 32 && c <= 126) {
 			write(std::string(1, c));
 		}
-		printf("TEXT EVENT\nChar: %d, New Text: %s\n---\n", c, text.c_str());
+		//printf("TEXT EVENT\nChar: %d, New Text: %s\n---\n", c, text.c_str());
 	}
 	return active;
 }

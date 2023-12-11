@@ -67,9 +67,6 @@
     <Filter Include="Resource Files\Shaders\2D">
       <UniqueIdentifier>{0ef83692-7348-4258-a1fa-7e57aa3db748}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders\2D\Button">
-      <UniqueIdentifier>{c051d206-1eb4-4118-9dd0-9bfe8e1ecca8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shaders\2D\Color">
       <UniqueIdentifier>{7f31e91d-d600-4ba6-adbb-77f56b4f4d4b}</UniqueIdentifier>
     </Filter>
@@ -78,6 +75,9 @@
     </Filter>
     <Filter Include="Header Files\Util">
       <UniqueIdentifier>{079eb907-8db5-4a20-bf12-94a328e46648}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\2D\Texture">
+      <UniqueIdentifier>{c051d206-1eb4-4118-9dd0-9bfe8e1ecca8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +159,9 @@
     <ClCompile Include="UI\Shapes.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Util\Alignment.cpp">
+      <Filter>Source Files\Util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resourceManager.h">
@@ -236,14 +239,14 @@
     <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UI\Shapes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="UI\Slider.h">
       <Filter>Header Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="Util\Alignment.h">
       <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Shapes.h">
+      <Filter>Header Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -325,10 +328,10 @@
     </None>
     <None Include="freetype.dll" />
     <None Include="shaders\2D\texture.frag">
-      <Filter>Resource Files\Shaders\2D\Button</Filter>
+      <Filter>Resource Files\Shaders\2D\Texture</Filter>
     </None>
     <None Include="shaders\2D\texture.vert">
-      <Filter>Resource Files\Shaders\2D\Button</Filter>
+      <Filter>Resource Files\Shaders\2D\Texture</Filter>
     </None>
     <None Include="shaders\2D\color.frag">
       <Filter>Resource Files\Shaders\2D\Color</Filter>
@@ -354,6 +357,9 @@
       <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="resources\white.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="resources\null.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>

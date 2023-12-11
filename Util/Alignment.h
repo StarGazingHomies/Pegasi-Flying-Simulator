@@ -1,6 +1,7 @@
 #pragma once
 
 #include<glm/glm.hpp>
+#include <string>
 
 enum class AlignmentDirection {
 	TOP_LEFT,
@@ -20,44 +21,34 @@ struct RectAlignment {
 	glm::vec2 alignment; // Offset from center. <0.0, 0.0> means center-aligned. Measured in pixels.
 	// center+alignment matched with another center+alignment
 
-	RectAlignment(glm::vec2 center, glm::vec2 halfSize, glm::vec2 alignment) : center(center), halfSize(halfSize), alignment(alignment) {}
-
-	RectAlignment(RectAlignment other, glm::vec2 halfSize, glm::vec2 alignment) {
-		this->center = other.getAbsAlignmentPos() - alignment;
-		this->halfSize = halfSize;
-		this->alignment = alignment;
-	}
+	RectAlignment();
+	RectAlignment(glm::vec2 center, glm::vec2 halfSize, glm::vec2 alignment);
+	RectAlignment(RectAlignment other, glm::vec2 halfSize, glm::vec2 alignment);
 
 	// Convert from pos1/pos2/alignment_p1 to center/halfSize/alignment_center.
-	static RectAlignment fromPositions(glm::vec2 pos1, glm::vec2 pos2, glm::vec2 alignment) {
-		glm::vec2 center = (pos1 + pos2) / 2.0f;
-		glm::vec2 halfSize = glm::abs(pos1 - pos2) / 2.0f;
-		glm::vec2 newAlignment = alignment - halfSize;
-		RectAlignment result{ center, halfSize, newAlignment };
-		return result;
-	}
+	static RectAlignment fromPositions(glm::vec2 pos1, glm::vec2 pos2, glm::vec2 alignment);
+	// No alignment means centered
+	static RectAlignment fromPositions(glm::vec2 pos1, glm::vec2 pos2);
 
-	static RectAlignment singleton(glm::vec2 pos) {
-		return RectAlignment{ pos, glm::vec2(0.0f), glm::vec2(0.0f) };
-	}
+	static RectAlignment singleton(glm::vec2 pos);
 
-	glm::vec2 getAbsAlignmentPos() const {
-		return center + alignment;
-	}
+	glm::vec2 getAbsAlignmentPos() const;
 
-	glm::vec2 getTopRight() const {
-		return center - halfSize;
-	}
+	// Get methods
+	glm::vec2 getTopRight() const;
+	glm::vec2 getTopLeft() const;
+	glm::vec2 getBottomLeft() const;
+	glm::vec2 getBottomRight() const;
+	float getX1() const;
+	float getX2() const;
+	float getY1() const;
+	float getY2() const;
 
 	void align(RectAlignment other) {
 		this->center = other.getAbsAlignmentPos() - alignment;
 	}
 
-	void flipVertical(int screenHeight) {
-		this->center.y = screenHeight - this->center.y;
-	}
+	void flipVertical(int screenHeight);
 
-	std::string toString() const {
-		return "RectAlignment{center=" + std::to_string(center.x) + "," + std::to_string(center.y) + ",halfSize=" + std::to_string(halfSize.x) + "," + std::to_string(halfSize.y) + ",alignment=" + std::to_string(alignment.x) + "," + std::to_string(alignment.y) + "}";
-	}
+	std::string toString() const;
 };

@@ -118,7 +118,7 @@ int Game::init() {
 	terrain->Generate(-64, -64, 128, 128, 10, 10,
 		[](float a, float b) { return 0;  (a * a - b * b) / 512; });
 
-	Shader& buttonShader = resourceManager::loadShader("texture", "shaders/2D/texture.vert", "shaders/2D/texture.frag");
+	Shader& buttonShader = resourceManager::loadShader("2DTexture", "shaders/2D/texture.vert", "shaders/2D/texture.frag");
 	Shader& colorShader = resourceManager::loadShader("2DColor", "shaders/2D/color.vert", "shaders/2D/color.frag");
 
 	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");
@@ -146,9 +146,6 @@ int Game::init() {
 	std::shared_ptr<Slider> slider = std::make_shared<Slider>("Slider", 0, 400, 500, 450);
 	startScene->addObject(slider);
 
-	//std::shared_ptr<StaticText> text = std::make_shared<StaticText>("Hello World", 0, 0, 60, glm::vec3(1.0f, 1.0f, 1.0f));
-	//startScene->addObject(text);
-
 	std::shared_ptr<TextBox> textBox = std::make_shared<TextBox>(
 		"TextBox", 
 		"Enter text here",
@@ -161,6 +158,13 @@ int Game::init() {
 		200, 230, 20,
 		glm::vec3(0.0, 1.0, 0.0));
 	startScene->addObject(staticText);
+
+	resourceManager::loadTexture("null", "resources/null.png", "diffuse", 0);
+	std::shared_ptr<TexturedRectangle> texturedRectangle = std::make_shared<TexturedRectangle>(
+		"null",
+		glm::vec2(400.0f, 0.0f),
+		glm::vec2(500.0f, 100.0f));
+	startScene->addObject(texturedRectangle);
 
 	GLfloat stars[300];
 	std::random_device rd;

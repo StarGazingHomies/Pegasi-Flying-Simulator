@@ -18,6 +18,7 @@
 #include "../UI/Text.h"
 #include "../UI/Scene.h"
 #include "../UI/Slider.h"
+#include "../UI/Shapes.h"
 #include "SurfaceNet.h"
 
 enum class GameState {

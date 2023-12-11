@@ -147,7 +147,7 @@ bool Button::textEvent(unsigned int c) {
 }
 
 void Button::draw() {
-	Shader& buttonShader = resourceManager::getShader("texture");
+	Shader& buttonShader = resourceManager::getShader("2DTexture");
 
 	buttonShader.Activate();
 	glm::mat4 orthoProj = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f);

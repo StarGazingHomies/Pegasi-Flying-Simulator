@@ -64,8 +64,20 @@
     <Filter Include="Resource Files\Shaders\Terrain">
       <UniqueIdentifier>{e4565f06-595a-4ce8-b1b5-12cbc6b4305b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders\Button">
-      <UniqueIdentifier>{6044c388-b833-48ae-b774-e252af713f09}</UniqueIdentifier>
+    <Filter Include="Resource Files\Shaders\2D">
+      <UniqueIdentifier>{0ef83692-7348-4258-a1fa-7e57aa3db748}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\2D\Color">
+      <UniqueIdentifier>{7f31e91d-d600-4ba6-adbb-77f56b4f4d4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Util">
+      <UniqueIdentifier>{9f764ecc-83e8-4cee-8ad7-00cc72b02dff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Util">
+      <UniqueIdentifier>{079eb907-8db5-4a20-bf12-94a328e46648}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\2D\Texture">
+      <UniqueIdentifier>{c051d206-1eb4-4118-9dd0-9bfe8e1ecca8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -140,6 +152,15 @@
     </ClCompile>
     <ClCompile Include="Game\SurfaceNet.cpp">
       <Filter>Source Files\Game</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Slider.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Shapes.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Alignment.cpp">
+      <Filter>Source Files\Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,6 +239,15 @@
     <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UI\Slider.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Alignment.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\Shapes.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\debug_grid.frag">
@@ -287,26 +317,27 @@
       <Filter>Resource Files\Shaders\default_color</Filter>
     </None>
     <None Include="README.md" />
-    <None Include="shaders\2D\color.frag">
-      <Filter>Resource Files\Shaders\default_color</Filter>
-    </None>
-    <None Include="shaders\2D\color.vert">
-      <Filter>Resource Files\Shaders\default_color</Filter>
-    </None>
     <None Include="shaders\Terrain\default.frag">
       <Filter>Resource Files\Shaders\Terrain</Filter>
     </None>
     <None Include="shaders\Terrain\default.vert">
       <Filter>Resource Files\Shaders\Terrain</Filter>
     </None>
-    <None Include="shaders\2D\button.vert">
-      <Filter>Resource Files\Shaders\Button</Filter>
-    </None>
-    <None Include="shaders\2D\button.frag">
-      <Filter>Resource Files\Shaders\Button</Filter>
-    </None>
     <None Include="shaders\Terrain\default.geom">
       <Filter>Resource Files\Shaders\Terrain</Filter>
+    </None>
+    <None Include="freetype.dll" />
+    <None Include="shaders\2D\texture.frag">
+      <Filter>Resource Files\Shaders\2D\Texture</Filter>
+    </None>
+    <None Include="shaders\2D\texture.vert">
+      <Filter>Resource Files\Shaders\2D\Texture</Filter>
+    </None>
+    <None Include="shaders\2D\color.frag">
+      <Filter>Resource Files\Shaders\2D\Color</Filter>
+    </None>
+    <None Include="shaders\2D\color.vert">
+      <Filter>Resource Files\Shaders\2D\Color</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -326,6 +357,9 @@
       <Filter>Resource Files\Textures</Filter>
     </Image>
     <Image Include="resources\white.png">
+      <Filter>Resource Files\Textures</Filter>
+    </Image>
+    <Image Include="resources\null.png">
       <Filter>Resource Files\Textures</Filter>
     </Image>
   </ItemGroup>

@@ -15,3 +15,12 @@ public:
 	virtual bool textEvent(unsigned int c) = 0;
 };
 
+class EmptyUIObject : public UIObject {
+	std::string name = "Empty UI Object";
+	EmptyUIObject() {};
+	void draw() {}
+	bool mouseEvent(MouseEvent mouseEvent) { return false; }
+	bool keyboardEvent(KeyEvent keyEvent) { return false; }
+	bool textEvent(unsigned int c) { return false; }
+};
+

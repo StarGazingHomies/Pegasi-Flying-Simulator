@@ -13,6 +13,7 @@ void GLAPIENTRY MessageCallback(GLenum source,
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
 		(type == GL_DEBUG_TYPE_ERROR ? "* GL ERROR *" : ""),
 		type, severity, message);
+	// *(char*)0 = 0; trap on error
 }
 
 std::queue<KeyEvent> Game::keyEvents;
@@ -26,6 +27,7 @@ double Game::lastYPos = -1;
 
 // Unfortunately these can't be instance methods
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	printf("Key event: %d %d %d %d\n", key, scancode, action, mods);
 	Game::keyEvents.push(KeyEvent{ key, scancode, action, mods });
 }
 
@@ -116,8 +118,8 @@ int Game::init() {
 	terrain->Generate(-64, -64, 128, 128, 10, 10,
 		[](float a, float b) { return 0;  (a * a - b * b) / 512; });
 
-	Shader& buttonShader = resourceManager::loadShader("button", "shaders/2D/button.vert", "shaders/2D/button.frag");
-	Shader& colorShader = resourceManager::loadShader("color", "shaders/2D/color.vert", "shaders/2D/color.frag");
+	Shader& buttonShader = resourceManager::loadShader("2DTexture", "shaders/2D/texture.vert", "shaders/2D/texture.frag");
+	Shader& colorShader = resourceManager::loadShader("2DColor", "shaders/2D/color.vert", "shaders/2D/color.frag");
 
 	Shader& skyShader = resourceManager::loadShader("skydome", "shaders/skydome.vert", "shaders/skydome.frag", "shaders/skydome.geom");
 
@@ -139,17 +141,30 @@ int Game::init() {
 		glfwSetCursorPos(this->window, (this->scrWidth / 2), (this->scrHeight / 2));
 		};
 	startButton->setPressCallBack(func);
-
 	startScene->addObject(startButton);
 
-	//std::shared_ptr<StaticText> text = std::make_shared<StaticText>("Hello World", 0, 0, 60, glm::vec3(1.0f, 1.0f, 1.0f));
-	//startScene->addObject(text);
+	std::shared_ptr<Slider> slider = std::make_shared<Slider>("Slider", 0, 400, 500, 450);
+	startScene->addObject(slider);
 
 	std::shared_ptr<TextBox> textBox = std::make_shared<TextBox>(
 		"TextBox", 
-		"Enter text here", 
+		"Enter text here",
 		0, 200, 200, 230);
 	startScene->addObject(textBox);
+
+	std::shared_ptr<StaticText> staticText = std::make_shared<StaticText>(
+		"StaticTextTest",
+		"Hello World",
+		200, 230, 20,
+		glm::vec3(0.0, 1.0, 0.0));
+	startScene->addObject(staticText);
+
+	resourceManager::loadTexture("null", "resources/null.png", "diffuse", 0);
+	std::shared_ptr<TexturedRectangle> texturedRectangle = std::make_shared<TexturedRectangle>(
+		"null",
+		glm::vec2(400.0f, 0.0f),
+		glm::vec2(500.0f, 100.0f));
+	startScene->addObject(texturedRectangle);
 
 	GLfloat stars[300];
 	std::random_device rd;
@@ -173,18 +188,18 @@ int Game::init() {
 	tempSky->Generate();
 
 	int tempSeed = 1478293847;
-	terrain2 = std::make_unique<SurfaceNetTerrain>(tempSeed);
-	int size = 1;
-	for (int x = -size; x <= size; x++) {
-		for (int y = -1; y <= 1; y++) {
-			for (int z = -size; z <= size; z++) {
-				printf("Generating chunk %d %d %d\n", x, y, z);
-				terrain2->generateChunk(x, y, z);
-				std::shared_ptr<Chunk> c = terrain2->getChunk(x, y, z);
-				//printf("Chunk has %d vertices and %d quads.\n", c->surfaceNet.vertexCount, c->surfaceNet.quadCount);
-			}
-		}
-	}
+	//terrain2 = std::make_unique<SurfaceNetTerrain>(tempSeed);
+	//int size = 1;
+	//for (int x = -size; x <= size; x++) {
+	//	for (int y = -1; y <= 1; y++) {
+	//		for (int z = -size; z <= size; z++) {
+	//			printf("Generating chunk %d %d %d\n", x, y, z);
+	//			terrain2->generateChunk(x, y, z);
+	//			std::shared_ptr<Chunk> c = terrain2->getChunk(x, y, z);
+	//			//printf("Chunk has %d vertices and %d quads.\n", c->surfaceNet.vertexCount, c->surfaceNet.quadCount);
+	//		}
+	//	}
+	//}
 
 	// Init "last" xPos and yPos
 	double xpos, ypos;
@@ -247,7 +262,7 @@ void Game::inGame_draw() {
 
 	// Render the grid
 	terrain->Draw(debugGridShader, proj, view, p->camPos);
-	terrain2->draw(proj, view);
+	//terrain2->draw(proj, view);
 
 	// Render the sky
 	tempSky->Tick();
@@ -316,7 +331,9 @@ int Game::run() {
 
 		// Draw overlayed stuff last
 		Font& font = resourceManager::getFont("celestiaRedux");
-		font.renderLine("FPS:" + std::to_string(framesPerSecond), DisplayPos{ Alignment::TOP_LEFT, 2, 2 }, 20, glm::vec3(1.0f, 0.0f, 1.0f));
+		font.renderLine("FPS:" + std::to_string(framesPerSecond),
+			RectAlignment::singleton(glm::vec2(600.0f, 0.0f)), TextAlignment::RIGHT,
+			20, glm::vec3(1.0f, 0.0f, 1.0f));
 		font.renderAll(resourceManager::getShader("text"));
 
 		glfwSwapBuffers(window);

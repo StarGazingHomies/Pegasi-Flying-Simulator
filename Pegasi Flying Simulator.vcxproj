@@ -162,6 +162,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game\SurfaceNet.cpp" />
+    <ClCompile Include="UI\Shapes.cpp" />
+    <ClCompile Include="UI\Slider.cpp" />
     <ClCompile Include="UI\Text.cpp" />
     <ClCompile Include="UI\Scene.cpp" />
     <ClCompile Include="UI\Button.cpp" />
@@ -185,11 +187,15 @@
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Graphics\VAO.cpp" />
     <ClCompile Include="Graphics\VBO.cpp" />
+    <ClCompile Include="Util\Alignment.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="UI\Shapes.h" />
+    <ClInclude Include="Util\Alignment.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="Game\Noise.h" />
     <ClInclude Include="Game\SurfaceNet.h" />
+    <ClInclude Include="UI\Slider.h" />
     <ClInclude Include="UI\Events.h" />
     <ClInclude Include="UI\Text.h" />
     <ClInclude Include="UI\Scene.h" />
@@ -219,8 +225,8 @@
     <None Include="freetype.dll" />
     <None Include="README.md" />
     <None Include="shaders\2D\color.frag" />
-    <None Include="shaders\2D\button.frag" />
-    <None Include="shaders\2D\button.vert" />
+    <None Include="shaders\2D\texture.frag" />
+    <None Include="shaders\2D\texture.vert" />
     <None Include="shaders\2D\color.vert" />
     <None Include="shaders\debug_grid.frag" />
     <None Include="shaders\debug_grid.geom" />
@@ -251,6 +257,7 @@
     <Image Include="resources\debug_buttonHover.png" />
     <Image Include="resources\debug_buttonPress.png" />
     <Image Include="resources\moon.png" />
+    <Image Include="resources\null.png" />
     <Image Include="resources\sun.png" />
     <Image Include="resources\white.png" />
   </ItemGroup>

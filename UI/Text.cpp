@@ -4,18 +4,18 @@
 const float scrWidth = 800;
 const float scrHeight = 600;
 
-StaticText::StaticText(std::string text, double x, double y, double size, glm::vec3 color) {
+StaticText::StaticText(std::string name, std::string text, double x, double y, double size, glm::vec3 color) {
+	this->name = name;
 	this->text = text;
 	this->x = x;
 	this->y = y;
 	this->fontSize = size;
 	this->color = color;
-	this->name = "Static Text: " + text;
 }
 
 void StaticText::draw() {
 	Font& f = resourceManager::getPrimaryFont();
-	f.renderLine(text, DisplayPos{ Alignment::TOP_LEFT, (float)x, (float)y }, fontSize, color);
+	f.renderLine(text, RectAlignment::singleton(glm::vec2(x, y)), TextAlignment::LEFT, fontSize, color);
 	f.renderAll(resourceManager::getShader("text"));
 }
 
@@ -42,7 +42,7 @@ DynamicText::DynamicText(std::function<std::string()> text, double x, double y, 
 
 void DynamicText::draw() {
 	Font& f = resourceManager::getPrimaryFont();
-	f.renderLine(text(), DisplayPos{Alignment::TOP_LEFT, (float)x, (float)y}, fontSize, color);
+	f.renderLine(text(), RectAlignment::singleton(glm::vec2(x, y)), TextAlignment::LEFT, fontSize, color);
 }
 
 bool DynamicText::mouseEvent(MouseEvent mouseEvent) {
@@ -143,29 +143,98 @@ bool TextBox::isValidAction(KeyEvent keyEvent) {
 }
 
 void TextBox::write(std::string s) {
-	printf("Writing: %s to [%d, %d]\n", s.c_str(), startPos, endPos);
+	//printf("Writing: %s to [%d, %d]\n", s.c_str(), startPos, endPos);
 	if (endPos != startPos) {
 		text.replace(startPos, endPos - startPos, s);
 	}
 	else {
 		text.insert(startPos, s);
 	}
-	startPos = endPos = startPos + 1;
+	endPos = ++startPos;
+	//printf("new pos: %d\n", startPos);
 }
 
 void TextBox::backspace() {
 	if (text.length() > 0) {
 		if (startPos == endPos) {
-			startPos--;
+			if (startPos > 0) {
+				startPos--;
+				text.erase(startPos, 1);
+			}
 		}
-		text.erase(startPos, endPos);
+		else {
+			text.erase(startPos, endPos - startPos);
+		}
 	}
 	endPos = startPos;
 }
 
+int TextBox::clamp(int pos) {
+	return std::min(std::max(pos, 0), (int)text.length());
+}
+
+int TextBox::nextWord(int direction) {
+	int curPos = direction > 0 ? endPos : startPos;
+	int tempPos = curPos;
+	while (clamp(tempPos) == tempPos) {
+		if (direction > 0) {
+			tempPos++;
+		}
+		else {
+			tempPos--;
+		}
+		if (text[tempPos] == ' ') {
+			return tempPos - curPos;
+		}
+	}
+	return clamp(tempPos) - curPos;
+}
+
+void TextBox::move(int amount) {
+	if (amount == 0) return;
+	if (startPos == endPos) {
+		startPos = clamp(startPos + amount);
+		endPos = startPos;
+	}
+	else {
+		if (amount > 0) {
+			startPos = endPos;
+		}
+		else {
+			endPos = startPos;
+		}
+	}
+}
+
+void TextBox::moveSelection(int amount) {
+	int notBase = basis ? startPos : endPos;
+	int newPos = notBase + amount;
+	//printf("Moving selection: %d -> %d\n", notBase, newPos);
+	moveSelectionAbs(newPos);
+}
+
+void TextBox::moveSelectionAbs(int position) {
+	// Filter invalid positions
+	if (position < 0) position = 0;
+	if (position > text.length()) position = text.length();
+
+	int base = basis ? endPos : startPos;
+	if (position < base) {
+		startPos = position;
+		endPos = base;
+		basis = true;
+	}
+	else {
+		startPos = base;
+		endPos = position;
+		basis = false;
+	}
+}
+
+
 void TextBox::draw() {
 	// Drawing box around text
-	Shader& buttonShader = resourceManager::getShader("button");
+	Shader& buttonShader = resourceManager::getShader("2DTexture");
 	buttonShader.Activate();
 	glm::mat4 orthoProj = glm::ortho(0.0f, scrWidth, scrHeight, 0.0f);
 	glUniformMatrix4fv(glGetUniformLocation(buttonShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(orthoProj));
@@ -187,77 +256,96 @@ void TextBox::draw() {
 	if (fitBox) {
 		float xSize = x2 - x1;
 		float ySize = y2 - y1;
-		std::pair<float, float> textSize = f.getTextSize(text, maxFontSize);
-
-		float xScale = xSize / textSize.first;
-		float yScale = ySize / textSize.second;
+		RectAlignment textSize = f.getTextBoundingBox(text, maxFontSize);
+		
+		float xScale = xSize / textSize.getTopRight().x;
+		float yScale = ySize / textSize.getTopRight().y;
 		fontSize = std::min(std::min(xScale, yScale), 1.0f) * maxFontSize;
 	}
 	else {
 		fontSize = maxFontSize;
 	}
 
-	float xCenter = (x1 + x2) / 2;
-	float yCenter = (y1 + y2) / 2;
+	//float xCenter = (x1 + x2) / 2;
+	//float yCenter = (y1 + y2) / 2;
 
+	//if (text != "") {
+	//	f.renderLine(text, RectAlignment::singleton(glm::vec2(xCenter, yCenter)), fontSize, color);
+	//}
+	//else {
+	//	f.renderLine(emptyText, RectAlignment::singleton(glm::vec2(xCenter, yCenter)), fontSize, emptyColor);
+	//}
+
+	glm::vec2 pos1{x1, y1}, pos2{x2, y2};
+	glm::vec2 alignment{ (x2 - x1) / 2, 0.0f };
 	if (text != "") {
-		f.renderLine(text, DisplayPos{ Alignment::CENTER, xCenter, yCenter }, fontSize, color);
+		f.renderLine(text, RectAlignment::fromPositions(glm::vec2(x1, y1), glm::vec2(x2, y2), alignment), TextAlignment::CENTER, fontSize, color);
 	}
 	else {
-		f.renderLine(emptyText, DisplayPos{ Alignment::CENTER, xCenter, yCenter }, fontSize, emptyColor);
+		f.renderLine(emptyText, RectAlignment::fromPositions(glm::vec2(x1, y1), glm::vec2(x2, y2), alignment), TextAlignment::CENTER, fontSize, emptyColor);
 	}
 	f.renderAll(resourceManager::getShader("text"));
 
-	std::vector<CharLinePos> positions = f.getLinePos(text, DisplayPos{ Alignment::CENTER, xCenter, yCenter }, fontSize);
+	charPositions = f.getLinePos(text, RectAlignment::fromPositions(glm::vec2(x1, y1), glm::vec2(x2, y2), alignment), TextAlignment::CENTER, fontSize);
 	// Draw cursor / selection
-	if (active) {
+	if (active && (int)(glfwGetTime() * 2) % 2 == 0) {
 		// For now, only draw when cursor is one thing
 		// Also included is blinking cursor
-		if (startPos == endPos && (int)(glfwGetTime() * 2) % 2 == 0) {
-			float cursorx1{}, cursorx2{}, cursory1 = y1, cursory2 = y2;
-			if (positions.size() == 0) {
+		float cursorx1{}, cursorx2{}, cursory1 = y1, cursory2 = y2;
+		glm::vec3 color;
+		if (startPos == endPos) {
+			if (charPositions.size() == 0) {
 				// Draw at center (need to depend on alignment)
 				cursorx1 = cursorx2 = (x2 - x1) / 2;
 			}
-			else if (positions.size() <= endPos) {
+			else if (endPos == 0) {
+				// Draw cursor at beginning of text
+				cursorx1 = cursorx2 = charPositions[0].x1;
+			}
+			else if (endPos > charPositions.size()) {
 				// Draw cursor at end of text
-				cursorx1 = cursorx2 = positions[positions.size() - 1].x2;
+				cursorx1 = cursorx2 = charPositions[charPositions.size() - 1].x2;
 			}
 			else {
 				// Draw cursor at end of character
-				cursorx1 = cursorx2 = positions[endPos].x2;
+				cursorx1 = cursorx2 = charPositions[endPos-1].x2;
 			}
 			cursorx1 += x1;
 			cursorx2 += x1 + cursorThickness;
-
-			std::vector<float> cursorVertices = {
-				cursorx1, cursory1, 0.0f, 0.0f, 0.0f,
-				cursorx1, cursory2, 0.0f, 0.0f, 0.0f,
-				cursorx2, cursory1, 0.0f, 0.0f, 0.0f,
-				cursorx2, cursory2, 0.0f, 0.0f, 0.0f,
-			};
-
-			// print vertices for debug
-			//for (int i = 0; i < cursorVertices.size(); i++) {
-			//	printf("%f ", cursorVertices[i]);
-			//	if ((i + 1) % 5 == 0) printf("\n");
-			//}
-
-			// Draw cursor
-			glDepthFunc(GL_ALWAYS);
-			Shader& colorShader = resourceManager::getShader("color");
-			colorShader.Activate();
-			glUniformMatrix4fv(glGetUniformLocation(colorShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(orthoProj));
-
-			cursorVBO.Data(cursorVertices);
-
-			cursorVAO.Bind();
-			cursorEBO.Bind();
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			color = glm::vec3(0.0f);
 		}
 		else {
-			// TODO: Draw selection
+			// Draw selection
+			cursorx1 = charPositions[startPos].x1 + x1;
+			cursorx2 = charPositions[endPos - 1].x2 + x1 + cursorThickness;
+			color = glm::vec3(0.0f, 0.0f, 1.0f); // Blue selection
+			// TODO: Invert character colors in selection
 		}
+
+		std::vector<float> cursorVertices = {
+			cursorx1, cursory1, color.r, color.g, color.b,
+			cursorx1, cursory2, color.r, color.g, color.b,
+			cursorx2, cursory1, color.r, color.g, color.b,
+			cursorx2, cursory2, color.r, color.g, color.b,
+		};
+
+		// print vertices for debug
+		//for (int i = 0; i < cursorVertices.size(); i++) {
+		//	printf("%f ", cursorVertices[i]);
+		//	if ((i + 1) % 5 == 0) printf("\n");
+		//}
+
+		// Draw cursor
+		glDepthFunc(GL_ALWAYS);
+		Shader& colorShader = resourceManager::getShader("2DColor");
+		colorShader.Activate();
+		glUniformMatrix4fv(glGetUniformLocation(colorShader.ID, "projection"), 1, GL_FALSE, glm::value_ptr(orthoProj));
+
+		cursorVBO.Data(cursorVertices);
+
+		cursorVAO.Bind();
+		cursorEBO.Bind();
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 	}
 }
@@ -268,20 +356,47 @@ bool TextBox::mouseEvent(MouseEvent mouseEvent) {
 	double mouseY = mouseEvent.yPos;
 	int action = mouseEvent.action;
 	int button = mouseEvent.button;
-	if (active) {
+	if (selectionActive) {
 		// Dragging
-		// TODO: implement selection w/ dragging
+		bool canFindPos = false;
+		int pos;
+		for (int i = 0; i < charPositions.size(); i++) {
+			CharLinePos position = charPositions[i];
+			//printf("Checking %d: %f - %f\n", i, position.x1, position.x2);
+			if (mouseX <= position.x2) {
+				pos = i;
+				//printf("New pos: %d\n", startPos);
+				canFindPos = true;
+				break;
+			}
+		}
+		if (canFindPos) moveSelectionAbs(pos);
 	}
 	// Ignore all pure movement events ?
-	if (action == GLFW_PRESS) {
-		if (button == GLFW_MOUSE_BUTTON_LEFT && isInRange(mouseX, mouseY)) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT) {
+		if (action == GLFW_PRESS && isInRange(mouseX, mouseY)) {
 			// Pressing text box w/ left click
 			// Don't know if right clicking should bring up menu or not... this is a game, not text editor
 			active = true;
+			selectionActive = true;
 
-			// TODO: respect cursor position
-			startPos = endPos = text.length();
+			// Find position of cursor
+			bool canFindPos = false;
+			for (int i = 0; i < charPositions.size(); i++) {
+				CharLinePos position = charPositions[i];
+				//printf("Checking %d: %f - %f\n", i, position.x1, position.x2);
+				if (mouseX <= position.x2) {
+					startPos = endPos = i;
+					//printf("New pos: %d\n", startPos);
+					canFindPos = true;
+					break;
+				}
+			}
+			if (!canFindPos) startPos = endPos = text.length();
 			return true;
+		}
+		else if (action == GLFW_RELEASE) {
+			selectionActive = false;
 		}
 		else {
 			active = false;
@@ -295,6 +410,7 @@ bool TextBox::mouseEvent(MouseEvent mouseEvent) {
 bool TextBox::keyboardEvent(KeyEvent keyEvent) {
 	// If active, handle keyboard events
 	if (active) {
+		//printf("KEYBOARD EVENT\nKey: %d, Action: %d\n", keyEvent.key, keyEvent.action);
 		// Enter, if it's enabled
 		if (keyEvent.key == GLFW_KEY_ENTER && isValidAction(keyEvent)) {
 			if (allowNewlines) write("\n");
@@ -304,7 +420,35 @@ bool TextBox::keyboardEvent(KeyEvent keyEvent) {
 		else if (keyEvent.key == GLFW_KEY_BACKSPACE && isValidAction(keyEvent)) {
 			backspace();
 		}
-		printf("Key: %d, New Text: %s\n---\n", keyEvent.key, text.c_str());
+		// TODO: Modifiers (ctrl/shift), etc.
+		else if (keyEvent.key == GLFW_KEY_RIGHT) {
+			if (keyEvent.action == GLFW_PRESS || keyEvent.action == GLFW_REPEAT) {
+				int amount = 1;
+				//if (keyEvent.mods & GLFW_MOD_CONTROL) {
+				//	amount = nextWord(1);
+				//}
+				if (keyEvent.mods & GLFW_MOD_SHIFT) {
+					moveSelection(amount);
+				}
+				else {
+					move(amount);
+				}
+			}
+		}
+		else if (keyEvent.key == GLFW_KEY_LEFT) {
+			if (keyEvent.action == GLFW_PRESS || keyEvent.action == GLFW_REPEAT) {
+				int amount = -1;
+				//if (keyEvent.mods & GLFW_MOD_CONTROL) {
+				//	amount = nextWord(-1);
+				//}
+				if (keyEvent.mods & GLFW_MOD_SHIFT) {
+					moveSelection(amount);
+				}
+				else {
+					move(amount);
+				}
+			}
+		}
 	}
 	return active;
 }
@@ -315,7 +459,7 @@ bool TextBox::textEvent(unsigned int c) {
 		if (c >= 32 && c <= 126) {
 			write(std::string(1, c));
 		}
-		printf("Char: %d, New Text: %s\n---\n", c, text.c_str());
+		//printf("TEXT EVENT\nChar: %d, New Text: %s\n---\n", c, text.c_str());
 	}
 	return active;
 }

@@ -14,7 +14,7 @@ public:
 	double fontSize;
 	glm::vec3 color;
 
-	StaticText(std::string text, double x, double y, double size, glm::vec3 color);
+	StaticText(std::string name, std::string text, double x, double y, double size, glm::vec3 color);
 
 	void draw() override;
 	bool mouseEvent(MouseEvent mouseEvent) override;
@@ -47,12 +47,14 @@ public:
 	glm::vec3 color;
 	glm::vec3 emptyColor;
 	bool allowNewlines;
-	bool active;
+	bool active, selectionActive;
 	float maxFontSize;
 	int startPos = 0, endPos = 0;
+	bool basis = false; // False for start, true for end
 	float border;
 	bool fitBox = true;
 	float cursorThickness;
+	std::vector<CharLinePos> charPositions;
 
 	Texture backgroundTex;
 	VAO backgroundVAO, cursorVAO;
@@ -70,11 +72,18 @@ public:
 		float border = 2,
 		float cursorThickness = 2);
 
+	// Helper Methods
 	bool isInRange(float mouseX, float mouseY);
 	bool isValidAction(KeyEvent keyEvent);
 	void write(std::string s);
 	void backspace();
+	int clamp(int pos);
+	int nextWord(int direction);
+	void move(int amount);
+	void moveSelection(int amount);
+	void moveSelectionAbs(int position);
 
+	// Overrides
 	void draw() override;
 	bool mouseEvent(MouseEvent mouseEvent) override;
 	bool keyboardEvent(KeyEvent keyEvent) override;

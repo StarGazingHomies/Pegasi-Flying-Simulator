@@ -19,9 +19,6 @@
     <Filter Include="Resource Files\Shaders\debug_grid">
       <UniqueIdentifier>{49913299-190d-44ce-b399-518e8f6b92fb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders\default">
-      <UniqueIdentifier>{09e20703-abff-4de9-b566-c1e3077d6502}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shaders\text">
       <UniqueIdentifier>{a48ac42d-fd96-491f-9d3a-34c4a0412856}</UniqueIdentifier>
     </Filter>
@@ -58,9 +55,6 @@
     <Filter Include="Header Files\UI">
       <UniqueIdentifier>{0881210e-34ce-40de-b07a-13250b8bc924}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders\default_color">
-      <UniqueIdentifier>{21f873de-bd28-4ca1-b9f5-e49fb205af6d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Shaders\Terrain">
       <UniqueIdentifier>{e4565f06-595a-4ce8-b1b5-12cbc6b4305b}</UniqueIdentifier>
     </Filter>
@@ -78,6 +72,24 @@
     </Filter>
     <Filter Include="Resource Files\Shaders\2D\Texture">
       <UniqueIdentifier>{c051d206-1eb4-4118-9dd0-9bfe8e1ecca8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\3D">
+      <UniqueIdentifier>{1f91e66c-a896-4252-a415-e3863b133f91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\3D\default">
+      <UniqueIdentifier>{09e20703-abff-4de9-b566-c1e3077d6502}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\3D\default_color">
+      <UniqueIdentifier>{21f873de-bd28-4ca1-b9f5-e49fb205af6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Game\Physics">
+      <UniqueIdentifier>{29c9acc7-0ac2-4ec6-bb02-8237da5fcee0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Game\Physics">
+      <UniqueIdentifier>{524e6eaa-4d41-46b7-8ecb-70c831148c8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\3D\physice_debug">
+      <UniqueIdentifier>{1ae93976-36ba-4f91-b9d6-0e47f30892aa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -129,12 +141,6 @@
     <ClCompile Include="Game\Game.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
-    <ClCompile Include="Game\Phys.cpp">
-      <Filter>Source Files\Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Game\Phys_Object.cpp">
-      <Filter>Source Files\Game</Filter>
-    </ClCompile>
     <ClCompile Include="Game\Player.cpp">
       <Filter>Source Files\Game</Filter>
     </ClCompile>
@@ -161,6 +167,15 @@
     </ClCompile>
     <ClCompile Include="Util\Alignment.cpp">
       <Filter>Source Files\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Physics\Primitives.cpp">
+      <Filter>Source Files\Game\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\Physics\Phys.cpp">
+      <Filter>Source Files\Game\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicsPrimitives.cpp">
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -203,12 +218,6 @@
     <ClInclude Include="Game\Game.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
-    <ClInclude Include="Game\Phys.h">
-      <Filter>Header Files\Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Game\Phys_Object.h">
-      <Filter>Header Files\Game</Filter>
-    </ClInclude>
     <ClInclude Include="Game\Player.h">
       <Filter>Header Files\Game</Filter>
     </ClInclude>
@@ -248,6 +257,18 @@
     <ClInclude Include="UI\Shapes.h">
       <Filter>Header Files\UI</Filter>
     </ClInclude>
+    <ClInclude Include="Game\Physics\Phys.h">
+      <Filter>Header Files\Game\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\Physics\Primitives.h">
+      <Filter>Header Files\Game\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicsPrimitives.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\debug_grid.frag">
@@ -266,13 +287,13 @@
       <Filter>Resource Files\Shaders\debug_grid</Filter>
     </None>
     <None Include="shaders\default.frag">
-      <Filter>Resource Files\Shaders\default</Filter>
+      <Filter>Resource Files\Shaders\3D\default</Filter>
     </None>
     <None Include="shaders\default.geom">
-      <Filter>Resource Files\Shaders\default</Filter>
+      <Filter>Resource Files\Shaders\3D\default</Filter>
     </None>
     <None Include="shaders\default.vert">
-      <Filter>Resource Files\Shaders\default</Filter>
+      <Filter>Resource Files\Shaders\3D\default</Filter>
     </None>
     <None Include="shaders\text.frag">
       <Filter>Resource Files\Shaders\text</Filter>
@@ -311,10 +332,10 @@
       <Filter>Resource Files\Shaders\debug_vector</Filter>
     </None>
     <None Include="shaders\default_color.frag">
-      <Filter>Resource Files\Shaders\default_color</Filter>
+      <Filter>Resource Files\Shaders\3D\default_color</Filter>
     </None>
     <None Include="shaders\default_color.vert">
-      <Filter>Resource Files\Shaders\default_color</Filter>
+      <Filter>Resource Files\Shaders\3D\default_color</Filter>
     </None>
     <None Include="README.md" />
     <None Include="shaders\Terrain\default.frag">

@@ -10,7 +10,7 @@
 #include<glm/gtx/rotate_vector.hpp>
 #include<glm/gtx/vector_angle.hpp>
 
-#include"Phys_Object.h"
+#include"Physics/Primitives.h"
 #include"../Graphics/Font.h"
 
 enum class WingMotion {

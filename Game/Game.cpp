@@ -27,7 +27,7 @@ double Game::lastYPos = -1;
 
 // Unfortunately these can't be instance methods
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	printf("Key event: %d %d %d %d\n", key, scancode, action, mods);
+	//printf("Key event: %d %d %d %d\n", key, scancode, action, mods);
 	Game::keyEvents.push(KeyEvent{ key, scancode, action, mods });
 }
 
@@ -88,13 +88,13 @@ int Game::init() {
 	glfwSwapInterval(1);
 
 
-	std::unique_ptr<OBB> e = std::make_unique<OBB>();
-	std::unique_ptr<OBB> f = std::make_unique<OBB>();
-	e->position = glm::vec3(0.0f, 5.0f, 0.0f);
-	f->position = glm::vec3(0.0f, 0.0f, 0.0f);
-	physEngine = std::make_unique<Physics>();
-	physEngine->objects.push_back(*e);
-	physEngine->objects.push_back(*f);
+	//std::shared_ptr<OBB> e = std::make_shared<OBB>();
+	////std::shared_ptr<OBB> f = std::make_shared<OBB>();
+	//e->position = glm::vec3(0.0f, 5.0f, 0.0f);
+	////f->position = glm::vec3(0.0f, 0.0f, 0.0f);
+	//physEngine = std::make_unique<Physics>();
+	//physEngine->objects.push_back(e);
+	//physEngine->objects.push_back(f);
 
 	Shader& default_shader = resourceManager::loadShader("default", "shaders/default.vert", "shaders/default.frag", "shaders/default.geom");
 
@@ -250,13 +250,13 @@ void Game::inGame_draw() {
 	p->Draw(default_shader);
 
 	default_shader.Activate();
-	if (checkOBBCollision(physEngine->objects[0], physEngine->objects[1])) {
-		glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)1);
-		//glm::vec3 lsa = getLeastSeparatingAxis(e, f);
-	}
-	else {
-		glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)0);
-	}
+	//if (checkOBBCollision(*physEngine->objects[0], *physEngine->objects[1])) {
+	//	glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)1);
+	//	//glm::vec3 lsa = getLeastSeparatingAxis(e, f);
+	//}
+	//else {
+	//	glUniform1i(glGetUniformLocation(default_shader.ID, "debug_tmpvar"), (GLuint)0);
+	//}
 
 	//physEngine->Draw(default_shader, proj, view);
 
@@ -280,7 +280,7 @@ void Game::inGame_draw() {
 
 void Game::inGame_tick(double frameTime) {
 	p->Tick(window, frameTime);
-	physEngine->Tick(frameTime);
+	//physEngine->Tick(frameTime);
 
 	if (!keyEvents.empty()) {
 		KeyEvent event = keyEvents.front(); keyEvents.pop();

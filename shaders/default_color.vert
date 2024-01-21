@@ -8,7 +8,7 @@ out vec3 normal;
 out vec3 color;
 
 // 3D transformation uniforms
-uniform mat4 proj;
+uniform mat4 projection;
 uniform mat4 view;
 
 void main() {
@@ -16,6 +16,6 @@ void main() {
     normal = aNormal;
     color = aColor;
 
-    gl_Position = proj * view * vec4(aPos, 1.0f);
+    gl_Position = projection * view * vec4(aPos, 1.0f);
     //gl_Position = vec4(aPos, 1.0f) * translation * rotation * scale * model;
 }

@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game\SurfaceNet.cpp" />
+    <ClCompile Include="Graphics\GraphicsPrimitives.cpp" />
     <ClCompile Include="UI\Shapes.cpp" />
     <ClCompile Include="UI\Slider.cpp" />
     <ClCompile Include="UI\Text.cpp" />
@@ -176,8 +177,8 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
-    <ClCompile Include="Game\Phys.cpp" />
-    <ClCompile Include="Game\Phys_Object.cpp" />
+    <ClCompile Include="Game\Physics\Phys.cpp" />
+    <ClCompile Include="Game\Physics\Primitives.cpp" />
     <ClCompile Include="Game\Player.cpp" />
     <ClCompile Include="resourceManager.cpp" />
     <ClCompile Include="Graphics\Shader.cpp" />
@@ -190,6 +191,8 @@
     <ClCompile Include="Util\Alignment.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Graphics\GraphicsPrimitives.h" />
+    <ClInclude Include="Math.h" />
     <ClInclude Include="UI\Shapes.h" />
     <ClInclude Include="Util\Alignment.h" />
     <ClInclude Include="config.h" />
@@ -208,8 +211,8 @@
     <ClInclude Include="Graphics\Font.h" />
     <ClInclude Include="Game\Game.h" />
     <ClInclude Include="Graphics\Mesh.h" />
-    <ClInclude Include="Game\Phys.h" />
-    <ClInclude Include="Game\Phys_Object.h" />
+    <ClInclude Include="Game\Physics\Phys.h" />
+    <ClInclude Include="Game\Physics\Primitives.h" />
     <ClInclude Include="Game\Player.h" />
     <ClInclude Include="resourceManager.h" />
     <ClInclude Include="Graphics\Shader.h" />

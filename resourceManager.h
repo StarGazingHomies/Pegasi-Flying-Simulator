@@ -3,7 +3,7 @@
 #include<map>
 #include"Graphics/Shader.h"
 #include"Graphics/Font.h"
-#include"Game/Phys.h"
+#include"Game/Physics/Phys.h"
 #include"Graphics/FBO.h"
 
 class resourceManager {

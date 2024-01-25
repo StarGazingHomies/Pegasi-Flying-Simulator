@@ -268,8 +268,8 @@ void Game::inGame_draw() {
 	tempSky->Tick();
 	tempSky->Draw(skyShader, proj, view);
 
-	// Draw a line
-	GraphicsPrimitives::get().drawLine(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(1.0f, 0.0f, 0.0f), proj, view);
+	// Draw a line for debug purposes
+	//GraphicsPrimitives::get().drawLine(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(1.0f, 0.0f, 0.0f), proj, view);
 
 	//debugSurfaceNet->draw(proj, view);
 

@@ -125,22 +125,39 @@ Chunk::Chunk(int x, int y, int z, Arr3D<double> data) :
 	PerlinNoiseGenerator perlin = PerlinNoiseGenerator(rand(), 6, 0.7, 2.0, 0.002);
 	for (int i = 0; i < grassTextureSize; i++) {
 		for (int j = 0; j < grassTextureSize; j++) {
-			// Random colour between yellow and green
+			// Random colour between yellow and brown
 			glm::vec3 yellow = glm::vec3(1.0, 1.0, 0.0);
-			glm::vec3 green = glm::vec3(0.0, 1.0, 0.0);
+			glm::vec3 brown = glm::vec3(0.0, 1.0, 0.0);
 			float val = perlin.generate(i, j, 0.0);
-			glm::vec3 colour = yellow * val + green * (1 - val);
+			glm::vec3 colour = yellow * val + brown * (1 - val);
 			texture.push_back(colour.x);
 			texture.push_back(colour.y);
 			texture.push_back(colour.z);
 			texture.push_back((float)rand() / RAND_MAX);
 		}
 	}
-	grass = Texture{ texture, grassTextureSize, grassTextureSize, 4, "grass", 0, false };
-	grassOffsets = std::vector<glm::vec3>(grassNumShells + 1, glm::vec3(0.0f));
+	this->grass = Texture{ texture, grassTextureSize, grassTextureSize, 4, "grass", 0, false };
+
+	grassLayerOffsets = std::vector<glm::vec3>(grassNumShells + 1, glm::vec3(0.0f));
+
+	std::vector<float> grassOffsets = std::vector<float>();
+	float maxBaseOffset = 0.5f;
+	float maxTopOffset = 1.0f;
+	for (int i = 0; i < grassTextureSize; i++) {
+		for (int j = 0; j < grassTextureSize; j++) {
+			grassOffsets.push_back((float)rand() / RAND_MAX * maxBaseOffset);
+			grassOffsets.push_back((float)rand() / RAND_MAX * maxBaseOffset);
+			grassOffsets.push_back((float)rand() / RAND_MAX * maxTopOffset);
+			grassOffsets.push_back((float)rand() / RAND_MAX * maxTopOffset);
+		}
+	}
+
+	this->grassOffsets = Texture{ grassOffsets, grassTextureSize, grassTextureSize, 4, "grassOffsets", 1, false };
 }
 
 void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
+	if (surfaceNet.quadCount == 0) return;
+
 	//std::cout << "Drawing chunk " << chunkX << ", " << chunkY << ", " << chunkZ << std::endl;
 	Shader& terrainShader = resourceManager::getShader("terrain");
 	terrainShader.Activate();
@@ -150,11 +167,14 @@ void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 
 	glUniform1i(glGetUniformLocation(terrainShader.ID, "grass"), 0);
 	grass.Bind();
+	glUniform1i(glGetUniformLocation(terrainShader.ID, "grassOffsets"), 1);
+	grassOffsets.Bind();
 
 	surfaceNet.vao.Bind();
 	surfaceNet.ebo.Bind();
 
 	glDrawElements(GL_TRIANGLES, surfaceNet.quadCount * 6, GL_UNSIGNED_INT, 0);
+
 	surfaceNet.ebo.Unbind();
 	surfaceNet.vao.Unbind();
 }
@@ -163,11 +183,11 @@ void Chunk::tick(double deltaTime) {
 	glm::vec3 wind = glm::vec3(0.0, 0.0, 1.0); // Const for now
 	for (int i = grassNumShells - 1; i >= 1; i--) {
 		// Grass tries to pull itself upright
-		glm::vec3 pull = grassOffsets[i - 1] - grassOffsets[i];
+		glm::vec3 pull = grassLayerOffsets[i - 1] - grassLayerOffsets[i];
 		// Wind pushes it over
 		glm::vec3 push = wind * (float)i / (float)grassNumShells;
 		// Do the actual movement
-		grassOffsets[i] += (pull + push) * (float)deltaTime;
+		grassLayerOffsets[i] += (pull + push) * (float)deltaTime;
 	}
 }
 

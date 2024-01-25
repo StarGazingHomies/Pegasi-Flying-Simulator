@@ -18,10 +18,10 @@
 class Chunk {
 	// Will contain more stuff than just terrain in the future
 private:
-	std::vector<glm::vec3> grassOffsets;
+	std::vector<glm::vec3> grassLayerOffsets;
 public:
 	SurfaceNet surfaceNet;
-	Texture grass;
+	Texture grass, grassOffsets;
 
 	int chunkX, chunkY, chunkZ;
 	Chunk(int x, int y, int z, Arr3D<double> data);

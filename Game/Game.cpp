@@ -188,18 +188,18 @@ int Game::init() {
 	tempSky->Generate();
 
 	int tempSeed = 1478293847;
-	//terrain2 = std::make_unique<SurfaceNetTerrain>(tempSeed);
-	//int size = 1;
-	//for (int x = -size; x <= size; x++) {
-	//	for (int y = -1; y <= 1; y++) {
-	//		for (int z = -size; z <= size; z++) {
-	//			printf("Generating chunk %d %d %d\n", x, y, z);
-	//			terrain2->generateChunk(x, y, z);
-	//			std::shared_ptr<Chunk> c = terrain2->getChunk(x, y, z);
-	//			//printf("Chunk has %d vertices and %d quads.\n", c->surfaceNet.vertexCount, c->surfaceNet.quadCount);
-	//		}
-	//	}
-	//}
+	terrain2 = std::make_unique<SurfaceNetTerrain>(tempSeed);
+	int size = 1;
+	for (int x = -size; x <= size; x++) {
+		for (int y = -1; y <= 1; y++) {
+			for (int z = -size; z <= size; z++) {
+				printf("Generating chunk %d %d %d\n", x, y, z);
+				terrain2->generateChunk(x, y, z);
+				std::shared_ptr<Chunk> c = terrain2->getChunk(x, y, z);
+				printf("Chunk has %d vertices and %d quads.\n", c->surfaceNet.vertexCount, c->surfaceNet.quadCount);
+			}
+		}
+	}
 
 	// Init "last" xPos and yPos
 	double xpos, ypos;
@@ -262,11 +262,14 @@ void Game::inGame_draw() {
 
 	// Render the grid
 	terrain->Draw(debugGridShader, proj, view, p->camPos);
-	//terrain2->draw(proj, view);
+	terrain2->draw(proj, view);
 
 	// Render the sky
 	tempSky->Tick();
 	tempSky->Draw(skyShader, proj, view);
+
+	// Draw a line
+	GraphicsPrimitives::get().drawLine(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 10.0f), glm::vec3(1.0f, 0.0f, 0.0f), proj, view);
 
 	//debugSurfaceNet->draw(proj, view);
 
@@ -332,7 +335,7 @@ int Game::run() {
 		// Draw overlayed stuff last
 		Font& font = resourceManager::getFont("celestiaRedux");
 		font.renderLine("FPS:" + std::to_string(framesPerSecond),
-			RectAlignment::singleton(glm::vec2(600.0f, 0.0f)), TextAlignment::RIGHT,
+			RectAlignment::singleton(glm::vec2(800.0f, 20.0f)), TextAlignment::RIGHT,
 			20, glm::vec3(1.0f, 0.0f, 1.0f));
 		font.renderAll(resourceManager::getShader("text"));
 

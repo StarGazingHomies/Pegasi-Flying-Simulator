@@ -1,7 +1,7 @@
 #version 460 core
 
 layout (triangles) in;
-layout (triangle_strip, max_vertices = 192) out;
+layout (triangle_strip, max_vertices = 48) out;
 
 in DATA {
 	vec3 normal;
@@ -15,8 +15,8 @@ out vec3 color;
 //out vec2 texCoord;
 out float height;
 
-uniform int shells = 64;
-uniform float maxLength = 0.3;
+uniform int shells = 16;
+uniform float maxLength = 0.2;
 uniform sampler1D grassOffsets;
 
 // 3D transformation uniforms

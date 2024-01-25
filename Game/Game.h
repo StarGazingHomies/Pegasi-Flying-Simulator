@@ -20,6 +20,7 @@
 #include "../UI/Slider.h"
 #include "../UI/Shapes.h"
 #include "SurfaceNet.h"
+#include "../Graphics/GraphicsPrimitives.h"
 
 enum class GameState {
 	START_MENU,

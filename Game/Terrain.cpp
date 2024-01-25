@@ -141,6 +141,7 @@ Chunk::Chunk(int x, int y, int z, Arr3D<double> data) :
 }
 
 void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
+	//std::cout << "Drawing chunk " << chunkX << ", " << chunkY << ", " << chunkZ << std::endl;
 	Shader& terrainShader = resourceManager::getShader("terrain");
 	terrainShader.Activate();
 

@@ -1,7 +1,6 @@
 #include"VBO.h"
 
-VBO::VBO()
-{
+VBO::VBO() {
 	ID = 0;
 }
 

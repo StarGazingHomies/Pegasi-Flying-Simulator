@@ -250,8 +250,9 @@
     <None Include="shaders\sphere.geom" />
     <None Include="shaders\sphere.vert" />
     <None Include="shaders\Terrain\default.frag" />
-    <None Include="shaders\Terrain\default.geom" />
     <None Include="shaders\Terrain\default.vert" />
+    <None Include="shaders\Terrain\grass.frag" />
+    <None Include="shaders\Terrain\grass.vert" />
     <None Include="shaders\text.frag" />
     <None Include="shaders\text.vert" />
   </ItemGroup>

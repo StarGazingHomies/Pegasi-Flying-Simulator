@@ -3,8 +3,9 @@
 std::string Texture::nullTexFile{ "resources/null.png" };
 
 // Initialize to null texture, but don't duplicate the null texture.
+// Disabled for now, no need
 Texture::Texture() {
-	loadFromFile(nullTexFile.c_str(), "diffuse", 0);
+	//loadFromFile(nullTexFile.c_str(), "diffuse", 0);
 }
 
 Texture::Texture(const char* imageFile, const char* texType, GLuint slot) {

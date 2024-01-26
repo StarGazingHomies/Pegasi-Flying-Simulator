@@ -22,6 +22,8 @@ private:
 public:
 	SurfaceNet surfaceNet;
 	Texture grass, grassOffsets;
+	VAO grassVAO;
+	VBO grassLayerVBO;
 
 	int chunkX, chunkY, chunkZ;
 	Chunk(int x, int y, int z, Arr3D<double> data);

@@ -7,8 +7,7 @@
 #include"Shader.h"
 #include<vector>
 
-class Texture
-{
+class Texture {
 private:
 	static std::string nullTexFile;
 public:

@@ -148,3 +148,6 @@ void Sky::Tick() {
 	if (time >= 86400) time -= 86400;
 	//std::cout << time << std::endl;
 }
+
+Sky::~Sky() {
+}

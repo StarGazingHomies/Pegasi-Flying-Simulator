@@ -344,9 +344,6 @@
     <None Include="shaders\Terrain\default.vert">
       <Filter>Resource Files\Shaders\Terrain</Filter>
     </None>
-    <None Include="shaders\Terrain\default.geom">
-      <Filter>Resource Files\Shaders\Terrain</Filter>
-    </None>
     <None Include="freetype.dll" />
     <None Include="shaders\2D\texture.frag">
       <Filter>Resource Files\Shaders\2D\Texture</Filter>
@@ -359,6 +356,12 @@
     </None>
     <None Include="shaders\2D\color.vert">
       <Filter>Resource Files\Shaders\2D\Color</Filter>
+    </None>
+    <None Include="shaders\Terrain\grass.frag">
+      <Filter>Resource Files\Shaders\Terrain</Filter>
+    </None>
+    <None Include="shaders\Terrain\grass.vert">
+      <Filter>Resource Files\Shaders\Terrain</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

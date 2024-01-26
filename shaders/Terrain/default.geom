@@ -5,13 +5,11 @@ layout (triangle_strip, max_vertices = 48) out;
 
 in DATA {
 	vec3 normal;
-	vec3 color;
 	//vec2 texCoord;
 } inData[];
 
 out vec3 pos;
 out vec3 normal;
-out vec3 color;
 //out vec2 texCoord;
 out float height;
 
@@ -30,7 +28,6 @@ void main() {
 		gl_Position = proj * view * (gl_in[0].gl_Position + vec4(displacement, 0.0));
 		pos = gl_in[0].gl_Position.xyz;
 		normal = inData[0].normal;
-		color = inData[0].color;
 		//texCoord = inData[0].texCoord;
 		height = float(i) / float(shells);
 		EmitVertex();
@@ -39,7 +36,6 @@ void main() {
 		gl_Position = proj * view * (gl_in[1].gl_Position + vec4(displacement, 0.0));
 		pos = gl_in[1].gl_Position.xyz;
 		normal = inData[1].normal;
-		color = inData[1].color;
 		//texCoord = inData[1].texCoord;
 		height = float(i) / float(shells);
 		EmitVertex();
@@ -48,7 +44,6 @@ void main() {
 		gl_Position = proj * view * (gl_in[2].gl_Position + vec4(displacement, 0.0));
 		pos = gl_in[2].gl_Position.xyz;
 		normal = inData[2].normal;
-		color = inData[2].color;
 //		texCoord = inData[2].texCoord;
 		height = float(i) / float(shells);
 		EmitVertex();

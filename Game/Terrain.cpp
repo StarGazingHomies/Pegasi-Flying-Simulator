@@ -138,7 +138,11 @@ Chunk::Chunk(int x, int y, int z, Arr3D<double> data) :
 	}
 	this->grass = Texture{ texture, grassTextureSize, grassTextureSize, 4, "grass", 0, false };
 
-	grassLayerOffsets = std::vector<glm::vec3>(grassNumShells + 1, glm::vec3(0.0f));
+	grassLayerOffsets = std::vector<glm::vec3>(grassNumShells, glm::vec3(0.0f));
+	for (int i = 0; i < grassNumShells; i++) {
+		grassLayerOffsets[i] = glm::vec3(0.0f, (float)(i+1) / (float)grassNumShells, 0.0f);
+		//printf("Offset %d: (%f, %f, %f)\n", i, grassLayerOffsets[i].x, grassLayerOffsets[i].y, grassLayerOffsets[i].z);
+	}
 
 	std::vector<float> grassOffsets = std::vector<float>();
 	float maxBaseOffset = 0.5f;
@@ -151,15 +155,30 @@ Chunk::Chunk(int x, int y, int z, Arr3D<double> data) :
 			grassOffsets.push_back((float)rand() / RAND_MAX * maxTopOffset);
 		}
 	}
-
+	
 	this->grassOffsets = Texture{ grassOffsets, grassTextureSize, grassTextureSize, 4, "grassOffsets", 1, false };
+
+	// Set up the grass VAO to have instanced attributes
+	grassLayerVBO = VBO{};
+	grassLayerVBO.Initialize();
+	grassLayerVBO.Bind();
+	static_assert(sizeof(glm::vec3) == sizeof(GLfloat) * 3, "Platform does not support glm::vec3 casting directly");
+    glBufferData(GL_ARRAY_BUFFER, grassLayerOffsets.size() * sizeof(glm::vec3), grassLayerOffsets.data(), GL_DYNAMIC_DRAW);
+	grassLayerVBO.Unbind();
+
+	grassVAO.Bind();
+
+	grassVAO.LinkAttrib(surfaceNet.vbo, 0, 3, GL_FLOAT, 6 * sizeof(float), 0);
+	grassVAO.LinkAttrib(surfaceNet.vbo, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	grassVAO.LinkAttribInstanced(grassLayerVBO, 1, 2, 3, GL_FLOAT, 3 * sizeof(float), 0);
 }
 
 void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 	if (surfaceNet.quadCount == 0) return;
 
+	// Surface
 	//std::cout << "Drawing chunk " << chunkX << ", " << chunkY << ", " << chunkZ << std::endl;
-	Shader& terrainShader = resourceManager::getShader("terrain");
+	Shader& terrainShader = resourceManager::getShader("Terrain/default");
 	terrainShader.Activate();
 
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader.ID, "proj"), 1, GL_FALSE, glm::value_ptr(projMatrix));
@@ -167,9 +186,6 @@ void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 
 	glUniform1i(glGetUniformLocation(terrainShader.ID, "grass"), 0);
 	grass.Bind();
-	glUniform1i(glGetUniformLocation(terrainShader.ID, "grassOffsets"), 1);
-	grassOffsets.Bind();
-
 	surfaceNet.vao.Bind();
 	surfaceNet.ebo.Bind();
 
@@ -177,6 +193,26 @@ void Chunk::draw(glm::mat4 projMatrix, glm::mat4 viewMatrix) {
 
 	surfaceNet.ebo.Unbind();
 	surfaceNet.vao.Unbind();
+
+	// Grass
+	Shader& terrainGrassShader = resourceManager::getShader("Terrain/grass");
+	terrainGrassShader.Activate();
+
+	glUniformMatrix4fv(glGetUniformLocation(terrainGrassShader.ID, "proj"), 1, GL_FALSE, glm::value_ptr(projMatrix));
+	glUniformMatrix4fv(glGetUniformLocation(terrainGrassShader.ID, "view"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+	glUniform1i(glGetUniformLocation(terrainGrassShader.ID, "grass"), 0);
+	grass.Bind();
+	glUniform1i(glGetUniformLocation(terrainGrassShader.ID, "grassOffsets"), 1);
+	grassOffsets.Bind();
+
+	grassVAO.Bind();
+	surfaceNet.ebo.Bind();
+
+	glDrawElementsInstanced(GL_TRIANGLES, surfaceNet.quadCount * 6, GL_UNSIGNED_INT, 0, grassLayerOffsets.size());
+
+	surfaceNet.ebo.Unbind();
+	grassVAO.Unbind();
 }
 
 void Chunk::tick(double deltaTime) {

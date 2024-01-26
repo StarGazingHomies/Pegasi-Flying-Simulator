@@ -15,9 +15,8 @@ SurfaceNet::SurfaceNet(glm::vec3 pos1, glm::vec3 pos2, Arr3D<double> arr) {
 	generate();
 
 	vbo.Bind();
-	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 9 * sizeof(float), 0);
-	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-	vao.LinkAttrib(vbo, 2, 3, GL_FLOAT, 9 * sizeof(float), (void*)(6 * sizeof(float)));
+	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 6 * sizeof(float), 0);
+	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
 	vbo.Unbind();
 	vao.Unbind();
@@ -69,9 +68,8 @@ SurfaceNet::SurfaceNet(glm::vec3 pos1, glm::vec3 pos2, int width, int height, in
 	generate();
 
 	vbo.Bind();
-	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 9*sizeof(float), 0);
-	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 9*sizeof(float), (void*)(3*sizeof(float)));
-	vao.LinkAttrib(vbo, 2, 3, GL_FLOAT, 9*sizeof(float), (void*)(6*sizeof(float)));
+	vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, 6*sizeof(float), 0);
+	vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, 6*sizeof(float), (void*)(3*sizeof(float)));
 
 	vbo.Unbind();
 	vao.Unbind();
@@ -169,9 +167,6 @@ void SurfaceNet::generate() {
 				vertexData.push_back(normal.x);
 				vertexData.push_back(normal.y);
 				vertexData.push_back(normal.z);
-				vertexData.push_back(1.0f);
-				vertexData.push_back(1.0f);
-				vertexData.push_back(1.0f);
 
 				// Debug print
 				//printf("Vertex %d: (%f, %f, %f)\n", vertexCount, vertex.x, vertex.y, vertex.z);

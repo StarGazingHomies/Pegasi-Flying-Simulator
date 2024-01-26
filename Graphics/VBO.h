@@ -15,8 +15,9 @@ struct Vertex
 
 class VBO {
 public:
-	GLuint ID;
-	unsigned int size;
+	GLuint ID = 0;
+	unsigned int size = 0;
+	bool initialized = false;
 
 	// Default constructor
 	VBO();
@@ -27,6 +28,8 @@ public:
 	// Constructor with floats vector
 	VBO(std::vector<float> vertices, GLenum usage = GL_STATIC_DRAW);
 
+	// Initialize a VBO
+	void Initialize();
 	// Bind the VBO to tell OpenGL to use it
 	void Bind();
 	// Unbind the VBO to avoid accidentally modifying it

@@ -125,7 +125,8 @@ int Game::init() {
 
 	resourceManager::loadShader("clouds", "shaders/sphere.vert", "shaders/sphere.frag", "shaders/sphere.geom");
 	resourceManager::loadShader("debugVec", "shaders/debug_vector.vert", "shaders/debug_vector.frag");
-	resourceManager::loadShader("terrain", "shaders/Terrain/default.vert", "shaders/Terrain/default.frag", "shaders/Terrain/default.geom");
+	resourceManager::loadShader("Terrain/default", "shaders/Terrain/default.vert", "shaders/Terrain/default.frag");
+	resourceManager::loadShader("Terrain/grass", "shaders/Terrain/grass.vert", "shaders/Terrain/grass.frag");
 
 
 	startScene = std::make_unique<Scene>("Start Menu");
